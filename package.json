@@ -1,0 +1,22 @@
+{
+  "name": "wokcommands",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc && node index.js",
+    "dev": "nodemon -e ts --exec \"npm run compile\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.4.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "discord.js-typings": "git+https://github.com/discordjs/discord.js-typings.git",
+    "ts-node-dev": "^1.0.0",
+    "typescript": "^4.0.3"
+  },
+  "description": ""
+}
