@@ -12,8 +12,6 @@ class CommandHandler {
       if (fs.existsSync(dir)) {
         const files = getAllFiles(dir)
 
-        console.log('COMMANDS:', files)
-
         const amount = files.length
         if (amount > 0) {
           console.log(

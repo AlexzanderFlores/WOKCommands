@@ -9,8 +9,6 @@ class ListenerHandler {
       if (fs.existsSync(dir)) {
         const files = getAllFiles(dir)
 
-        console.log('LISTENERS:', files)
-
         const amount = files.length
         if (amount > 0) {
           console.log(
