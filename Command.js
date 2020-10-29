@@ -11,10 +11,19 @@ var Command = /** @class */ (function () {
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
         this._minArgs = minArgs || 0;
-        this._maxArgs = maxArgs || -1;
+        this._maxArgs = maxArgs === undefined ? -1 : maxArgs;
         this._expectedArgs = expectedArgs;
         this._description = description;
         this._callback = callback;
+        if (this._minArgs < 0) {
+            throw new Error("Command \"" + names[0] + "\" has a minimum argument count less than 0!");
+        }
+        if (this._maxArgs < -1) {
+            throw new Error("Command \"" + names[0] + "\" has a maximum argument count less than -1!");
+        }
+        if (this._maxArgs !== -1 && this._maxArgs < this._minArgs) {
+            throw new Error("Command \"" + names[0] + "\" has a maximum argument count less than it's minimum argument count!");
+        }
     }
     Command.prototype.execute = function (message, args) {
         this._callback(message, args, args.join(' '), this.client, message.guild

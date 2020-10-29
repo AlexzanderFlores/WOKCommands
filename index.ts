@@ -2,6 +2,7 @@ import { Client, Guild } from 'discord.js'
 import CommandHandler from './CommandHandler'
 import ListenerHandler from './ListenerHandler'
 import ICommand from './interfaces/ICommand'
+import mongo from './mongo'
 
 class WOKCommands {
   private _defaultPrefix = '!'
@@ -44,12 +45,14 @@ class WOKCommands {
     }
 
     setTimeout(() => {
-      if (!this._mongo) {
+      if (this._mongo) {
+        mongo(this._mongo)
+      } else {
         console.warn(
-          'WOKCommands > No MongoDB connection URI provided. Some features might not work!'
+          'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
         )
       }
-    }, 1000)
+    }, 500)
   }
 
   public get mongoPath(): string {

@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var CommandHandler_1 = __importDefault(require("./CommandHandler"));
 var ListenerHandler_1 = __importDefault(require("./ListenerHandler"));
+var mongo_1 = __importDefault(require("./mongo"));
 var WOKCommands = /** @class */ (function () {
     function WOKCommands(client, commandsDir, listenerDir) {
         var _this = this;
@@ -37,10 +38,13 @@ var WOKCommands = /** @class */ (function () {
             new ListenerHandler_1.default(client, this._listenerDir);
         }
         setTimeout(function () {
-            if (!_this._mongo) {
-                console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work!');
+            if (_this._mongo) {
+                mongo_1.default(_this._mongo);
             }
-        }, 1000);
+            else {
+                console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
+            }
+        }, 500);
     }
     Object.defineProperty(WOKCommands.prototype, "mongoPath", {
         get: function () {

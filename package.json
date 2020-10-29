@@ -11,9 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^12.4.1",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.10.11"
   },
   "devDependencies": {
+    "@types/mongoose": "^5.7.36",
     "@types/node": "^14.14.6",
     "discord.js-typings": "git+https://github.com/discordjs/discord.js-typings.git",
     "ts-node-dev": "^1.0.0",

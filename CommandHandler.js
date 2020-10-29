@@ -18,7 +18,7 @@ var CommandHandler = /** @class */ (function () {
                     for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
                         var _a = files_1[_i], file = _a[0], fileName = _a[1];
                         var configuration = require(file);
-                        var _b = configuration.name, name_1 = _b === void 0 ? fileName : _b, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, description = configuration.description;
+                        var _b = configuration.name, name_1 = _b === void 0 ? fileName : _b, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, description = configuration.description, minArgs = configuration.minArgs, maxArgs = configuration.maxArgs;
                         if (callback && execute) {
                             throw new Error('Commands can have "callback" or "execute" functions, but not both.');
                         }
@@ -53,15 +53,26 @@ var CommandHandler = /** @class */ (function () {
                             // Remove the prefix
                             content = content.substring(prefix.length);
                             // Get each word as an element of an array
-                            var words = content.split(/ /g);
+                            var args = content.split(/ /g);
                             // Remove the "command", leaving just the arguments
-                            var firstElement = words.shift();
+                            var firstElement = args.shift();
                             if (firstElement) {
                                 // Ensure the user input is lower case because it is stored as lower case in the map
-                                var alias = firstElement.toLowerCase();
-                                var command = _this._commands.get(alias);
+                                var name_3 = firstElement.toLowerCase();
+                                var command = _this._commands.get(name_3);
                                 if (command) {
-                                    command.execute(message, words);
+                                    var minArgs = command.minArgs, maxArgs = command.maxArgs;
+                                    if (minArgs !== undefined && args.length < minArgs) {
+                                        message.reply('Not enough args');
+                                        return;
+                                    }
+                                    if (maxArgs !== undefined &&
+                                        maxArgs !== -1 &&
+                                        args.length > maxArgs) {
+                                        message.reply('Too many args');
+                                        return;
+                                    }
+                                    command.execute(message, args);
                                 }
                             }
                         }

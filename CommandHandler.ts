@@ -28,6 +28,8 @@ class CommandHandler {
               callback,
               execute,
               description,
+              minArgs,
+              maxArgs,
             } = configuration
 
             if (callback && execute) {
@@ -86,18 +88,34 @@ class CommandHandler {
               content = content.substring(prefix.length)
 
               // Get each word as an element of an array
-              const words = content.split(/ /g)
+              const args = content.split(/ /g)
 
               // Remove the "command", leaving just the arguments
-              const firstElement = words.shift()
+              const firstElement = args.shift()
 
               if (firstElement) {
                 // Ensure the user input is lower case because it is stored as lower case in the map
-                const alias = firstElement.toLowerCase()
+                const name = firstElement.toLowerCase()
 
-                const command = this._commands.get(alias)
+                const command = this._commands.get(name)
                 if (command) {
-                  command.execute(message, words)
+                  const { minArgs, maxArgs } = command
+
+                  if (minArgs !== undefined && args.length < minArgs) {
+                    message.reply('Not enough args')
+                    return
+                  }
+
+                  if (
+                    maxArgs !== undefined &&
+                    maxArgs !== -1 &&
+                    args.length > maxArgs
+                  ) {
+                    message.reply('Too many args')
+                    return
+                  }
+
+                  command.execute(message, args)
                 }
               }
             }
