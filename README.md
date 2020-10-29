@@ -13,7 +13,7 @@
 - [Argument Rules](https://github.com/AlexzanderFlores/WOKCommands#argument-rules)
   - [Global Syntax Errors](https://github.com/AlexzanderFlores/WOKCommands#global-syntax-errors)
 - [Per-server Command Prefixes](https://github.com/AlexzanderFlores/WOKCommands#per-server-command-prefixes)
-- [Enable or Disable each Command or Feature](https://github.com/AlexzanderFlores/WOKCommands#enable-or-disable-each-command-or-feature)
+- [Enable or Disable each Command or Feature](#enable-or-disable-each-command-or-feature)
 - [Configurable Required Roles](https://github.com/AlexzanderFlores/WOKCommands#configurable-required-roles)
 - [Command Cooldowns](https://github.com/AlexzanderFlores/WOKCommands#command-cooldowns)
   - [Global Cooldowns](https://github.com/AlexzanderFlores/WOKCommands#global-cooldowns)
