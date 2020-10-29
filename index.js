@@ -6,6 +6,7 @@ var CommandHandler_1 = __importDefault(require("./CommandHandler"));
 var ListenerHandler_1 = __importDefault(require("./ListenerHandler"));
 var WOKCommands = /** @class */ (function () {
     function WOKCommands(client, commandsDir, listenerDir) {
+        var _this = this;
         this._defaultPrefix = '!';
         this._commandsDir = 'commands';
         this._listenerDir = '';
@@ -35,6 +36,11 @@ var WOKCommands = /** @class */ (function () {
         if (this._listenerDir) {
             new ListenerHandler_1.default(client, this._listenerDir);
         }
+        setTimeout(function () {
+            if (!_this._mongo) {
+                console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work!');
+            }
+        }, 1000);
     }
     Object.defineProperty(WOKCommands.prototype, "mongoPath", {
         get: function () {

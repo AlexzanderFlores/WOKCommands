@@ -19,13 +19,7 @@ class CommandHandler {
             `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
           )
 
-          for (const file of files) {
-            let fileName: string | string[] = file
-              .replace(/\\/g, '/')
-              .split('/')
-            fileName = fileName[fileName.length - 1]
-            fileName = fileName.split('.')[0].toLowerCase()
-
+          for (const [file, fileName] of files) {
             const configuration = require(file)
             const {
               name = fileName,

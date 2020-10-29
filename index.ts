@@ -42,6 +42,14 @@ class WOKCommands {
     if (this._listenerDir) {
       new ListenerHandler(client, this._listenerDir)
     }
+
+    setTimeout(() => {
+      if (!this._mongo) {
+        console.warn(
+          'WOKCommands > No MongoDB connection URI provided. Some features might not work!'
+        )
+      }
+    }, 1000)
   }
 
   public get mongoPath(): string {

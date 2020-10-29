@@ -6,20 +6,20 @@
 
 # Table of Contents
 
-- Installation
-- Setup
-- Creating a "Feature"
-- Creating a Command
-- Argument Rules
-  - Global Syntax Errors
-- Per-server Command Prefixes
-- Enable or Disable each Command or Feature
-- Configurable Required Roles
-- Command Cooldowns
-  - Global Cooldowns
-  - Configurable Cooldown Error Messages
-- Channel Specific Commands
-- Support & Feature Requests
+- [Installation](https://github.com/AlexzanderFlores/WOKCommands#installation)
+- [Setup](https://github.com/AlexzanderFlores/WOKCommands#setup)
+- [Creating a "Feature"](https://github.com/AlexzanderFlores/WOKCommands#creating-a-feature)
+- [Creating a Command](https://github.com/AlexzanderFlores/WOKCommands#creating-a-command)
+- [Argument Rules](https://github.com/AlexzanderFlores/WOKCommands#argument-rules)
+  - [Global Syntax Errors](https://github.com/AlexzanderFlores/WOKCommands#global-syntax-errors)
+- [Per-server Command Prefixes](https://github.com/AlexzanderFlores/WOKCommands#per-server-command-prefixes)
+- [Enable or Disable each Command or Feature](https://github.com/AlexzanderFlores/WOKCommands#enable-or-disable-each-command-or-feature)
+- [Configurable Required Roles](https://github.com/AlexzanderFlores/WOKCommands#configurable-required-roles)
+- [Command Cooldowns](https://github.com/AlexzanderFlores/WOKCommands#command-cooldowns)
+  - [Global Cooldowns](https://github.com/AlexzanderFlores/WOKCommands#global-cooldowns)
+  - [Configurable Cooldown Error Messages](https://github.com/AlexzanderFlores/WOKCommands#configurable-cooldown-error-messages)
+- [Channel Specific Commands](https://github.com/AlexzanderFlores/WOKCommands#channel-specific-commands)
+- [Support & Feature Requests](https://github.com/AlexzanderFlores/WOKCommands#support--feature-requests)
 
 # Installation
 

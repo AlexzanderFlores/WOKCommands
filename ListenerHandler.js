@@ -13,8 +13,19 @@ var ListenerHandler = /** @class */ (function () {
                 if (amount > 0) {
                     console.log("WOKCommands > Loaded " + amount + " listener" + (amount === 1 ? '' : 's') + ".");
                     for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
-                        var file = files_1[_i];
+                        var _a = files_1[_i], file = _a[0], fileName = _a[1];
                         var func = require(file);
+                        var feature = func.feature;
+                        if (!feature) {
+                            throw new Error("\n\nFeature \"" + fileName + "\" does not export a \"feature\" object. See\n\nhttps://github.com/AlexzanderFlores/WOKCommands#creating-a-feature\n\nfor more information.\n\n");
+                        }
+                        var name_1 = feature.name, canDisable = feature.canDisable, notFeature = feature.notFeature;
+                        if (notFeature === true) {
+                            continue;
+                        }
+                        if (name_1 === undefined || canDisable === undefined) {
+                            throw new Error("\n\nFeature \"" + fileName + "\" is missing \"name\" and/or \"canDisable\" properties without \"notFeature\" being set to true. See\n\nhttps://github.com/AlexzanderFlores/WOKCommands#creating-a-feature\n\nfor more information.\n\n");
+                        }
                         if (typeof func === 'function') {
                             func(client);
                         }

@@ -16,14 +16,9 @@ var CommandHandler = /** @class */ (function () {
                 if (amount > 0) {
                     console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
                     for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
-                        var file = files_1[_i];
-                        var fileName = file
-                            .replace(/\\/g, '/')
-                            .split('/');
-                        fileName = fileName[fileName.length - 1];
-                        fileName = fileName.split('.')[0].toLowerCase();
+                        var _a = files_1[_i], file = _a[0], fileName = _a[1];
                         var configuration = require(file);
-                        var _a = configuration.name, name_1 = _a === void 0 ? fileName : _a, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, description = configuration.description;
+                        var _b = configuration.name, name_1 = _b === void 0 ? fileName : _b, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, description = configuration.description;
                         if (callback && execute) {
                             throw new Error('Commands can have "callback" or "execute" functions, but not both.');
                         }
@@ -43,8 +38,8 @@ var CommandHandler = /** @class */ (function () {
                         var hasCallback = callback || execute;
                         if (hasCallback) {
                             var command = new Command_1.default(instance, client, names, callback || execute, configuration);
-                            for (var _b = 0, names_1 = names; _b < names_1.length; _b++) {
-                                var name_2 = names_1[_b];
+                            for (var _c = 0, names_1 = names; _c < names_1.length; _c++) {
+                                var name_2 = names_1[_c];
                                 // Ensure the alias is lower case because we read as lower case later on
                                 this._commands.set(name_2.toLowerCase(), command);
                             }
