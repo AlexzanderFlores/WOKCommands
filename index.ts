@@ -32,8 +32,10 @@ class WOKCommands {
         }
       }
     }
+
     this._commandsDir = commandsDir || this._commandsDir
     this._listenerDir = listenerDir || this._listenerDir
+
     new CommandHandler(this, client, this._commandsDir)
     if (this._listenerDir) {
       new ListenerHandler(client, this._listenerDir)

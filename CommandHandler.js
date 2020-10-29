@@ -4,21 +4,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var fs_1 = __importDefault(require("fs"));
 var Command_1 = __importDefault(require("./Command"));
+var get_all_files_1 = __importDefault(require("./get-all-files"));
 var CommandHandler = /** @class */ (function () {
     function CommandHandler(instance, client, dir) {
         var _this = this;
         this._commands = new Map();
         if (dir) {
             if (fs_1.default.existsSync(dir)) {
-                var files = fs_1.default
-                    .readdirSync(dir)
-                    .filter(function (file) { return file.endsWith('.js'); });
+                var files = get_all_files_1.default(dir);
+                console.log('COMMANDS:', files);
                 var amount = files.length;
                 if (amount > 0) {
                     console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
                     for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
                         var file = files_1[_i];
-                        var configuration = require(dir + "/" + file);
+                        var configuration = require(file);
                         var aliases = configuration.aliases, callback = configuration.callback;
                         if (aliases && aliases.length && callback) {
                             var command = new Command_1.default(instance, client, configuration);

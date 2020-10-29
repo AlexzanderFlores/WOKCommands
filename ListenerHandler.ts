@@ -1,13 +1,15 @@
 import { Client } from 'discord.js'
 import fs from 'fs'
 
+import getAllFiles from './get-all-files'
+
 class ListenerHandler {
   constructor(client: Client, dir: string) {
     if (dir) {
       if (fs.existsSync(dir)) {
-        const files = fs
-          .readdirSync(dir)
-          .filter((file: string) => file.endsWith('.js'))
+        const files = getAllFiles(dir)
+
+        console.log('LISTENERS:', files)
 
         const amount = files.length
         if (amount > 0) {
@@ -16,8 +18,7 @@ class ListenerHandler {
           )
 
           for (const file of files) {
-            const path = `${dir}/${file}`
-            const func = require(path)
+            const func = require(file)
             if (typeof func === 'function') {
               func(client)
             }

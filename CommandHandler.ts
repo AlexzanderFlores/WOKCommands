@@ -2,6 +2,7 @@ import { Client, Guild } from 'discord.js'
 import fs from 'fs'
 import WOKCommands from '.'
 import Command from './Command'
+import getAllFiles from './get-all-files'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
@@ -9,9 +10,9 @@ class CommandHandler {
   constructor(instance: WOKCommands, client: Client, dir: string) {
     if (dir) {
       if (fs.existsSync(dir)) {
-        const files = fs
-          .readdirSync(dir)
-          .filter((file: string) => file.endsWith('.js'))
+        const files = getAllFiles(dir)
+
+        console.log('COMMANDS:', files)
 
         const amount = files.length
         if (amount > 0) {
@@ -20,7 +21,7 @@ class CommandHandler {
           )
 
           for (const file of files) {
-            const configuration = require(`${dir}/${file}`)
+            const configuration = require(file)
             const { aliases, callback } = configuration
 
             if (aliases && aliases.length && callback) {
