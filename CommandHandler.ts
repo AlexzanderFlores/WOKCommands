@@ -3,6 +3,7 @@ import fs from 'fs'
 import WOKCommands from '.'
 import Command from './Command'
 import getAllFiles from './get-all-files'
+import ICommand from './interfaces/ICommand'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
@@ -19,14 +20,68 @@ class CommandHandler {
           )
 
           for (const file of files) {
-            const configuration = require(file)
-            const { aliases, callback } = configuration
+            let fileName: string | string[] = file
+              .replace(/\\/g, '/')
+              .split('/')
+            fileName = fileName[fileName.length - 1]
+            fileName = fileName.split('.')[0].toLowerCase()
 
-            if (aliases && aliases.length && callback) {
-              const command = new Command(instance, client, configuration)
-              for (const alias of aliases) {
+            const configuration = require(file)
+            const {
+              name,
+              commands,
+              aliases,
+              callback,
+              execute,
+              description,
+            } = configuration
+
+            if (callback && execute) {
+              throw new Error(
+                'Commands can have "callback" or "execute" functions, but not both.'
+              )
+            }
+
+            let names = commands || aliases
+
+            if (!name && (!names || names.length === 0)) {
+              throw new Error(
+                `Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`
+              )
+            }
+
+            if (typeof names === 'string') {
+              names = [names]
+            }
+
+            if (name && !names.includes(name.toLowerCase())) {
+              names.unshift(name.toLowerCase())
+            }
+
+            if (!names.includes(fileName)) {
+              names.unshift(fileName)
+            }
+
+            if (!description) {
+              console.warn(
+                `WOKCommands > Command "${names[0]}" does not have a "description" property.`
+              )
+            }
+
+            const hasCallback = callback || execute
+
+            if (hasCallback) {
+              const command = new Command(
+                instance,
+                client,
+                names,
+                callback || execute,
+                configuration
+              )
+
+              for (const name of names) {
                 // Ensure the alias is lower case because we read as lower case later on
-                this._commands.set(alias.toLowerCase(), command)
+                this._commands.set(name.toLowerCase(), command)
               }
             }
           }
@@ -62,6 +117,19 @@ class CommandHandler {
         throw new Error(`Commands directory "${dir}" doesn't exist!`)
       }
     }
+  }
+
+  public get commands(): ICommand[] {
+    const results = new Map()
+
+    this._commands.forEach(({ names, description = '' }) => {
+      results.set(names[0], {
+        names,
+        description,
+      })
+    })
+
+    return Array.from(results.values())
   }
 }
 

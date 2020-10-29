@@ -31,7 +31,7 @@ var WOKCommands = /** @class */ (function () {
         }
         this._commandsDir = commandsDir || this._commandsDir;
         this._listenerDir = listenerDir || this._listenerDir;
-        new CommandHandler_1.default(this, client, this._commandsDir);
+        this._commandHandler = new CommandHandler_1.default(this, client, this._commandsDir);
         if (this._listenerDir) {
             new ListenerHandler_1.default(client, this._listenerDir);
         }
@@ -68,6 +68,20 @@ var WOKCommands = /** @class */ (function () {
     WOKCommands.prototype.getPrefix = function (guild) {
         return this._prefixes[guild ? guild.id : ''] || this._defaultPrefix;
     };
+    Object.defineProperty(WOKCommands.prototype, "commands", {
+        get: function () {
+            return this._commandHandler.commands;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(WOKCommands.prototype, "commandAmount", {
+        get: function () {
+            return this.commands.length;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return WOKCommands;
 }());
 module.exports = WOKCommands;
