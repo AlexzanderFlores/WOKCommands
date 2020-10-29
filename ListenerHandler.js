@@ -9,7 +9,6 @@ var ListenerHandler = /** @class */ (function () {
         if (dir) {
             if (fs_1.default.existsSync(dir)) {
                 var files = get_all_files_1.default(dir);
-                console.log('LISTENERS:', files);
                 var amount = files.length;
                 if (amount > 0) {
                     console.log("WOKCommands > Loaded " + amount + " listener" + (amount === 1 ? '' : 's') + ".");
