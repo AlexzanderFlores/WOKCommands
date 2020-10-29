@@ -1,6 +1,6 @@
 <a href='http://wornoffkeys.com/discord?from=wokcommands-npm' target='_blank'>![alt Discord](https://img.shields.io/discord/464316540490088448?color=7289da&logo=discord&logoColor=white)</a> <a href='http://wornoffkeys.com/patreon?from=wokcommands-npm' target='_blank'>![alt Patreon](https://img.shields.io/badge/donate-patreon-F96854.svg)</a> <a href='https://github.com/AlexzanderFlores/WOKCommands' target='_blank'>![alt GitHub Repo](https://img.shields.io/github/stars/AlexzanderFlores/WOKCommands?style=social)</a>
 
-<a href='https://nodei.co/npm/discord.js/' target='_blank'>![alt WOKCommands](https://nodei.co/npm/wokcommands.png)</a>
+<a href='https://nodei.co/npm/wokcommands/' target='_blank'>![alt WOKCommands](https://nodei.co/npm/wokcommands.png)</a>
 
 # This package is still under development. Not all features are done yet.
 
