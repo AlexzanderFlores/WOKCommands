@@ -23,11 +23,11 @@ var CommandHandler = /** @class */ (function () {
                         fileName = fileName[fileName.length - 1];
                         fileName = fileName.split('.')[0].toLowerCase();
                         var configuration = require(file);
-                        var name_1 = configuration.name, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, description = configuration.description;
+                        var _a = configuration.name, name_1 = _a === void 0 ? fileName : _a, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, description = configuration.description;
                         if (callback && execute) {
                             throw new Error('Commands can have "callback" or "execute" functions, but not both.');
                         }
-                        var names = commands || aliases;
+                        var names = commands || aliases || [];
                         if (!name_1 && (!names || names.length === 0)) {
                             throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
                         }
@@ -37,17 +37,14 @@ var CommandHandler = /** @class */ (function () {
                         if (name_1 && !names.includes(name_1.toLowerCase())) {
                             names.unshift(name_1.toLowerCase());
                         }
-                        if (!names.includes(fileName)) {
-                            names.unshift(fileName);
-                        }
                         if (!description) {
                             console.warn("WOKCommands > Command \"" + names[0] + "\" does not have a \"description\" property.");
                         }
                         var hasCallback = callback || execute;
                         if (hasCallback) {
                             var command = new Command_1.default(instance, client, names, callback || execute, configuration);
-                            for (var _a = 0, names_1 = names; _a < names_1.length; _a++) {
-                                var name_2 = names_1[_a];
+                            for (var _b = 0, names_1 = names; _b < names_1.length; _b++) {
+                                var name_2 = names_1[_b];
                                 // Ensure the alias is lower case because we read as lower case later on
                                 this._commands.set(name_2.toLowerCase(), command);
                             }

@@ -28,7 +28,7 @@ class CommandHandler {
 
             const configuration = require(file)
             const {
-              name,
+              name = fileName,
               commands,
               aliases,
               callback,
@@ -42,7 +42,7 @@ class CommandHandler {
               )
             }
 
-            let names = commands || aliases
+            let names = commands || aliases || []
 
             if (!name && (!names || names.length === 0)) {
               throw new Error(
@@ -56,10 +56,6 @@ class CommandHandler {
 
             if (name && !names.includes(name.toLowerCase())) {
               names.unshift(name.toLowerCase())
-            }
-
-            if (!names.includes(fileName)) {
-              names.unshift(fileName)
             }
 
             if (!description) {

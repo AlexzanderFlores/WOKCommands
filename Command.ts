@@ -1,14 +1,6 @@
 import { Client, GuildMember, Message } from 'discord.js'
 import WOKCommands from '.'
-
-interface configuration {
-  names: string[] | string
-  minArgs?: number
-  maxArgs?: number
-  expectedArgs?: string
-  description?: string
-  callback: Function
-}
+import ICmdConfig from './interfaces/ICmdConfig'
 
 class Command {
   private instance: WOKCommands
@@ -26,7 +18,7 @@ class Command {
     client: Client,
     names: string[],
     callback: Function,
-    { minArgs, maxArgs, expectedArgs, description }: configuration
+    { minArgs, maxArgs, expectedArgs, description }: ICmdConfig
   ) {
     this.instance = instance
     this.client = client
