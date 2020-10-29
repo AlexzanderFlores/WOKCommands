@@ -6,20 +6,20 @@
 
 # Table of Contents
 
-- [Installation](https://github.com/AlexzanderFlores/WOKCommands#installation)
-- [Setup](https://github.com/AlexzanderFlores/WOKCommands#setup)
-- [Creating a "Feature"](https://github.com/AlexzanderFlores/WOKCommands#creating-a-feature)
-- [Creating a Command](https://github.com/AlexzanderFlores/WOKCommands#creating-a-command)
-- [Argument Rules](https://github.com/AlexzanderFlores/WOKCommands#argument-rules)
-  - [Global Syntax Errors](https://github.com/AlexzanderFlores/WOKCommands#global-syntax-errors)
-- [Per-server Command Prefixes](https://github.com/AlexzanderFlores/WOKCommands#per-server-command-prefixes)
+- [Installation](#installation)
+- [Setup](#setup)
+- [Creating a "Feature"](#creating-a-feature)
+- [Creating a Command](#creating-a-command)
+- [Argument Rules](#argument-rules)
+  - [Global Syntax Errors](#global-syntax-errors)
+- [Per-server Command Prefixes](#per-server-command-prefixes)
 - [Enable or Disable each Command or Feature](#enable-or-disable-each-command-or-feature)
-- [Configurable Required Roles](https://github.com/AlexzanderFlores/WOKCommands#configurable-required-roles)
-- [Command Cooldowns](https://github.com/AlexzanderFlores/WOKCommands#command-cooldowns)
-  - [Global Cooldowns](https://github.com/AlexzanderFlores/WOKCommands#global-cooldowns)
-  - [Configurable Cooldown Error Messages](https://github.com/AlexzanderFlores/WOKCommands#configurable-cooldown-error-messages)
-- [Channel Specific Commands](https://github.com/AlexzanderFlores/WOKCommands#channel-specific-commands)
-- [Support & Feature Requests](https://github.com/AlexzanderFlores/WOKCommands#support--feature-requests)
+- [Configurable Required Roles](#configurable-required-roles)
+- [Command Cooldowns](#command-cooldowns)
+  - [Global Cooldowns](#global-cooldowns)
+  - [Configurable Cooldown Error Messages](#configurable-cooldown-error-messages)
+- [Channel Specific Commands](#channel-specific-commands)
+- [Support & Feature Requests](#support--feature-requests)
 
 # Installation
 
