@@ -158,6 +158,13 @@ var WOKCommands = /** @class */ (function () {
             this._prefixes[guild.id] = prefix;
         }
     };
+    Object.defineProperty(WOKCommands.prototype, "commandHandler", {
+        get: function () {
+            return this._commandHandler;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(WOKCommands.prototype, "commands", {
         get: function () {
             return this._commandHandler.commands;

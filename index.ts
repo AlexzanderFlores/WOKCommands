@@ -122,6 +122,10 @@ class WOKCommands {
     }
   }
 
+  public get commandHandler(): CommandHandler {
+    return this._commandHandler
+  }
+
   public get commands(): ICommand[] {
     return this._commandHandler.commands
   }

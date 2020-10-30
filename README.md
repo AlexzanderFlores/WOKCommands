@@ -212,11 +212,11 @@ The `NEW PREFIX` argument is optional, and omitting it will simply display the c
 
 Server owners might not want all features your bot comes with. It's important to allow them to enable or disable each command or feature. WOKCommands also comes with this functionality out of the box.
 
-Server owners can view all commands or features with the following commands:
+Server owners can view all commands or features with the following command:
 
-`!command list`
+`!commands`
 
-`!feature list`
+`!features`
 
 This will then display a message with all commands and features, as well as their enabled or disable status. Server owners can toggle a feature or command with the following command:
 
