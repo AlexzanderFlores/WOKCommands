@@ -43,6 +43,7 @@ module.exports = {
     minArgs: 2,
     maxArgs: 2,
     expectedArgs: '<"enable" or "disable"> <Command Name>',
+    description: 'Enables or disables a command for this guild',
     callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
         var newState, name, guild, _i, _a, names, mainCommand, isDisabled;
         var _b, _c;
@@ -52,7 +53,7 @@ module.exports = {
                     newState = (_b = args.shift()) === null || _b === void 0 ? void 0 : _b.toLowerCase();
                     name = (_c = args.shift()) === null || _c === void 0 ? void 0 : _c.toLowerCase();
                     if (newState !== 'enable' && newState !== 'disable') {
-                        message.reply('The state must either be "enable" or "disable"');
+                        message.reply('The state must be either "enable" or "disable"');
                         return [2 /*return*/];
                     }
                     guild = message.guild;
@@ -101,7 +102,7 @@ module.exports = {
                     _i++;
                     return [3 /*break*/, 1];
                 case 7:
-                    message.reply("Could not find command \"" + name + "\"! View all commands with \"" + instance.getPrefix(guild) + "help\"");
+                    message.reply("Could not find command \"" + name + "\"! View all commands with \"" + instance.getPrefix(guild) + "commands\"");
                     return [2 /*return*/];
             }
         });

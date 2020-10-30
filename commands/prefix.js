@@ -43,6 +43,7 @@ module.exports = {
     minArgs: 0,
     maxArgs: 1,
     expectedArgs: '[New Prefix]',
+    description: 'Displays or sets the prefix for the current guild',
     callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
         var guild, id;
         return __generator(this, function (_a) {

@@ -3,6 +3,7 @@ import WOKCommands from '..'
 
 export = {
   maxArgs: 0,
+  descriptions: 'Lists all commands for this bot',
   callback: (
     message: Message,
     args: string[],

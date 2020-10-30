@@ -1,11 +1,12 @@
 import { Client, Message } from 'discord.js'
 import WOKCommands from '..'
-import commandStatus from '../modles/disabled-commands'
+import disabledCommands from '../modles/disabled-commands'
 
 export = {
   minArgs: 2,
   maxArgs: 2,
   expectedArgs: '<"enable" or "disable"> <Command Name>',
+  description: 'Enables or disables a command for this guild',
   callback: async (
     message: Message,
     args: string[],
@@ -18,7 +19,7 @@ export = {
     const name = args.shift()?.toLowerCase()
 
     if (newState !== 'enable' && newState !== 'disable') {
-      message.reply('The state must either be "enable" or "disable"')
+      message.reply('The state must be either "enable" or "disable"')
       return
     }
 
@@ -43,7 +44,7 @@ export = {
             return
           }
 
-          await commandStatus.deleteOne({
+          await disabledCommands.deleteOne({
             guildId: guild.id,
             command: mainCommand,
           })
@@ -57,7 +58,7 @@ export = {
             return
           }
 
-          await new commandStatus({
+          await new disabledCommands({
             guildId: guild.id,
             command: mainCommand,
           }).save()
@@ -74,7 +75,7 @@ export = {
     message.reply(
       `Could not find command "${name}"! View all commands with "${instance.getPrefix(
         guild
-      )}help"`
+      )}commands"`
     )
   },
 }

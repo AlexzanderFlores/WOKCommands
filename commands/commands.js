@@ -1,6 +1,7 @@
 "use strict";
 module.exports = {
     maxArgs: 0,
+    descriptions: 'Lists all commands for this bot',
     callback: function (message, args, text, prefix, client, instance) {
         var msg = 'Commands:\n';
         for (var _i = 0, _a = instance.commands; _i < _a.length; _i++) {

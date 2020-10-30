@@ -6,6 +6,7 @@ export = {
   minArgs: 0,
   maxArgs: 1,
   expectedArgs: '[New Prefix]',
+  description: 'Displays or sets the prefix for the current guild',
   callback: async (
     message: Message,
     args: string[],

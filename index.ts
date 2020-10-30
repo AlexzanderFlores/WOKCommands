@@ -1,8 +1,7 @@
 import { Client, Guild } from 'discord.js'
-import { Document } from 'mongoose'
 import path from 'path'
 import CommandHandler from './CommandHandler'
-import ListenerHandler from './ListenerHandler'
+import FeatureHandler from './FeatureHandler'
 import ICommand from './interfaces/ICommand'
 import mongo from './mongo'
 import prefixes from './modles/prefixes'
@@ -11,13 +10,14 @@ import getAllFiles from './get-all-files'
 class WOKCommands {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
-  private _listenerDir = ''
+  private _featureDir = ''
   private _mongo = ''
   private _syntaxError = 'Incorrect usage!'
   private _prefixes: { [name: string]: string } = {}
   private _commandHandler: CommandHandler
+  private _featureHandler: FeatureHandler | null = null
 
-  constructor(client: Client, commandsDir?: string, listenerDir?: string) {
+  constructor(client: Client, commandsDir?: string, featureDir?: string) {
     if (!client) {
       throw new Error('No Discord JS Client provided as first argument!')
     }
@@ -35,18 +35,18 @@ class WOKCommands {
       const { path } = module.parent
       if (path) {
         commandsDir = `${path}/${commandsDir || this._commandsDir}`
-        if (listenerDir) {
-          listenerDir = `${path}/${listenerDir}`
+        if (featureDir) {
+          featureDir = `${path}/${featureDir}`
         }
       }
     }
 
     this._commandsDir = commandsDir || this._commandsDir
-    this._listenerDir = listenerDir || this._listenerDir
+    this._featureDir = featureDir || this._featureDir
 
     this._commandHandler = new CommandHandler(this, client, this._commandsDir)
-    if (this._listenerDir) {
-      new ListenerHandler(client, this._listenerDir)
+    if (this._featureDir) {
+      this._featureHandler = new FeatureHandler(client, this._featureDir)
     }
 
     setTimeout(() => {

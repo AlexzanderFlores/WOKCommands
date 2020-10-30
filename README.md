@@ -83,19 +83,9 @@ module.exports = (client) => {
     console.log(message.content)
   })
 }
-
-module.exports.feature = {
-  name: 'logger', // Required if "notFeature" isn't true
-  canDisable: false, // Required if "notFeature" isn't true
-  notFeature: false // Optional. Only used for files related to an existing feature
-}
 ```
 
-Each file inside of the "features" folder (or whatever you specified in "Setup") will be ran whenever your bot starts up unless `notFeature` is set to `true`.
-
-The "feature" object exported is required. Without both the `name` and `canDisable` properties it will throw an exception. This information is used to let server owners know what features are enabled and will allow them to disable them. You can prevent server owners from disabling a specific feature by setting `canDisable` to true.
-
-The only exception to not including both `name` and `canDisable` is when `notFeature` is set to `true`. This will allow omitting of any other property. This is used when you need additional files to organize a single feature. Additional files can use this property to ignore the "feature list" that server owners can view.
+Each file inside of the "features" folder (or whatever you specified in "Setup") will be ran whenever your bot starts up.
 
 # Creating a Command
 

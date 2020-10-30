@@ -40,19 +40,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var path_1 = __importDefault(require("path"));
 var CommandHandler_1 = __importDefault(require("./CommandHandler"));
-var ListenerHandler_1 = __importDefault(require("./ListenerHandler"));
+var FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 var mongo_1 = __importDefault(require("./mongo"));
 var prefixes_1 = __importDefault(require("./modles/prefixes"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
 var WOKCommands = /** @class */ (function () {
-    function WOKCommands(client, commandsDir, listenerDir) {
+    function WOKCommands(client, commandsDir, featureDir) {
         var _this = this;
         this._defaultPrefix = '!';
         this._commandsDir = 'commands';
-        this._listenerDir = '';
+        this._featureDir = '';
         this._mongo = '';
         this._syntaxError = 'Incorrect usage!';
         this._prefixes = {};
+        this._featureHandler = null;
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
@@ -66,16 +67,16 @@ var WOKCommands = /** @class */ (function () {
             var path_2 = module.parent.path;
             if (path_2) {
                 commandsDir = path_2 + "/" + (commandsDir || this._commandsDir);
-                if (listenerDir) {
-                    listenerDir = path_2 + "/" + listenerDir;
+                if (featureDir) {
+                    featureDir = path_2 + "/" + featureDir;
                 }
             }
         }
         this._commandsDir = commandsDir || this._commandsDir;
-        this._listenerDir = listenerDir || this._listenerDir;
+        this._featureDir = featureDir || this._featureDir;
         this._commandHandler = new CommandHandler_1.default(this, client, this._commandsDir);
-        if (this._listenerDir) {
-            new ListenerHandler_1.default(client, this._listenerDir);
+        if (this._featureDir) {
+            this._featureHandler = new FeatureHandler_1.default(client, this._featureDir);
         }
         setTimeout(function () {
             if (_this._mongo) {
