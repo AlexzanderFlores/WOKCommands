@@ -8,7 +8,7 @@
 
 - [Installation](#installation)
 - [Setup](#setup)
-- [Creating a "Feature"](#creating-a-feature)
+- [Creating a Feature](#creating-a-feature)
 - [Creating a Command](#creating-a-command)
 - [Argument Rules](#argument-rules)
   - [Global Syntax Errors](#global-syntax-errors)
@@ -68,9 +68,9 @@ client.on('ready', () => {
 client.login(process.env.TOKEN)
 ```
 
-# Creating a "Feature"
+# Creating a Feature
 
-"Features" are files that include code related to one specific feature of your bot. These often will include event handlers and other utility functions that collectively make up a single feature.
+Features are files that include code related to one specific feature of your bot. These often will include event handlers and other utility functions that collectively make up a single feature.
 
 Here is a basic example that simply console logs each message sent:
 
@@ -188,7 +188,7 @@ module.exports = {
 }
 ```
 
-A per-command syntax error message will always overwrite a global one.
+A per-command syntax error message will always overwrite a global one for that specific command.
 
 # Per-Server Command Prefixes
 
@@ -198,25 +198,19 @@ Allowing server owners to configure your bot's prefix will help prevent prefix c
 
 `!prefix [NEW PREFIX]`
 
-The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix. Configuration commands such as this one use the "!wok" prefix, however the "!" symbol will be changed when using this command. For example if a server owner changes their prefix to "?" then the command would then become `?prefix [NEW PREFIX]`.
+The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix.
 
 # Enable or Disable a Command
 
-Server owners might not want all features your bot comes with. It's important to allow them to enable or disable each command or feature. WOKCommands also comes with this functionality out of the box.
+Server owners might not want all commands your bot comes with. It's important to allow them to enable or disable each command, and WOKCommands comes with this functionality out of the box.
 
 Server owners can view all commands or features with the following command:
 
 `!commands`
 
-`!features`
+This will then display a message with all commands, as well as their enabled or disable status. Server owners can toggle a command with the following command:
 
-This will then display a message with all commands and features, as well as their enabled or disable status. Server owners can toggle a feature or command with the following command:
-
-`!command <COMMAND NAME> <enable | disable>`
-
-`!feature <FEATURE NAME> <enable | disable>`
-
-_Note that "command" and "feature" are separated in these commands to allow you to use the same name for both a command and feature_
+`!command <"enable" | "disable"> <Command Name>`
 
 # Configurable Required Roles
 
@@ -246,13 +240,13 @@ The `requiredRolesType` defaults to "ANY" which allows users to run the command 
 
 A useful feature of WOKCommands is that server owners can configure this themselves.
 
-`!requiredRole <COMMAND NAME> <"none" | Tagged Role | Role ID string>`
+`!requiredRole <Command Name> <"none" | Tagged Role | Role ID string>`
 
 This will allow server owners to dynamically configure commands for their own server without you needing to change anything as the developer.
 
 # Command Cooldowns
 
-_This feature might requires a MongoDB connection to be present._
+_This feature might require a MongoDB connection to be present._
 
 WOKCommands makes it easy to provide per-user cooldowns. These will only affect users in the server where they ran the command, and not globally across multiple servers with your bot.
 
@@ -318,7 +312,7 @@ Sometimes you may want a command to only be ran in a specific channel. WOKComman
 
 `!channelOnly <Command Name> <Channel Tag>`
 
-This will allow the server owners to specify a command and tag a channel to only allow that command to be ran in that channel.
+This will allow the server owners to specify a command and tag a channel to only allow that command to be ran in that channel. Running the exact command again will toggle the channel requirement.
 
 # Support & Feature Requests
 

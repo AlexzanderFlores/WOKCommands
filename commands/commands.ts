@@ -16,11 +16,22 @@ export = {
 
     for (const command of instance.commands) {
       const { names, description } = command
+      const mainName = names.shift() || ''
 
       msg += `
-**${names.shift()}**
+**${mainName}**
 Aliases: ${names.length ? `"${names.join('", "')}"` : 'None'}
 Description: ${description || 'None'}
+Enabled: ${
+        message.guild
+          ? instance.commandHandler.isCommandDisabled(
+              message.guild.id,
+              mainName
+            )
+            ? 'No'
+            : 'Yes'
+          : ''
+      }
 `
     }
 

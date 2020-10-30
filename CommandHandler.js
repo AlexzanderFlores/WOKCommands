@@ -121,9 +121,16 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         var configuration = require(file);
-        var _a = configuration.name, name = _a === void 0 ? fileName : _a, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, description = configuration.description;
-        if (callback && execute) {
-            throw new Error('Commands can have "callback" or "execute" functions, but not both.');
+        var _a = configuration.name, name = _a === void 0 ? fileName : _a, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description;
+        var callbackCounter = 0;
+        if (callback)
+            ++callbackCounter;
+        if (execute)
+            ++callbackCounter;
+        if (run)
+            ++callbackCounter;
+        if (callbackCounter > 1) {
+            throw new Error('Commands can have "callback", "execute", or "run" functions, but not multiple.');
         }
         var names = commands || aliases || [];
         if (!name && (!names || names.length === 0)) {
@@ -138,9 +145,9 @@ var CommandHandler = /** @class */ (function () {
         if (!description) {
             console.warn("WOKCommands > Command \"" + names[0] + "\" does not have a \"description\" property.");
         }
-        var hasCallback = callback || execute;
+        var hasCallback = callback || execute || run;
         if (hasCallback) {
-            var command = new Command_1.default(instance, client, names, callback || execute, configuration);
+            var command = new Command_1.default(instance, client, names, callback || execute || run, configuration);
             for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
                 var name_2 = names_1[_i];
                 // Ensure the alias is lower case because we read as lower case later on
