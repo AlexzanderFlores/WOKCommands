@@ -14,6 +14,7 @@
   - [Global Syntax Errors](#global-syntax-errors)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
 - [Enable or Disable a Command](#enable-or-disable-a-command)
+- [Required Permissions](#required-permissions)
 - [Configurable Required Roles](#configurable-required-roles)
 - [Command Cooldowns](#command-cooldowns)
   - [Global Cooldowns](#global-cooldowns)
@@ -212,37 +213,36 @@ This will then display a message with all commands, as well as their enabled or 
 
 `!command <"enable" | "disable"> <Command Name>`
 
-# Configurable Required Roles
+# Required Permissions
 
-Server owners will often want some commands to only be accessible from users with a specific role. WOKCommands allows both the developer as well as the server owner to configure this.
-
-**How to specify what roles each user needs in order to run this command:**
+Sometimes you will want to require a Discord permission node before a user can run a command. An example could be an administrative command. Requiring "ADMINISTRATOR" will prevent people without that permission node from running the command. You can easily do that with the following syntax:
 
 ```JS
-// File name: "ping.js"
-// Folder "./commands"
+// File name: 'hi.js'
+// Folder: './commands'
 
 module.exports = {
-  requiredRoles: [
-    'Patron',
-    'Server Booster'
-  ],
-  requiredRolesType: 'ALL' // "ANY" or "ALL"
+  maxArgs: 0,
+  requiredPermissions: ['ADMINISTRATOR'],
   callback: (message) => {
-    message.reply('pong')
-  }
+    message.reply('hello')
+  },
 }
 ```
 
-The `requiredRolesType` defaults to "ANY" which allows users to run the command if they have any of the specified roles. Alternatively you can use "ALL" to require the user to have all the specified roles.
+Whenever anyone runs that command that doesn't have the "ADMINISTRATOR" permission node, it will tell them they need it. Also if you spell a permission node incorrectly or not upper case it will automatically let you know when your bot starts up.
 
-**How server owners can specify roles per command:**
+# Configurable Required Roles
 
-A useful feature of WOKCommands is that server owners can configure this themselves.
+_This feature requires a MongoDB connection to be present._
+
+Server owners will often want some commands to only be accessible from users with a specific role. Server owners will have the option to require this for any command your bot provides using the following command:
 
 `!requiredRole <Command Name> <"none" | Tagged Role | Role ID string>`
 
-This will allow server owners to dynamically configure commands for their own server without you needing to change anything as the developer.
+This will allow server owners to dynamically configure commands for their own server without you needing to change anything as the developer. This is ideal because each will have its own rank for some commands and features. Forcing that rank to be named something specific is constrictive and this option makes your bot more user friendly.
+
+Using "none" will remove all required roles for that command.
 
 # Command Cooldowns
 

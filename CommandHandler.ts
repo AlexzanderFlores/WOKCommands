@@ -5,6 +5,7 @@ import Command from './Command'
 import getAllFiles from './get-all-files'
 import ICommand from './interfaces/ICommand'
 import disabledCommands from './modles/disabled-commands'
+import permissions from './permissions'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
@@ -61,8 +62,24 @@ class CommandHandler {
                     }
                   }
 
-                  const { minArgs, maxArgs, expectedArgs } = command
+                  const { member } = message
+                  const {
+                    minArgs,
+                    maxArgs,
+                    expectedArgs,
+                    requiredPermissions = [],
+                  } = command
                   let { syntaxError = instance.syntaxError } = command
+
+                  for (const perm of requiredPermissions) {
+                    // @ts-ignore
+                    if (!member?.hasPermission(perm)) {
+                      message.reply(
+                        `You must have the "${perm}" permission in order to use this command.`
+                      )
+                      return
+                    }
+                  }
 
                   // Are the proper number of arguments provided?
                   if (
@@ -118,6 +135,7 @@ class CommandHandler {
       execute,
       run,
       description,
+      requiredPermissions,
     } = configuration
 
     let callbackCounter = 0
@@ -145,6 +163,18 @@ class CommandHandler {
 
     if (name && !names.includes(name.toLowerCase())) {
       names.unshift(name.toLowerCase())
+    }
+
+    if (requiredPermissions) {
+      for (const perm of requiredPermissions) {
+        if (!permissions.includes(perm)) {
+          throw new Error(
+            `Command located at "${file}" has an invalid permission node: "${perm}". Permissions must be all upper case and be one of the following: "${[
+              ...permissions,
+            ].join('", "')}"`
+          )
+        }
+      }
     }
 
     if (!description) {

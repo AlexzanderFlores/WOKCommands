@@ -49,6 +49,7 @@ var fs_1 = __importDefault(require("fs"));
 var Command_1 = __importDefault(require("./Command"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
 var disabled_commands_1 = __importDefault(require("./modles/disabled-commands"));
+var permissions_1 = __importDefault(require("./permissions"));
 var CommandHandler = /** @class */ (function () {
     function CommandHandler(instance, client, dir) {
         var _this = this;
@@ -87,8 +88,17 @@ var CommandHandler = /** @class */ (function () {
                                             return;
                                         }
                                     }
-                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs;
-                                    var _a = command.syntaxError, syntaxError = _a === void 0 ? instance.syntaxError : _a;
+                                    var member = message.member;
+                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a;
+                                    var _b = command.syntaxError, syntaxError = _b === void 0 ? instance.syntaxError : _b;
+                                    for (var _i = 0, requiredPermissions_1 = requiredPermissions; _i < requiredPermissions_1.length; _i++) {
+                                        var perm = requiredPermissions_1[_i];
+                                        // @ts-ignore
+                                        if (!(member === null || member === void 0 ? void 0 : member.hasPermission(perm))) {
+                                            message.reply("You must have the \"" + perm + "\" permission in order to use this command.");
+                                            return;
+                                        }
+                                    }
                                     // Are the proper number of arguments provided?
                                     if ((minArgs !== undefined && args.length < minArgs) ||
                                         (maxArgs !== undefined &&
@@ -121,7 +131,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         var configuration = require(file);
-        var _a = configuration.name, name = _a === void 0 ? fileName : _a, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description;
+        var _a = configuration.name, name = _a === void 0 ? fileName : _a, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions;
         var callbackCounter = 0;
         if (callback)
             ++callbackCounter;
@@ -142,14 +152,22 @@ var CommandHandler = /** @class */ (function () {
         if (name && !names.includes(name.toLowerCase())) {
             names.unshift(name.toLowerCase());
         }
+        if (requiredPermissions) {
+            for (var _i = 0, requiredPermissions_2 = requiredPermissions; _i < requiredPermissions_2.length; _i++) {
+                var perm = requiredPermissions_2[_i];
+                if (!permissions_1.default.includes(perm)) {
+                    throw new Error("Command located at \"" + file + "\" has an invalid permission node: \"" + perm + "\". Permissions must be all upper case and be one of the following: \"" + __spreadArrays(permissions_1.default).join('", "') + "\"");
+                }
+            }
+        }
         if (!description) {
             console.warn("WOKCommands > Command \"" + names[0] + "\" does not have a \"description\" property.");
         }
         var hasCallback = callback || execute || run;
         if (hasCallback) {
             var command = new Command_1.default(instance, client, names, callback || execute || run, configuration);
-            for (var _i = 0, names_1 = names; _i < names_1.length; _i++) {
-                var name_2 = names_1[_i];
+            for (var _b = 0, names_1 = names; _b < names_1.length; _b++) {
+                var name_2 = names_1[_b];
                 // Ensure the alias is lower case because we read as lower case later on
                 this._commands.set(name_2.toLowerCase(), command);
             }

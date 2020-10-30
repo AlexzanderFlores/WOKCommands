@@ -5,5 +5,6 @@ export default interface ICmdConfig {
   syntaxError?: string
   expectedArgs?: string
   description?: string
+  requiredPermissions?: string[]
   callback: Function
 }
