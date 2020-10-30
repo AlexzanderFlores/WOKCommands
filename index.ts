@@ -1,14 +1,19 @@
 import { Client, Guild } from 'discord.js'
+import { Document } from 'mongoose'
+import path from 'path'
 import CommandHandler from './CommandHandler'
 import ListenerHandler from './ListenerHandler'
 import ICommand from './interfaces/ICommand'
 import mongo from './mongo'
+import prefixes from './modles/prefixes'
+import getAllFiles from './get-all-files'
 
 class WOKCommands {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
   private _listenerDir = ''
   private _mongo = ''
+  private _syntaxError = 'Incorrect usage!'
   private _prefixes: { [name: string]: string } = {}
   private _commandHandler: CommandHandler
 
@@ -53,6 +58,27 @@ class WOKCommands {
         )
       }
     }, 500)
+
+    // Register built in commands
+    for (const [file, fileName] of getAllFiles(
+      path.join(__dirname, 'commands')
+    )) {
+      this._commandHandler.registerCommand(this, client, file, fileName)
+    }
+
+    // Load prefixes from Mongo
+    const loadPrefixes = async () => {
+      const results: any[] = await prefixes.find({})
+
+      for (const result of results) {
+        const { _id, prefix } = result
+
+        this._prefixes[_id] = prefix
+      }
+
+      console.log(this._prefixes)
+    }
+    loadPrefixes()
   }
 
   public get mongoPath(): string {
@@ -61,6 +87,15 @@ class WOKCommands {
 
   public setMongoPath(mongoPath: string): WOKCommands {
     this._mongo = mongoPath
+    return this
+  }
+
+  public get syntaxError(): string {
+    return this._syntaxError
+  }
+
+  public setSyntaxError(syntaxError: string): WOKCommands {
+    this._syntaxError = syntaxError
     return this
   }
 
@@ -79,6 +114,12 @@ class WOKCommands {
 
   public getPrefix(guild: Guild | null): string {
     return this._prefixes[guild ? guild.id : ''] || this._defaultPrefix
+  }
+
+  public setPrefix(guild: Guild | null, prefix: string) {
+    if (guild) {
+      this._prefixes[guild.id] = prefix
+    }
   }
 
   public get commands(): ICommand[] {

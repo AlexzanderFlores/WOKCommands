@@ -204,9 +204,9 @@ _This feature requires a MongoDB connection to be present._
 
 Allowing server owners to configure your bot's prefix will help prevent prefix collisions with existing bots. There is a simple command for server owners to configure prefixes:
 
-`!wok prefix [NEW PREFIX]`
+`!prefix [NEW PREFIX]`
 
-The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix. Configuration commands such as this one use the "!wok" prefix, however the "!" symbol will be changed when using this command. For example if a server owner changes their prefix to "?" then the command would then become `?wok prefix [NEW PREFIX]`.
+The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix. Configuration commands such as this one use the "!wok" prefix, however the "!" symbol will be changed when using this command. For example if a server owner changes their prefix to "?" then the command would then become `?prefix [NEW PREFIX]`.
 
 # Enable or Disable each Command or Feature
 
@@ -214,15 +214,15 @@ Server owners might not want all features your bot comes with. It's important to
 
 Server owners can view all commands or features with the following commands:
 
-`!wok command list`
+`!command list`
 
-`!wok feature list`
+`!feature list`
 
 This will then display a message with all commands and features, as well as their enabled or disable status. Server owners can toggle a feature or command with the following command:
 
-`!wok command <COMMAND NAME> <enable | disable>`
+`!command <COMMAND NAME> <enable | disable>`
 
-`!wok feature <FEATURE NAME> <enable | disable>`
+`!feature <FEATURE NAME> <enable | disable>`
 
 _Note that "command" and "feature" are separated in these commands to allow you to use the same name for both a command and feature_
 
@@ -254,7 +254,7 @@ The `requiredRolesType` defaults to "ANY" which allows users to run the command 
 
 A useful feature of WOKCommands is that server owners can configure this themselves.
 
-`!wok requiredRole <COMMAND NAME> <"none" | Tagged Role | Role ID string>`
+`!requiredRole <COMMAND NAME> <"none" | Tagged Role | Role ID string>`
 
 This will allow server owners to dynamically configure commands for their own server without you needing to change anything as the developer.
 
@@ -324,7 +324,7 @@ _This feature requires a MongoDB connection to be present._
 
 Sometimes you may want a command to only be ran in a specific channel. WOKCommands includes this functionality and allows server owners to configure this themselves with a command:
 
-`!wok channelOnly <Command Name> <Channel Tag>`
+`!channelOnly <Command Name> <Channel Tag>`
 
 This will allow the server owners to specify a command and tag a channel to only allow that command to be ran in that channel.
 

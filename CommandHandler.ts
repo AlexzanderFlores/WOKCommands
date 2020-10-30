@@ -20,62 +20,7 @@ class CommandHandler {
           )
 
           for (const [file, fileName] of files) {
-            const configuration = require(file)
-            const {
-              name = fileName,
-              commands,
-              aliases,
-              callback,
-              execute,
-              description,
-              minArgs,
-              maxArgs,
-            } = configuration
-
-            if (callback && execute) {
-              throw new Error(
-                'Commands can have "callback" or "execute" functions, but not both.'
-              )
-            }
-
-            let names = commands || aliases || []
-
-            if (!name && (!names || names.length === 0)) {
-              throw new Error(
-                `Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`
-              )
-            }
-
-            if (typeof names === 'string') {
-              names = [names]
-            }
-
-            if (name && !names.includes(name.toLowerCase())) {
-              names.unshift(name.toLowerCase())
-            }
-
-            if (!description) {
-              console.warn(
-                `WOKCommands > Command "${names[0]}" does not have a "description" property.`
-              )
-            }
-
-            const hasCallback = callback || execute
-
-            if (hasCallback) {
-              const command = new Command(
-                instance,
-                client,
-                names,
-                callback || execute,
-                configuration
-              )
-
-              for (const name of names) {
-                // Ensure the alias is lower case because we read as lower case later on
-                this._commands.set(name.toLowerCase(), command)
-              }
-            }
+            this.registerCommand(instance, client, file, fileName)
           }
 
           client.on('message', (message) => {
@@ -87,7 +32,6 @@ class CommandHandler {
               // Remove the prefix
               content = content.substring(prefix.length)
 
-              // Get each word as an element of an array
               const args = content.split(/ /g)
 
               // Remove the "command", leaving just the arguments
@@ -99,19 +43,33 @@ class CommandHandler {
 
                 const command = this._commands.get(name)
                 if (command) {
-                  const { minArgs, maxArgs } = command
+                  const { minArgs, maxArgs, expectedArgs } = command
+                  let { syntaxError = instance.syntaxError } = command
 
-                  if (minArgs !== undefined && args.length < minArgs) {
-                    message.reply('Not enough args')
-                    return
-                  }
-
+                  // Are the proper number of arguments provided?
                   if (
-                    maxArgs !== undefined &&
-                    maxArgs !== -1 &&
-                    args.length > maxArgs
+                    (minArgs !== undefined && args.length < minArgs) ||
+                    (maxArgs !== undefined &&
+                      maxArgs !== -1 &&
+                      args.length > maxArgs)
                   ) {
-                    message.reply('Too many args')
+                    // Replace {PREFIX} with the actual prefix
+                    if (syntaxError) {
+                      syntaxError = syntaxError.replace(/{PREFIX}/g, prefix)
+                    }
+
+                    // Replace {COMMAND} with the name of the command that was ran
+                    syntaxError = syntaxError.replace(/{COMMAND}/g, name)
+
+                    // Replace {ARGUMENTS} with the expectedArgs property from the command
+                    // If one was not provided then replace {ARGUMENTS} with an empty string
+                    syntaxError = syntaxError.replace(
+                      / {ARGUMENTS}/g,
+                      expectedArgs ? ` ${expectedArgs}` : ''
+                    )
+
+                    // Reply with the local or global syntax error
+                    message.reply(syntaxError)
                     return
                   }
 
@@ -123,6 +81,68 @@ class CommandHandler {
         }
       } else {
         throw new Error(`Commands directory "${dir}" doesn't exist!`)
+      }
+    }
+  }
+
+  public registerCommand(
+    instance: WOKCommands,
+    client: Client,
+    file: string,
+    fileName: string
+  ) {
+    const configuration = require(file)
+    const {
+      name = fileName,
+      commands,
+      aliases,
+      callback,
+      execute,
+      description,
+    } = configuration
+
+    if (callback && execute) {
+      throw new Error(
+        'Commands can have "callback" or "execute" functions, but not both.'
+      )
+    }
+
+    let names = commands || aliases || []
+
+    if (!name && (!names || names.length === 0)) {
+      throw new Error(
+        `Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`
+      )
+    }
+
+    if (typeof names === 'string') {
+      names = [names]
+    }
+
+    if (name && !names.includes(name.toLowerCase())) {
+      names.unshift(name.toLowerCase())
+    }
+
+    if (!description) {
+      console.warn(
+        `WOKCommands > Command "${names[0]}" does not have a "description" property.`
+      )
+    }
+
+    const hasCallback = callback || execute
+
+    if (hasCallback) {
+      const command = new Command(
+        instance,
+        client,
+        names,
+        callback || execute,
+        configuration
+      )
+
+      for (const name of names) {
+        // Ensure the alias is lower case because we read as lower case later on
+        this._commands.set(name.toLowerCase(), command)
       }
     }
   }

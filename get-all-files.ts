@@ -9,7 +9,7 @@ const getAllFiles = (dir: string) => {
   for (const file of files) {
     if (file.isDirectory()) {
       jsFiles = [...jsFiles, ...getAllFiles(`${dir}/${file.name}`)]
-    } else {
+    } else if (file.name.endsWith('.js')) {
       let fileName: string | string[] = file.name.replace(/\\/g, '/').split('/')
       fileName = fileName[fileName.length - 1]
       fileName = fileName.split('.')[0].toLowerCase()

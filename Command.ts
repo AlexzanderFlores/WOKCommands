@@ -8,6 +8,7 @@ class Command {
   private _names: string[] = []
   private _minArgs: number = 0
   private _maxArgs: number = -1
+  private _syntaxError?: string
   private _expectedArgs?: string
   private _description?: string
   private _cooldown: string[] = []
@@ -18,13 +19,14 @@ class Command {
     client: Client,
     names: string[],
     callback: Function,
-    { minArgs, maxArgs, expectedArgs, description }: ICmdConfig
+    { minArgs, maxArgs, syntaxError, expectedArgs, description }: ICmdConfig
   ) {
     this.instance = instance
     this.client = client
     this._names = typeof names === 'string' ? [names] : names
     this._minArgs = minArgs || 0
     this._maxArgs = maxArgs === undefined ? -1 : maxArgs
+    this._syntaxError = syntaxError
     this._expectedArgs = expectedArgs
     this._description = description
     this._callback = callback
@@ -54,9 +56,8 @@ class Command {
       args,
       args.join(' '),
       this.client,
-      message.guild
-        ? this.instance.prefixes[message.guild.id]
-        : this.instance.defaultPrefix
+      this.instance.getPrefix(message.guild),
+      this.instance
     )
   }
 
@@ -70,6 +71,10 @@ class Command {
 
   public get maxArgs(): number {
     return this._maxArgs
+  }
+
+  public get syntaxError(): string | undefined {
+    return this._syntaxError
   }
 
   public get expectedArgs(): string | undefined {
