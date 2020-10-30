@@ -116,12 +116,18 @@ class CommandHandler {
       aliases,
       callback,
       execute,
+      run,
       description,
     } = configuration
 
-    if (callback && execute) {
+    let callbackCounter = 0
+    if (callback) ++callbackCounter
+    if (execute) ++callbackCounter
+    if (run) ++callbackCounter
+
+    if (callbackCounter > 1) {
       throw new Error(
-        'Commands can have "callback" or "execute" functions, but not both.'
+        'Commands can have "callback", "execute", or "run" functions, but not multiple.'
       )
     }
 
@@ -147,14 +153,14 @@ class CommandHandler {
       )
     }
 
-    const hasCallback = callback || execute
+    const hasCallback = callback || execute || run
 
     if (hasCallback) {
       const command = new Command(
         instance,
         client,
         names,
-        callback || execute,
+        callback || execute || run,
         configuration
       )
 

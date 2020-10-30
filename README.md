@@ -13,7 +13,7 @@
 - [Argument Rules](#argument-rules)
   - [Global Syntax Errors](#global-syntax-errors)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
-- [Enable or Disable each Command or Feature](#enable-or-disable-each-command-or-feature)
+- [Enable or Disable a Command](#enable-or-disable-a-command)
 - [Configurable Required Roles](#configurable-required-roles)
 - [Command Cooldowns](#command-cooldowns)
   - [Global Cooldowns](#global-cooldowns)
@@ -125,6 +125,8 @@ module.exports = {
 
 This will make `!ping`, `!runping`, and `!p` execute the command. There are various popular command formats. This approach of multiple options is meant to help support them out of the box without many changes on your part.
 
+The `callback` function can also be named `run` or `execute`.
+
 # Argument Rules
 
 You can easily specify how many arguments are required as well as provide an error message per command. Let's say that you want the above "ping" command to never have any arguments. You can easily accomplish that with the following code:
@@ -198,7 +200,7 @@ Allowing server owners to configure your bot's prefix will help prevent prefix c
 
 The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix. Configuration commands such as this one use the "!wok" prefix, however the "!" symbol will be changed when using this command. For example if a server owner changes their prefix to "?" then the command would then become `?prefix [NEW PREFIX]`.
 
-# Enable or Disable each Command or Feature
+# Enable or Disable a Command
 
 Server owners might not want all features your bot comes with. It's important to allow them to enable or disable each command or feature. WOKCommands also comes with this functionality out of the box.
 
