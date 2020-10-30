@@ -6,6 +6,7 @@ var Command = /** @class */ (function () {
         this._minArgs = 0;
         this._maxArgs = -1;
         this._cooldown = [];
+        this._requiredRoles = [];
         this._callback = function () { };
         this.instance = instance;
         this.client = client;

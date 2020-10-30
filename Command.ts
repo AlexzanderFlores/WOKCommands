@@ -12,6 +12,7 @@ class Command {
   private _expectedArgs?: string
   private _description?: string
   private _cooldown: string[] = []
+  private _requiredRoles: string[] = []
   private _callback: Function = () => {}
 
   constructor(
