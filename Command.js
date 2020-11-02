@@ -6,7 +6,9 @@ var Command = /** @class */ (function () {
         this._minArgs = 0;
         this._maxArgs = -1;
         this._requiredPermissions = [];
+        this._requiredRoles = new Map(); // <GuildID, RoleIDs[]>
         this._callback = function () { };
+        this._disabled = [];
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -79,6 +81,28 @@ var Command = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Command.prototype.addRequiredRole = function (guildId, roleId) {
+        var _a, _b;
+        var array = ((_a = this._requiredRoles) === null || _a === void 0 ? void 0 : _a.get(guildId)) || [];
+        if (!array.includes(roleId)) {
+            array.push(roleId);
+            (_b = this._requiredRoles) === null || _b === void 0 ? void 0 : _b.set(guildId, array);
+            console.log("Added " + roleId + " to " + this._names[0] + " for guild " + guildId);
+        }
+    };
+    Command.prototype.removeRequiredRole = function (guildId, roleId) {
+        var _a;
+        var array = ((_a = this._requiredRoles) === null || _a === void 0 ? void 0 : _a.get(guildId)) || [];
+        var index = array ? array.indexOf(roleId) : -1;
+        if (array && index >= 0) {
+            array.splice(index, 1);
+            console.log("Removed " + roleId + " from " + this._names[0] + " for guild " + guildId);
+        }
+    };
+    Command.prototype.getRequiredRoles = function (guildId) {
+        var map = this._requiredRoles || new Map();
+        return map.get(guildId) || [];
+    };
     Object.defineProperty(Command.prototype, "callback", {
         get: function () {
             return this._callback;
@@ -86,6 +110,17 @@ var Command = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Command.prototype.disable = function (guildId) {
+        this._disabled.push(guildId);
+    };
+    Command.prototype.enable = function (guildId) {
+        if (!this._disabled.includes(guildId)) {
+            this._disabled.push(guildId);
+        }
+    };
+    Command.prototype.isDisabled = function (guildId) {
+        return this._disabled.includes(guildId);
+    };
     return Command;
 }());
 module.exports = Command;

@@ -1,11 +1,12 @@
 import { Client, Message } from 'discord.js'
 import WOKCommands from '..'
-import prefixes from '../modles/prefixes'
+import prefixes from '../models/prefixes'
 
 export = {
   minArgs: 0,
   maxArgs: 1,
   expectedArgs: '[New Prefix]',
+  requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the prefix for the current guild',
   callback: async (
     message: Message,

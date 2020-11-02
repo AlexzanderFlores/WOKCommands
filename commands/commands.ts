@@ -8,13 +8,13 @@ export = {
     message: Message,
     args: string[],
     text: string,
-    prefix: string,
     client: Client,
+    prefix: string,
     instance: WOKCommands
   ) => {
     let msg = 'Commands:\n'
 
-    for (const command of instance.commands) {
+    for (const command of instance.commandHandler.commands) {
       const { names, description } = command
       const mainName = names.shift() || ''
 
@@ -24,10 +24,9 @@ Aliases: ${names.length ? `"${names.join('", "')}"` : 'None'}
 Description: ${description || 'None'}
 Enabled: ${
         message.guild
-          ? instance.commandHandler.isCommandDisabled(
-              message.guild.id,
-              mainName
-            )
+          ? instance.commandHandler
+              .getCommand(mainName)
+              ?.isDisabled(message.guild.id)
             ? 'No'
             : 'Yes'
           : ''

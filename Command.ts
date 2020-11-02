@@ -1,4 +1,4 @@
-import { Client, GuildMember, Message } from 'discord.js'
+import { Client, Message } from 'discord.js'
 import WOKCommands from '.'
 import ICmdConfig from './interfaces/ICmdConfig'
 
@@ -12,7 +12,9 @@ class Command {
   private _expectedArgs?: string
   private _description?: string
   private _requiredPermissions?: string[] = []
+  private _requiredRoles?: Map<String, string[]> = new Map() // <GuildID, RoleIDs[]>
   private _callback: Function = () => {}
+  private _disabled: string[] = []
 
   constructor(
     instance: WOKCommands,
@@ -97,8 +99,49 @@ class Command {
     return this._requiredPermissions
   }
 
+  public addRequiredRole(guildId: string, roleId: string) {
+    const array = this._requiredRoles?.get(guildId) || []
+    if (!array.includes(roleId)) {
+      array.push(roleId)
+      this._requiredRoles?.set(guildId, array)
+
+      console.log(`Added ${roleId} to ${this._names[0]} for guild ${guildId}`)
+    }
+  }
+
+  public removeRequiredRole(guildId: string, roleId: string) {
+    const array = this._requiredRoles?.get(guildId) || []
+    const index = array ? array.indexOf(roleId) : -1
+    if (array && index >= 0) {
+      array.splice(index, 1)
+
+      console.log(
+        `Removed ${roleId} from ${this._names[0]} for guild ${guildId}`
+      )
+    }
+  }
+
+  public getRequiredRoles(guildId: string): string[] {
+    const map = this._requiredRoles || new Map()
+    return map.get(guildId) || []
+  }
+
   public get callback(): Function {
     return this._callback
+  }
+
+  public disable(guildId: string) {
+    this._disabled.push(guildId)
+  }
+
+  public enable(guildId: string) {
+    if (!this._disabled.includes(guildId)) {
+      this._disabled.push(guildId)
+    }
+  }
+
+  public isDisabled(guildId: string) {
+    return this._disabled.includes(guildId)
   }
 }
 

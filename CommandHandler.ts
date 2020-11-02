@@ -4,12 +4,12 @@ import WOKCommands from '.'
 import Command from './Command'
 import getAllFiles from './get-all-files'
 import ICommand from './interfaces/ICommand'
-import disabledCommands from './modles/disabled-commands'
+import disabledCommands from './models/disabled-commands'
+import requiredRoles from './models/required-roles'
 import permissions from './permissions'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
-  private _disabled: Map<String, String[]> = new Map() // <GuildID, Command Name>
 
   constructor(instance: WOKCommands, client: Client, dir: string) {
     if (dir) {
@@ -49,10 +49,7 @@ class CommandHandler {
                 const command = this._commands.get(name)
                 if (command) {
                   if (guild) {
-                    const isDisabled = instance.commandHandler.isCommandDisabled(
-                      guild.id,
-                      command.names[0]
-                    )
+                    const isDisabled = command.isDisabled(guild.id)
 
                     if (isDisabled) {
                       message.reply(
@@ -71,13 +68,35 @@ class CommandHandler {
                   } = command
                   let { syntaxError = instance.syntaxError } = command
 
-                  for (const perm of requiredPermissions) {
-                    // @ts-ignore
-                    if (!member?.hasPermission(perm)) {
-                      message.reply(
-                        `You must have the "${perm}" permission in order to use this command.`
-                      )
-                      return
+                  if (guild && member) {
+                    for (const perm of requiredPermissions) {
+                      // @ts-ignore
+                      if (!member.hasPermission(perm)) {
+                        message.reply(
+                          `You must have the "${perm}" permission in order to use this command.`
+                        )
+                        return
+                      }
+                    }
+
+                    const roles = command.getRequiredRoles(guild.id)
+
+                    if (roles && roles.length) {
+                      let hasRole = false
+
+                      for (const role of roles) {
+                        if (member.roles.cache.has(role)) {
+                          hasRole = true
+                          break
+                        }
+                      }
+
+                      if (!hasRole) {
+                        message.reply(
+                          'You do not have any of the required roles to use this command!'
+                        )
+                        return
+                      }
                     }
                   }
 
@@ -203,15 +222,24 @@ class CommandHandler {
 
   public get commands(): ICommand[] {
     const results: { names: string[]; description: string }[] = []
+    const added: string[] = []
 
     this._commands.forEach(({ names, description = '' }) => {
-      results.push({
-        names: [...names],
-        description,
-      })
+      if (!added.includes(names[0])) {
+        results.push({
+          names: [...names],
+          description,
+        })
+
+        added.push(names[0])
+      }
     })
 
     return results
+  }
+
+  public getCommand(name: string): Command | undefined {
+    return this._commands.get(name)
   }
 
   public async fetchDisabledCommands() {
@@ -220,33 +248,23 @@ class CommandHandler {
     for (const result of results) {
       const { guildId, command } = result
 
-      const array = this._disabled.get(guildId) || []
-      array.push(command)
-      this._disabled.set(guildId, array)
-    }
-
-    console.log(this._disabled)
-  }
-
-  public disableCommand(guildId: string, command: string) {
-    const array = this._disabled.get(guildId) || []
-    if (array && !array.includes(command)) {
-      array.push(command)
-      this._disabled.set(guildId, array)
+      this._commands.get(command)?.disable(guildId)
     }
   }
 
-  public enableCommand(guildId: string, command: string) {
-    const array = this._disabled.get(guildId) || []
-    const index = array ? array.indexOf(command) : -1
-    if (array && index >= 0) {
-      array.splice(index, 1)
-    }
-  }
+  public async fetchRequiredRoles() {
+    const results: any[] = await requiredRoles.find({})
 
-  public isCommandDisabled(guildId: string, command: string): boolean {
-    const array = this._disabled.get(guildId)
-    return (array && array.includes(command)) || false
+    for (const result of results) {
+      const { guildId, command, requiredRoles } = result
+
+      const cmd = this._commands.get(command)
+      if (cmd) {
+        for (const roleId of requiredRoles) {
+          cmd.addRequiredRole(guildId, roleId)
+        }
+      }
+    }
   }
 }
 

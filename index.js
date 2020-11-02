@@ -42,7 +42,7 @@ var path_1 = __importDefault(require("path"));
 var CommandHandler_1 = __importDefault(require("./CommandHandler"));
 var FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 var mongo_1 = __importDefault(require("./mongo"));
-var prefixes_1 = __importDefault(require("./modles/prefixes"));
+var prefixes_1 = __importDefault(require("./models/prefixes"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
 var WOKCommands = /** @class */ (function () {
     function WOKCommands(client, commandsDir, featureDir) {
@@ -162,20 +162,6 @@ var WOKCommands = /** @class */ (function () {
     Object.defineProperty(WOKCommands.prototype, "commandHandler", {
         get: function () {
             return this._commandHandler;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(WOKCommands.prototype, "commands", {
-        get: function () {
-            return this._commandHandler.commands;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(WOKCommands.prototype, "commandAmount", {
-        get: function () {
-            return this.commands.length;
         },
         enumerable: false,
         configurable: true

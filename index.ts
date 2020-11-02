@@ -2,9 +2,8 @@ import { Client, Guild } from 'discord.js'
 import path from 'path'
 import CommandHandler from './CommandHandler'
 import FeatureHandler from './FeatureHandler'
-import ICommand from './interfaces/ICommand'
 import mongo from './mongo'
-import prefixes from './modles/prefixes'
+import prefixes from './models/prefixes'
 import getAllFiles from './get-all-files'
 
 class WOKCommands {
@@ -124,14 +123,6 @@ class WOKCommands {
 
   public get commandHandler(): CommandHandler {
     return this._commandHandler
-  }
-
-  public get commands(): ICommand[] {
-    return this._commandHandler.commands
-  }
-
-  public get commandAmount(): number {
-    return this.commands.length
   }
 }
 

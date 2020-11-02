@@ -1,11 +1,12 @@
 import { Client, Message } from 'discord.js'
 import WOKCommands from '..'
-import disabledCommands from '../modles/disabled-commands'
+import disabledCommands from '../models/disabled-commands'
 
 export = {
   minArgs: 2,
   maxArgs: 2,
   expectedArgs: '<"enable" or "disable"> <Command Name>',
+  requiredPermissions: ['ADMINISTRATOR'],
   description: 'Enables or disables a command for this guild',
   callback: async (
     message: Message,
@@ -16,7 +17,7 @@ export = {
     instance: WOKCommands
   ) => {
     const newState = args.shift()?.toLowerCase()
-    const name = args.shift()?.toLowerCase()
+    const name = (args.shift() || '').toLowerCase()
 
     if (newState !== 'enable' && newState !== 'disable') {
       message.reply('The state must be either "enable" or "disable"')
@@ -29,53 +30,47 @@ export = {
       return
     }
 
-    for (const { names } of instance.commands) {
-      // @ts-ignore
-      if (names.includes(name)) {
-        const mainCommand = names[0]
-        const isDisabled = instance.commandHandler.isCommandDisabled(
-          guild.id,
-          mainCommand
-        )
+    const command = instance.commandHandler.getCommand(name)
 
-        if (newState === 'enable') {
-          if (!isDisabled) {
-            message.reply('That command is already enabled!')
-            return
-          }
+    if (command) {
+      const mainCommand = command.names[0]
+      const isDisabled = command.isDisabled(guild.id)
 
-          await disabledCommands.deleteOne({
-            guildId: guild.id,
-            command: mainCommand,
-          })
-
-          instance.commandHandler.enableCommand(guild.id, mainCommand)
-
-          message.reply(`"${mainCommand}" is now enabled!`)
-        } else {
-          if (isDisabled) {
-            message.reply('That command is already disabled!')
-            return
-          }
-
-          await new disabledCommands({
-            guildId: guild.id,
-            command: mainCommand,
-          }).save()
-
-          instance.commandHandler.disableCommand(guild.id, mainCommand)
-
-          message.reply(`"${mainCommand}" is now disabled!`)
+      if (newState === 'enable') {
+        if (!isDisabled) {
+          message.reply('That command is already enabled!')
+          return
         }
 
-        return
-      }
-    }
+        await disabledCommands.deleteOne({
+          guildId: guild.id,
+          command: mainCommand,
+        })
 
-    message.reply(
-      `Could not find command "${name}"! View all commands with "${instance.getPrefix(
-        guild
-      )}commands"`
-    )
+        command.enable(guild.id)
+
+        message.reply(`"${mainCommand}" is now enabled!`)
+      } else {
+        if (isDisabled) {
+          message.reply('That command is already disabled!')
+          return
+        }
+
+        await new disabledCommands({
+          guildId: guild.id,
+          command: mainCommand,
+        }).save()
+
+        command.disable(guild.id)
+
+        message.reply(`"${mainCommand}" is now disabled!`)
+      }
+    } else {
+      message.reply(
+        `Could not find command "${name}"! View all commands with "${instance.getPrefix(
+          guild
+        )}commands"`
+      )
+    }
   },
 }

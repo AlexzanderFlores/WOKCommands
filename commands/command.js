@@ -38,20 +38,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var disabled_commands_1 = __importDefault(require("../modles/disabled-commands"));
+var disabled_commands_1 = __importDefault(require("../models/disabled-commands"));
 module.exports = {
     minArgs: 2,
     maxArgs: 2,
     expectedArgs: '<"enable" or "disable"> <Command Name>',
+    requiredPermissions: ['ADMINISTRATOR'],
     description: 'Enables or disables a command for this guild',
     callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var newState, name, guild, _i, _a, names, mainCommand, isDisabled;
-        var _b, _c;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var newState, name, guild, command, mainCommand, isDisabled;
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    newState = (_b = args.shift()) === null || _b === void 0 ? void 0 : _b.toLowerCase();
-                    name = (_c = args.shift()) === null || _c === void 0 ? void 0 : _c.toLowerCase();
+                    newState = (_a = args.shift()) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+                    name = (args.shift() || '').toLowerCase();
                     if (newState !== 'enable' && newState !== 'disable') {
                         message.reply('The state must be either "enable" or "disable"');
                         return [2 /*return*/];
@@ -61,15 +62,11 @@ module.exports = {
                         message.reply('You cannot enable or disable commands in private messages');
                         return [2 /*return*/];
                     }
-                    _i = 0, _a = instance.commands;
-                    _d.label = 1;
-                case 1:
-                    if (!(_i < _a.length)) return [3 /*break*/, 7];
-                    names = _a[_i].names;
-                    if (!names.includes(name)) return [3 /*break*/, 6];
-                    mainCommand = names[0];
-                    isDisabled = instance.commandHandler.isCommandDisabled(guild.id, mainCommand);
-                    if (!(newState === 'enable')) return [3 /*break*/, 3];
+                    command = instance.commandHandler.getCommand(name);
+                    if (!command) return [3 /*break*/, 5];
+                    mainCommand = command.names[0];
+                    isDisabled = command.isDisabled(guild.id);
+                    if (!(newState === 'enable')) return [3 /*break*/, 2];
                     if (!isDisabled) {
                         message.reply('That command is already enabled!');
                         return [2 /*return*/];
@@ -78,12 +75,12 @@ module.exports = {
                             guildId: guild.id,
                             command: mainCommand,
                         })];
-                case 2:
-                    _d.sent();
-                    instance.commandHandler.enableCommand(guild.id, mainCommand);
+                case 1:
+                    _b.sent();
+                    command.enable(guild.id);
                     message.reply("\"" + mainCommand + "\" is now enabled!");
-                    return [3 /*break*/, 5];
-                case 3:
+                    return [3 /*break*/, 4];
+                case 2:
                     if (isDisabled) {
                         message.reply('That command is already disabled!');
                         return [2 /*return*/];
@@ -92,18 +89,16 @@ module.exports = {
                             guildId: guild.id,
                             command: mainCommand,
                         }).save()];
-                case 4:
-                    _d.sent();
-                    instance.commandHandler.disableCommand(guild.id, mainCommand);
+                case 3:
+                    _b.sent();
+                    command.disable(guild.id);
                     message.reply("\"" + mainCommand + "\" is now disabled!");
-                    _d.label = 5;
-                case 5: return [2 /*return*/];
-                case 6:
-                    _i++;
-                    return [3 /*break*/, 1];
-                case 7:
+                    _b.label = 4;
+                case 4: return [3 /*break*/, 6];
+                case 5:
                     message.reply("Could not find command \"" + name + "\"! View all commands with \"" + instance.getPrefix(guild) + "commands\"");
-                    return [2 /*return*/];
+                    _b.label = 6;
+                case 6: return [2 /*return*/];
             }
         });
     }); },

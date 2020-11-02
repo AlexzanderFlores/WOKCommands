@@ -16,10 +16,10 @@
 - [Enable or Disable a Command](#enable-or-disable-a-command)
 - [Required Permissions](#required-permissions)
 - [Configurable Required Roles](#configurable-required-roles)
-- [Command Cooldowns](#command-cooldowns)
+<!-- - [Command Cooldowns](#command-cooldowns)
   - [Global Cooldowns](#global-cooldowns)
   - [Configurable Cooldown Error Messages](#configurable-cooldown-error-messages)
-- [Channel Specific Commands](#channel-specific-commands)
+- [Channel Specific Commands](#channel-specific-commands) -->
 - [Support & Feature Requests](#support--feature-requests)
 
 # Installation
@@ -126,7 +126,25 @@ module.exports = {
 
 This will make `!ping`, `!runping`, and `!p` execute the command. There are various popular command formats. This approach of multiple options is meant to help support them out of the box without many changes on your part.
 
-The `callback` function can also be named `run` or `execute`.
+The `callback` function can also be named `run` or `execute`. This function can accept the following parameters:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  callback: (message, args, text, client, prefix, instance) => {
+    message.reply('pong')
+  }
+}
+```
+
+1. `message`: The standard Message object
+2. `args`: An array of all arguments provided with the command
+3. `text`: A string version of the args array
+4. `client`: The Discod.JS client for your bot
+5. `prefix`: The prefix for the server this command is being ran in, or "!" is one is not set
+6. `instance`: The WOKCommands instance which will contain some helper methods
 
 # Argument Rules
 
@@ -244,7 +262,7 @@ This will allow server owners to dynamically configure commands for their own se
 
 Using "none" will remove all required roles for that command.
 
-# Command Cooldowns
+<!-- # Command Cooldowns
 
 _This feature might require a MongoDB connection to be present._
 
@@ -312,7 +330,7 @@ Sometimes you may want a command to only be ran in a specific channel. WOKComman
 
 `!channelOnly <Command Name> <Channel Tag>`
 
-This will allow the server owners to specify a command and tag a channel to only allow that command to be ran in that channel. Running the exact command again will toggle the channel requirement.
+This will allow the server owners to specify a command and tag a channel to only allow that command to be ran in that channel. Running the exact command again will toggle the channel requirement. -->
 
 # Support & Feature Requests
 
