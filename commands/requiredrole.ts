@@ -9,7 +9,7 @@ export = {
   expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Specifies what role each command requires.',
-  callback: (
+  callback: async (
     message: Message,
     args: string[],
     text: string,
@@ -37,11 +37,33 @@ export = {
       if (roleId === 'none') {
         command.removeRequiredRole(guild.id, roleId)
 
+        await requiredRoleSchema.deleteOne({
+          guildId: guild.id,
+          command: command.names[0],
+        })
+
         message.reply(
           `Removed all required roles from command "${command.names[0]}"`
         )
       } else {
         command.addRequiredRole(guild.id, roleId)
+
+        await requiredRoleSchema.findOneAndUpdate(
+          {
+            guildId: guild.id,
+            command: command.names[0],
+          },
+          {
+            guildId: guild.id,
+            command: command.names[0],
+            $addToSet: {
+              requiredRoles: roleId,
+            },
+          },
+          {
+            upsert: true,
+          }
+        )
 
         message.reply(`Added role "${roleId}" to command "${command.names[0]}"`)
       }

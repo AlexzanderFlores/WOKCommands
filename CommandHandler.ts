@@ -19,6 +19,7 @@ class CommandHandler {
         const amount = files.length
         if (amount > 0) {
           this.fetchDisabledCommands()
+          this.fetchRequiredRoles()
 
           console.log(
             `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`

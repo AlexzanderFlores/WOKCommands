@@ -110,6 +110,11 @@ class Command {
   }
 
   public removeRequiredRole(guildId: string, roleId: string) {
+    if (roleId === 'none') {
+      this._requiredRoles?.delete(guildId)
+      return
+    }
+
     const array = this._requiredRoles?.get(guildId) || []
     const index = array ? array.indexOf(roleId) : -1
     if (array && index >= 0) {
@@ -131,12 +136,15 @@ class Command {
   }
 
   public disable(guildId: string) {
-    this._disabled.push(guildId)
+    if (!this._disabled.includes(guildId)) {
+      this._disabled.push(guildId)
+    }
   }
 
   public enable(guildId: string) {
-    if (!this._disabled.includes(guildId)) {
-      this._disabled.push(guildId)
+    const index = this._disabled.indexOf(guildId)
+    if (index >= 0) {
+      this._disabled.splice(index, 1)
     }
   }
 

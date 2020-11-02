@@ -61,6 +61,7 @@ var CommandHandler = /** @class */ (function () {
                 var amount = files.length;
                 if (amount > 0) {
                     this.fetchDisabledCommands();
+                    this.fetchRequiredRoles();
                     console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
                     for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
                         var _a = files_1[_i], file = _a[0], fileName = _a[1];
