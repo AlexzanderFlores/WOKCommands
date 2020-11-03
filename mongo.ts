@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Connection } from 'mongoose'
 
 const results: {
   [name: number]: string
@@ -20,6 +20,10 @@ const mongo = async (mongoPath: string) => {
   const state = results[mongoose.connection.readyState] || 'Unknown'
 
   console.log('Mongo State:', state)
+}
+
+export const getMongoConnection = (): Connection => {
+  return mongoose.connection
 }
 
 export default mongo

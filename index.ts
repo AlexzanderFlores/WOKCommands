@@ -1,8 +1,10 @@
 import { Client, Guild } from 'discord.js'
 import path from 'path'
+import { Connection } from 'mongoose'
+
 import CommandHandler from './CommandHandler'
 import FeatureHandler from './FeatureHandler'
-import mongo from './mongo'
+import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import getAllFiles from './get-all-files'
 
@@ -11,6 +13,7 @@ class WOKCommands {
   private _commandsDir = 'commands'
   private _featureDir = ''
   private _mongo = ''
+  private _mongoConnection: Connection | null = null
   private _syntaxError = 'Incorrect usage!'
   private _prefixes: { [name: string]: string } = {}
   private _commandHandler: CommandHandler
@@ -48,9 +51,11 @@ class WOKCommands {
       this._featureHandler = new FeatureHandler(client, this._featureDir)
     }
 
-    setTimeout(() => {
+    setTimeout(async () => {
       if (this._mongo) {
-        mongo(this._mongo)
+        await mongo(this._mongo)
+
+        this._mongoConnection = getMongoConnection()
       } else {
         console.warn(
           'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
@@ -123,6 +128,10 @@ class WOKCommands {
 
   public get commandHandler(): CommandHandler {
     return this._commandHandler
+  }
+
+  public get mongoConnection(): Connection | null {
+    return this._mongoConnection
   }
 }
 

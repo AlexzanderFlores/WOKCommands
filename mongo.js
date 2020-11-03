@@ -39,6 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMongoConnection = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
 var results = {
     0: 'Disconnected',
@@ -64,4 +65,7 @@ var mongo = function (mongoPath) { return __awaiter(void 0, void 0, void 0, func
         }
     });
 }); };
+exports.getMongoConnection = function () {
+    return mongoose_1.default.connection;
+};
 exports.default = mongo;

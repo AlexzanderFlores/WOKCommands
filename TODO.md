@@ -1,6 +1,6 @@
 [X] Add Mongo connection logging
 
-[ ] Add a function to get the current mongo connection
+[X] Add a function to get the current mongo connection
 
 [ ] Per-user cooldowns (shows time left)
 
