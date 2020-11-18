@@ -1,8 +1,9 @@
 "use strict";
 var Command = /** @class */ (function () {
     function Command(instance, client, names, callback, _a) {
-        var minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions;
+        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions;
         this._names = [];
+        this._category = '';
         this._minArgs = 0;
         this._maxArgs = -1;
         this._requiredPermissions = [];
@@ -12,6 +13,7 @@ var Command = /** @class */ (function () {
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
+        this._category = category;
         this._minArgs = minArgs || 0;
         this._maxArgs = maxArgs === undefined ? -1 : maxArgs;
         this._syntaxError = syntaxError;
@@ -35,6 +37,13 @@ var Command = /** @class */ (function () {
     Object.defineProperty(Command.prototype, "names", {
         get: function () {
             return this._names;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Command.prototype, "category", {
+        get: function () {
+            return this._category;
         },
         enumerable: false,
         configurable: true

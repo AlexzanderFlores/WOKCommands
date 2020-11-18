@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -74,6 +74,7 @@ var WOKCommands = /** @class */ (function () {
         this._syntaxError = 'Incorrect usage!';
         this._prefixes = {};
         this._featureHandler = null;
+        this._tagPeople = true;
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
@@ -198,6 +199,16 @@ var WOKCommands = /** @class */ (function () {
     Object.defineProperty(WOKCommands.prototype, "mongoConnection", {
         get: function () {
             return this._mongoConnection;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    WOKCommands.prototype.setTagPeople = function (tagPeople) {
+        this._tagPeople = tagPeople;
+    };
+    Object.defineProperty(WOKCommands.prototype, "tagPeople", {
+        get: function () {
+            return this._tagPeople;
         },
         enumerable: false,
         configurable: true

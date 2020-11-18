@@ -149,7 +149,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         var configuration = require(file);
-        var _a = configuration.name, name = _a === void 0 ? fileName : _a, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions;
+        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions;
         var callbackCounter = 0;
         if (callback)
             ++callbackCounter;
@@ -178,6 +178,9 @@ var CommandHandler = /** @class */ (function () {
                 }
             }
         }
+        if (!category) {
+            console.warn("WOKCommands > Command \"" + names[0] + "\" does not have a \"category\" property.");
+        }
         if (!description) {
             console.warn("WOKCommands > Command \"" + names[0] + "\" does not have a \"description\" property.");
         }
@@ -196,10 +199,11 @@ var CommandHandler = /** @class */ (function () {
             var results = [];
             var added = [];
             this._commands.forEach(function (_a) {
-                var names = _a.names, _b = _a.description, description = _b === void 0 ? '' : _b;
+                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c;
                 if (!added.includes(names[0])) {
                     results.push({
                         names: __spreadArrays(names),
+                        category: category,
                         description: description,
                     });
                     added.push(names[0]);

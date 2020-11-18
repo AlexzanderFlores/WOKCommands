@@ -149,6 +149,7 @@ class CommandHandler {
     const configuration = require(file)
     const {
       name = fileName,
+      category,
       commands,
       aliases,
       callback,
@@ -197,6 +198,12 @@ class CommandHandler {
       }
     }
 
+    if (!category) {
+      console.warn(
+        `WOKCommands > Command "${names[0]}" does not have a "category" property.`
+      )
+    }
+
     if (!description) {
       console.warn(
         `WOKCommands > Command "${names[0]}" does not have a "description" property.`
@@ -222,13 +229,18 @@ class CommandHandler {
   }
 
   public get commands(): ICommand[] {
-    const results: { names: string[]; description: string }[] = []
+    const results: {
+      names: string[]
+      category: string
+      description: string
+    }[] = []
     const added: string[] = []
 
-    this._commands.forEach(({ names, description = '' }) => {
+    this._commands.forEach(({ names, category = '', description = '' }) => {
       if (!added.includes(names[0])) {
         results.push({
           names: [...names],
+          category,
           description,
         })
 

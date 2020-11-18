@@ -18,6 +18,7 @@ class WOKCommands {
   private _prefixes: { [name: string]: string } = {}
   private _commandHandler: CommandHandler
   private _featureHandler: FeatureHandler | null = null
+  private _tagPeople = true
 
   constructor(client: Client, commandsDir?: string, featureDir?: string) {
     if (!client) {
@@ -132,6 +133,14 @@ class WOKCommands {
 
   public get mongoConnection(): Connection | null {
     return this._mongoConnection
+  }
+
+  public setTagPeople(tagPeople: boolean) {
+    this._tagPeople = tagPeople
+  }
+
+  public get tagPeople() {
+    return this._tagPeople
   }
 }
 

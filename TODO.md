@@ -24,4 +24,4 @@
 
 [ ] Ability to customize who can run the pre-made commands (not just admins)
 
-[ ] Use channel.send() instead of .reply()
+[ ] Configurable channel.send() instead of .reply()

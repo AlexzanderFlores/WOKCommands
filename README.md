@@ -8,11 +8,13 @@
 
 - [Installation](#installation)
 - [Setup](#setup)
+- [Setting a Custom Prefix](#setting-a-custom-prefix)
 - [Creating a Feature](#creating-a-feature)
 - [Creating a Command](#creating-a-command)
 - [Argument Rules](#argument-rules)
   - [Global Syntax Errors](#global-syntax-errors)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
+- [Dynamic Help Menu](#dynamic-help-menu)
 - [Enable or Disable a Command](#enable-or-disable-a-command)
 - [Required Permissions](#required-permissions)
 - [Configurable Required Roles](#configurable-required-roles)
@@ -68,6 +70,29 @@ client.on('ready', () => {
 
 client.login(process.env.TOKEN)
 ```
+
+# Setting a Custom Prefix
+
+You can easily set a custom command prefix for your bot using the following:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client()
+
+client.on('ready', () => {
+  // Initialize WOKCommands with specific folders and MongoDB
+  new WOKCommands(client, 'commands', 'features')
+    .setMongoPath(process.env.MONGO_URI)
+    .setDefaultPrefix('?')
+})
+
+client.login(process.env.TOKEN)
+```
+
+The default prefix is ! so this code snippet will make your bot's prefix ? instead.
 
 # Creating a Feature
 
@@ -146,6 +171,22 @@ module.exports = {
 5. `prefix`: The prefix for the server this command is being ran in, or "!" is one is not set
 6. `instance`: The WOKCommands instance which will contain some helper methods
 
+You can also specify an optional command category for each command:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  category: 'Fun',
+  callback: (message) => {
+    message.reply('pong')
+  }
+}
+```
+
+This is most useful for a dynamic help menu.
+
 # Argument Rules
 
 You can easily specify how many arguments are required as well as provide an error message per command. Let's say that you want the above "ping" command to never have any arguments. You can easily accomplish that with the following code:
@@ -219,15 +260,38 @@ Allowing server owners to configure your bot's prefix will help prevent prefix c
 
 The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix.
 
+# Dynamic Help Menu
+
+Each help menu is different and your bot might require specific needs. Due to this a help menu is something you will have to create on your own, but WOKCommands does give you a useful function for the job:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client()
+
+client.on('ready', () => {
+  // Initialize WOKCommands with specific folders and MongoDB
+  const wok = new WOKCommands(client, 'commands', 'features')
+    .setMongoPath(process.env.MONGO_URI)
+    .setDefaultPrefix('?')
+
+  wok.commandHandler.commands.forEach((command) => {
+    console.log(command)
+  })
+})
+
+client.login(process.env.TOKEN)
+```
+
+This will log important information regarding each command. You can use this within a help command to display a meaningful dynamic help menu.
+
 # Enable or Disable a Command
 
 Server owners might not want all commands your bot comes with. It's important to allow them to enable or disable each command, and WOKCommands comes with this functionality out of the box.
 
-Server owners can view all commands or features with the following command:
-
-`!commands`
-
-This will then display a message with all commands, as well as their enabled or disable status. Server owners can toggle a command with the following command:
+Server owners can toggle a command with the following command:
 
 `!command <"enable" | "disable"> <Command Name>`
 

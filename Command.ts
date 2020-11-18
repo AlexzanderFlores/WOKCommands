@@ -6,6 +6,7 @@ class Command {
   private instance: WOKCommands
   private client: Client
   private _names: string[] = []
+  private _category = ''
   private _minArgs: number = 0
   private _maxArgs: number = -1
   private _syntaxError?: string
@@ -22,6 +23,7 @@ class Command {
     names: string[],
     callback: Function,
     {
+      category,
       minArgs,
       maxArgs,
       syntaxError,
@@ -33,6 +35,7 @@ class Command {
     this.instance = instance
     this.client = client
     this._names = typeof names === 'string' ? [names] : names
+    this._category = category
     this._minArgs = minArgs || 0
     this._maxArgs = maxArgs === undefined ? -1 : maxArgs
     this._syntaxError = syntaxError
@@ -73,6 +76,10 @@ class Command {
 
   public get names(): string[] {
     return this._names
+  }
+
+  public get category(): string {
+    return this._category
   }
 
   public get minArgs(): number {
