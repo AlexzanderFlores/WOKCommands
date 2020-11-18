@@ -198,15 +198,19 @@ class CommandHandler {
       }
     }
 
+    const missing = []
+
     if (!category) {
-      console.warn(
-        `WOKCommands > Command "${names[0]}" does not have a "category" property.`
-      )
+      missing.push('Category')
     }
 
     if (!description) {
+      missing.push('Description')
+    }
+
+    if (missing) {
       console.warn(
-        `WOKCommands > Command "${names[0]}" does not have a "description" property.`
+        `WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`
       )
     }
 

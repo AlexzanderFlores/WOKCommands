@@ -178,11 +178,15 @@ var CommandHandler = /** @class */ (function () {
                 }
             }
         }
+        var missing = [];
         if (!category) {
-            console.warn("WOKCommands > Command \"" + names[0] + "\" does not have a \"category\" property.");
+            missing.push('Category');
         }
         if (!description) {
-            console.warn("WOKCommands > Command \"" + names[0] + "\" does not have a \"description\" property.");
+            missing.push('Description');
+        }
+        if (missing) {
+            console.warn("WOKCommands > Command \"" + names[0] + "\" does not have the following properties: " + missing + ".");
         }
         var hasCallback = callback || execute || run;
         if (hasCallback) {
