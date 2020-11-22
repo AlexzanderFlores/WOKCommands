@@ -9,4 +9,5 @@ export default interface ICmdConfig {
   requiredPermissions?: string[]
   callback: Function
   cooldown: string
+  globalCooldown: string
 }

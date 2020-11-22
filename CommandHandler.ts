@@ -60,13 +60,14 @@ class CommandHandler {
                     }
                   }
 
-                  const { member } = message
+                  const { member, author: user } = message
                   const {
                     minArgs,
                     maxArgs,
                     expectedArgs,
                     requiredPermissions = [],
                     cooldown,
+                    globalCooldown,
                   } = command
                   let { syntaxError = instance.syntaxError } = command
 
@@ -130,8 +131,13 @@ class CommandHandler {
                   }
 
                   // Check for cooldowns
-                  if (cooldown && member) {
-                    const secondsLeft = command.getCooldownSeconds(member.id)
+                  if ((cooldown || globalCooldown) && user) {
+                    const guildId = guild ? guild.id : 'dm'
+
+                    const secondsLeft = command.getCooldownSeconds(
+                      guildId,
+                      user.id
+                    )
                     if (secondsLeft) {
                       message.reply(
                         `You must wait ${secondsLeft} before using that command again.`
@@ -139,7 +145,7 @@ class CommandHandler {
                       return
                     }
 
-                    command.setCooldown(member.id)
+                    command.setCooldown(guildId, user.id)
                   }
 
                   command.execute(message, args)
@@ -155,7 +161,7 @@ class CommandHandler {
 
     const decrementCountdown = () => {
       this._commands.forEach((command) => {
-        command.decrementCooldown()
+        command.decrementCooldowns()
       })
 
       setTimeout(decrementCountdown, 1000)

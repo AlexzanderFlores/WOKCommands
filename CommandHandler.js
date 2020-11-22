@@ -89,8 +89,8 @@ var CommandHandler = /** @class */ (function () {
                                             return;
                                         }
                                     }
-                                    var member = message.member;
-                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown = command.cooldown;
+                                    var member = message.member, user = message.author;
+                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown = command.cooldown, globalCooldown = command.globalCooldown;
                                     var _b = command.syntaxError, syntaxError = _b === void 0 ? instance.syntaxError : _b;
                                     if (guild && member) {
                                         for (var _i = 0, requiredPermissions_1 = requiredPermissions; _i < requiredPermissions_1.length; _i++) {
@@ -136,13 +136,14 @@ var CommandHandler = /** @class */ (function () {
                                         return;
                                     }
                                     // Check for cooldowns
-                                    if (cooldown && member) {
-                                        var secondsLeft = command.getCooldownSeconds(member.id);
+                                    if ((cooldown || globalCooldown) && user) {
+                                        var guildId = guild ? guild.id : 'dm';
+                                        var secondsLeft = command.getCooldownSeconds(guildId, user.id);
                                         if (secondsLeft) {
                                             message.reply("You must wait " + secondsLeft + " before using that command again.");
                                             return;
                                         }
-                                        command.setCooldown(member.id);
+                                        command.setCooldown(guildId, user.id);
                                     }
                                     command.execute(message, args);
                                 }
@@ -157,7 +158,7 @@ var CommandHandler = /** @class */ (function () {
         }
         var decrementCountdown = function () {
             _this._commands.forEach(function (command) {
-                command.decrementCooldown();
+                command.decrementCooldowns();
             });
             setTimeout(decrementCountdown, 1000);
         };

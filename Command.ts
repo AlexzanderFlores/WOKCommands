@@ -17,7 +17,9 @@ class Command {
   private _callback: Function = () => {}
   private _disabled: string[] = []
   private _cooldown: string
-  private _userCooldowns: Map<String, number> = new Map() // <GuildID-UserID, Seconds>
+  private _userCooldowns: Map<String, number> = new Map() // <GuildID-UserID, Seconds> OR <dm-UserID, Seconds>
+  private _globalCooldown: string
+  private _guildCooldowns: Map<String, number> = new Map() // <GuildID, Seconds>
 
   constructor(
     instance: WOKCommands,
@@ -33,6 +35,7 @@ class Command {
       description,
       requiredPermissions,
       cooldown,
+      globalCooldown,
     }: ICmdConfig
   ) {
     this.instance = instance
@@ -46,10 +49,21 @@ class Command {
     this._description = description
     this._requiredPermissions = requiredPermissions
     this._cooldown = cooldown || ''
+    this._globalCooldown = globalCooldown || ''
     this._callback = callback
 
-    if (this._cooldown) {
-      this.verifyCooldown()
+    if (this.cooldown && this.globalCooldown) {
+      throw new Error(
+        `Command "${names[0]}" has both a global and per-user cooldown. Commands can only have up to one of these properties.`
+      )
+    }
+
+    if (this.cooldown) {
+      this.verifyCooldown(this._cooldown, 'cooldown')
+    }
+
+    if (this.globalCooldown) {
+      this.verifyCooldown(this._globalCooldown, 'global cooldown')
     }
 
     if (this._minArgs < 0) {
@@ -118,64 +132,84 @@ class Command {
     return this._cooldown
   }
 
-  public verifyCooldown() {
-    const results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || []
+  public get globalCooldown(): string {
+    return this._globalCooldown
+  }
+
+  public verifyCooldown(cooldown: string, type: string) {
+    const results = cooldown.match(/[a-z]+|[^a-z]+/gi) || []
     if (results.length !== 2) {
       throw new Error(
-        `Invalid cooldown format! Please provide "<Duration><Type>", examples: "10s" "5m" etc.`
+        `Invalid ${type} format! Please provide "<Duration><Type>", examples: "10s" "5m" etc.`
       )
     }
 
     const num = +results[0]
     if (isNaN(num)) {
-      throw new Error(`Invalid cooldown format! Number is invalid.`)
+      throw new Error(`Invalid ${type} format! Number is invalid.`)
     }
 
     const char = results[1]
     if (char !== 's' && char !== 'm' && char !== 'h' && char !== 'd') {
       throw new Error(
-        `Invalid cooldown format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.`
+        `Invalid ${type} format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.`
       )
     }
   }
 
-  public decrementCooldown() {
-    this._userCooldowns.forEach((value, key) => {
-      if (--value <= 0) {
-        this._userCooldowns.delete(key)
-      } else {
-        this._userCooldowns.set(key, value)
+  /**
+   * Decrements per-user and global cooldowns
+   * Deletes expired cooldowns
+   */
+  public decrementCooldowns() {
+    for (const map of [this._userCooldowns, this._globalCooldown]) {
+      if (typeof map !== 'string') {
+        map.forEach((value, key) => {
+          if (--value <= 0) {
+            map.delete(key)
+          } else {
+            map.set(key, value)
+          }
+        })
       }
-    })
-  }
-
-  public setCooldown(userId: string) {
-    if (this.cooldown) {
-      const results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || []
-
-      let value = +results[0]
-      const type = results[1]
-
-      switch (type) {
-        case 'm':
-          value *= 60
-          break
-
-        case 'h':
-          value *= 60 * 60
-          break
-
-        case 'd':
-          value *= 60 * 60 * 24
-          break
-      }
-
-      this._userCooldowns.set(userId, value)
     }
   }
 
-  public getCooldownSeconds(userId: string): string {
-    let seconds = this._userCooldowns.get(userId)
+  public setCooldown(guildId: string, userId: string) {
+    const target = this.globalCooldown || this.cooldown
+
+    if (target) {
+      const results = target.match(/[a-z]+|[^a-z]+/gi) || []
+
+      let seconds = +results[0]
+      const durationType = results[1]
+
+      switch (durationType) {
+        case 'm':
+          seconds *= 60
+          break
+
+        case 'h':
+          seconds *= 60 * 60
+          break
+
+        case 'd':
+          seconds *= 60 * 60 * 24
+          break
+      }
+
+      if (this.globalCooldown) {
+        this._guildCooldowns.set(guildId, seconds)
+      } else {
+        this._userCooldowns.set(`${guildId}-${userId}`, seconds)
+      }
+    }
+  }
+
+  public getCooldownSeconds(guildId: string, userId: string): string {
+    let seconds = this.globalCooldown
+      ? this._guildCooldowns.get(guildId)
+      : this._userCooldowns.get(`${guildId}-${userId}`)
 
     if (!seconds) {
       return ''

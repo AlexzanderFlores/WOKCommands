@@ -1,7 +1,7 @@
 "use strict";
 var Command = /** @class */ (function () {
     function Command(instance, client, names, callback, _a) {
-        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, cooldown = _a.cooldown;
+        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown;
         this._names = [];
         this._category = '';
         this._minArgs = 0;
@@ -10,7 +10,8 @@ var Command = /** @class */ (function () {
         this._requiredRoles = new Map(); // <GuildID, RoleIDs[]>
         this._callback = function () { };
         this._disabled = [];
-        this._userCooldowns = new Map(); // <GuildID-UserID, Seconds>
+        this._userCooldowns = new Map(); // <GuildID-UserID, Seconds> OR <dm-UserID, Seconds>
+        this._guildCooldowns = new Map(); // <GuildID, Seconds>
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -22,9 +23,16 @@ var Command = /** @class */ (function () {
         this._description = description;
         this._requiredPermissions = requiredPermissions;
         this._cooldown = cooldown || '';
+        this._globalCooldown = globalCooldown || '';
         this._callback = callback;
-        if (this._cooldown) {
-            this.verifyCooldown();
+        if (this.cooldown && this.globalCooldown) {
+            throw new Error("Command \"" + names[0] + "\" has both a global and per-user cooldown. Commands can only have up to one of these properties.");
+        }
+        if (this.cooldown) {
+            this.verifyCooldown(this._cooldown, 'cooldown');
+        }
+        if (this.globalCooldown) {
+            this.verifyCooldown(this._globalCooldown, 'global cooldown');
         }
         if (this._minArgs < 0) {
             throw new Error("Command \"" + names[0] + "\" has a minimum argument count less than 0!");
@@ -102,52 +110,78 @@ var Command = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Command.prototype.verifyCooldown = function () {
-        var results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
+    Object.defineProperty(Command.prototype, "globalCooldown", {
+        get: function () {
+            return this._globalCooldown;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Command.prototype.verifyCooldown = function (cooldown, type) {
+        var results = cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
         if (results.length !== 2) {
-            throw new Error("Invalid cooldown format! Please provide \"<Duration><Type>\", examples: \"10s\" \"5m\" etc.");
+            throw new Error("Invalid " + type + " format! Please provide \"<Duration><Type>\", examples: \"10s\" \"5m\" etc.");
         }
         var num = +results[0];
         if (isNaN(num)) {
-            throw new Error("Invalid cooldown format! Number is invalid.");
+            throw new Error("Invalid " + type + " format! Number is invalid.");
         }
         var char = results[1];
         if (char !== 's' && char !== 'm' && char !== 'h' && char !== 'd') {
-            throw new Error("Invalid cooldown format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.");
+            throw new Error("Invalid " + type + " format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.");
         }
     };
-    Command.prototype.decrementCooldown = function () {
-        var _this = this;
-        this._userCooldowns.forEach(function (value, key) {
-            if (--value <= 0) {
-                _this._userCooldowns.delete(key);
+    /**
+     * Decrements per-user and global cooldowns
+     * Deletes expired cooldowns
+     */
+    Command.prototype.decrementCooldowns = function () {
+        var _loop_1 = function (map) {
+            if (typeof map !== 'string') {
+                map.forEach(function (value, key) {
+                    if (--value <= 0) {
+                        map.delete(key);
+                    }
+                    else {
+                        map.set(key, value);
+                    }
+                });
             }
-            else {
-                _this._userCooldowns.set(key, value);
-            }
-        });
+        };
+        for (var _i = 0, _a = [this._userCooldowns, this._globalCooldown]; _i < _a.length; _i++) {
+            var map = _a[_i];
+            _loop_1(map);
+        }
     };
-    Command.prototype.setCooldown = function (userId) {
-        if (this.cooldown) {
-            var results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
-            var value = +results[0];
-            var type = results[1];
-            switch (type) {
+    Command.prototype.setCooldown = function (guildId, userId) {
+        var target = this.globalCooldown || this.cooldown;
+        if (target) {
+            var results = target.match(/[a-z]+|[^a-z]+/gi) || [];
+            var seconds = +results[0];
+            var durationType = results[1];
+            switch (durationType) {
                 case 'm':
-                    value *= 60;
+                    seconds *= 60;
                     break;
                 case 'h':
-                    value *= 60 * 60;
+                    seconds *= 60 * 60;
                     break;
                 case 'd':
-                    value *= 60 * 60 * 24;
+                    seconds *= 60 * 60 * 24;
                     break;
             }
-            this._userCooldowns.set(userId, value);
+            if (this.globalCooldown) {
+                this._guildCooldowns.set(guildId, seconds);
+            }
+            else {
+                this._userCooldowns.set(guildId + "-" + userId, seconds);
+            }
         }
     };
-    Command.prototype.getCooldownSeconds = function (userId) {
-        var seconds = this._userCooldowns.get(userId);
+    Command.prototype.getCooldownSeconds = function (guildId, userId) {
+        var seconds = this.globalCooldown
+            ? this._guildCooldowns.get(guildId)
+            : this._userCooldowns.get(guildId + "-" + userId);
         if (!seconds) {
             return '';
         }
