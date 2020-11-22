@@ -8,4 +8,5 @@ export default interface ICmdConfig {
   description?: string
   requiredPermissions?: string[]
   callback: Function
+  cooldown: string
 }

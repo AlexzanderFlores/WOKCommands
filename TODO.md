@@ -2,7 +2,11 @@
 
 [X] Add a function to get the current mongo connection
 
-[ ] Per-user cooldowns (shows time left)
+[ ] Pagination dynamic help menu
+
+[ ] Ability to name and enable/disable features
+
+[X] Per-user cooldowns (shows time left)
 
 [ ] Global cooldowns (shows time left)
 
@@ -19,8 +23,6 @@
 [ ] Guild owner only commands
 
 [ ] Customizable help menu
-
-[ ] Default help menu in a user-friendly embed
 
 [ ] Ability to customize who can run the pre-made commands (not just admins)
 

@@ -66,6 +66,7 @@ class CommandHandler {
                     maxArgs,
                     expectedArgs,
                     requiredPermissions = [],
+                    cooldown,
                   } = command
                   let { syntaxError = instance.syntaxError } = command
 
@@ -128,6 +129,19 @@ class CommandHandler {
                     return
                   }
 
+                  // Check for cooldowns
+                  if (cooldown && member) {
+                    const secondsLeft = command.getCooldownSeconds(member.id)
+                    if (secondsLeft) {
+                      message.reply(
+                        `You must wait ${secondsLeft} before using that command again.`
+                      )
+                      return
+                    }
+
+                    command.setCooldown(member.id)
+                  }
+
                   command.execute(message, args)
                 }
               }
@@ -138,6 +152,15 @@ class CommandHandler {
         throw new Error(`Commands directory "${dir}" doesn't exist!`)
       }
     }
+
+    const decrementCountdown = () => {
+      this._commands.forEach((command) => {
+        command.decrementCooldown()
+      })
+
+      setTimeout(decrementCountdown, 1000)
+    }
+    decrementCountdown()
   }
 
   public registerCommand(
@@ -221,7 +244,7 @@ class CommandHandler {
         instance,
         client,
         names,
-        callback || execute || run,
+        hasCallback,
         configuration
       )
 

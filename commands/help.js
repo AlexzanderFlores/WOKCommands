@@ -40,6 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var disabled_commands_1 = __importDefault(require("../models/disabled-commands"));
 module.exports = {
+    aliases: ['commands'],
     minArgs: 2,
     maxArgs: 2,
     expectedArgs: '<"enable" or "disable"> <Command Name>',

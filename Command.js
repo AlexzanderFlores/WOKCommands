@@ -1,7 +1,7 @@
 "use strict";
 var Command = /** @class */ (function () {
     function Command(instance, client, names, callback, _a) {
-        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions;
+        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, cooldown = _a.cooldown;
         this._names = [];
         this._category = '';
         this._minArgs = 0;
@@ -10,6 +10,7 @@ var Command = /** @class */ (function () {
         this._requiredRoles = new Map(); // <GuildID, RoleIDs[]>
         this._callback = function () { };
         this._disabled = [];
+        this._userCooldowns = new Map(); // <GuildID-UserID, Seconds>
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -20,7 +21,11 @@ var Command = /** @class */ (function () {
         this._expectedArgs = expectedArgs;
         this._description = description;
         this._requiredPermissions = requiredPermissions;
+        this._cooldown = cooldown || '';
         this._callback = callback;
+        if (this._cooldown) {
+            this.verifyCooldown();
+        }
         if (this._minArgs < 0) {
             throw new Error("Command \"" + names[0] + "\" has a minimum argument count less than 0!");
         }
@@ -90,6 +95,81 @@ var Command = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Command.prototype, "cooldown", {
+        get: function () {
+            return this._cooldown;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Command.prototype.verifyCooldown = function () {
+        var results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
+        if (results.length !== 2) {
+            throw new Error("Invalid cooldown format! Please provide \"<Duration><Type>\", examples: \"10s\" \"5m\" etc.");
+        }
+        var num = +results[0];
+        if (isNaN(num)) {
+            throw new Error("Invalid cooldown format! Number is invalid.");
+        }
+        var char = results[1];
+        if (char !== 's' && char !== 'm' && char !== 'h' && char !== 'd') {
+            throw new Error("Invalid cooldown format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.");
+        }
+    };
+    Command.prototype.decrementCooldown = function () {
+        var _this = this;
+        this._userCooldowns.forEach(function (value, key) {
+            if (--value <= 0) {
+                _this._userCooldowns.delete(key);
+            }
+            else {
+                _this._userCooldowns.set(key, value);
+            }
+        });
+    };
+    Command.prototype.setCooldown = function (userId) {
+        if (this.cooldown) {
+            var results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
+            var value = +results[0];
+            var type = results[1];
+            switch (type) {
+                case 'm':
+                    value *= 60;
+                    break;
+                case 'h':
+                    value *= 60 * 60;
+                    break;
+                case 'd':
+                    value *= 60 * 60 * 24;
+                    break;
+            }
+            this._userCooldowns.set(userId, value);
+        }
+    };
+    Command.prototype.getCooldownSeconds = function (userId) {
+        var seconds = this._userCooldowns.get(userId);
+        if (!seconds) {
+            return '';
+        }
+        var days = Math.floor(seconds / (3600 * 24));
+        var hours = Math.floor((seconds % (3600 * 24)) / 3600);
+        var minutes = Math.floor((seconds % 3600) / 60);
+        seconds = Math.floor(seconds % 60);
+        var result = '';
+        if (days) {
+            result += days + "d ";
+        }
+        if (hours) {
+            result += hours + "h ";
+        }
+        if (minutes) {
+            result += minutes + "m ";
+        }
+        if (seconds) {
+            result += seconds + "s ";
+        }
+        return result.substring(0, result.length - 1);
+    };
     Command.prototype.addRequiredRole = function (guildId, roleId) {
         var _a, _b;
         var array = ((_a = this._requiredRoles) === null || _a === void 0 ? void 0 : _a.get(guildId)) || [];

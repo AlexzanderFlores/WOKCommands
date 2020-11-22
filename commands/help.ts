@@ -3,6 +3,7 @@ import WOKCommands from '..'
 import disabledCommands from '../models/disabled-commands'
 
 export = {
+  aliases: ['commands'],
   minArgs: 2,
   maxArgs: 2,
   expectedArgs: '<"enable" or "disable"> <Command Name>',

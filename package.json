@@ -10,7 +10,7 @@
   "author": "Alexzander Flores, WornOffKeys.com",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.4.1",
+    "discord.js": "^12.5.0",
     "dotenv": "^8.2.0",
     "mongoose": "^5.10.11"
   },

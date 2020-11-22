@@ -90,7 +90,7 @@ var CommandHandler = /** @class */ (function () {
                                         }
                                     }
                                     var member = message.member;
-                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a;
+                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown = command.cooldown;
                                     var _b = command.syntaxError, syntaxError = _b === void 0 ? instance.syntaxError : _b;
                                     if (guild && member) {
                                         for (var _i = 0, requiredPermissions_1 = requiredPermissions; _i < requiredPermissions_1.length; _i++) {
@@ -135,6 +135,15 @@ var CommandHandler = /** @class */ (function () {
                                         message.reply(syntaxError);
                                         return;
                                     }
+                                    // Check for cooldowns
+                                    if (cooldown && member) {
+                                        var secondsLeft = command.getCooldownSeconds(member.id);
+                                        if (secondsLeft) {
+                                            message.reply("You must wait " + secondsLeft + " before using that command again.");
+                                            return;
+                                        }
+                                        command.setCooldown(member.id);
+                                    }
                                     command.execute(message, args);
                                 }
                             }
@@ -146,6 +155,13 @@ var CommandHandler = /** @class */ (function () {
                 throw new Error("Commands directory \"" + dir + "\" doesn't exist!");
             }
         }
+        var decrementCountdown = function () {
+            _this._commands.forEach(function (command) {
+                command.decrementCooldown();
+            });
+            setTimeout(decrementCountdown, 1000);
+        };
+        decrementCountdown();
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         var configuration = require(file);
@@ -190,7 +206,7 @@ var CommandHandler = /** @class */ (function () {
         }
         var hasCallback = callback || execute || run;
         if (hasCallback) {
-            var command = new Command_1.default(instance, client, names, callback || execute || run, configuration);
+            var command = new Command_1.default(instance, client, names, hasCallback, configuration);
             for (var _b = 0, names_1 = names; _b < names_1.length; _b++) {
                 var name_2 = names_1[_b];
                 // Ensure the alias is lower case because we read as lower case later on

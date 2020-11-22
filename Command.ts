@@ -16,6 +16,8 @@ class Command {
   private _requiredRoles?: Map<String, string[]> = new Map() // <GuildID, RoleIDs[]>
   private _callback: Function = () => {}
   private _disabled: string[] = []
+  private _cooldown: string
+  private _userCooldowns: Map<String, number> = new Map() // <GuildID-UserID, Seconds>
 
   constructor(
     instance: WOKCommands,
@@ -30,6 +32,7 @@ class Command {
       expectedArgs,
       description,
       requiredPermissions,
+      cooldown,
     }: ICmdConfig
   ) {
     this.instance = instance
@@ -42,7 +45,12 @@ class Command {
     this._expectedArgs = expectedArgs
     this._description = description
     this._requiredPermissions = requiredPermissions
+    this._cooldown = cooldown || ''
     this._callback = callback
+
+    if (this._cooldown) {
+      this.verifyCooldown()
+    }
 
     if (this._minArgs < 0) {
       throw new Error(
@@ -104,6 +112,99 @@ class Command {
 
   public get requiredPermissions(): string[] | undefined {
     return this._requiredPermissions
+  }
+
+  public get cooldown(): string {
+    return this._cooldown
+  }
+
+  public verifyCooldown() {
+    const results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || []
+    if (results.length !== 2) {
+      throw new Error(
+        `Invalid cooldown format! Please provide "<Duration><Type>", examples: "10s" "5m" etc.`
+      )
+    }
+
+    const num = +results[0]
+    if (isNaN(num)) {
+      throw new Error(`Invalid cooldown format! Number is invalid.`)
+    }
+
+    const char = results[1]
+    if (char !== 's' && char !== 'm' && char !== 'h' && char !== 'd') {
+      throw new Error(
+        `Invalid cooldown format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.`
+      )
+    }
+  }
+
+  public decrementCooldown() {
+    this._userCooldowns.forEach((value, key) => {
+      if (--value <= 0) {
+        this._userCooldowns.delete(key)
+      } else {
+        this._userCooldowns.set(key, value)
+      }
+    })
+  }
+
+  public setCooldown(userId: string) {
+    if (this.cooldown) {
+      const results = this.cooldown.match(/[a-z]+|[^a-z]+/gi) || []
+
+      let value = +results[0]
+      const type = results[1]
+
+      switch (type) {
+        case 'm':
+          value *= 60
+          break
+
+        case 'h':
+          value *= 60 * 60
+          break
+
+        case 'd':
+          value *= 60 * 60 * 24
+          break
+      }
+
+      this._userCooldowns.set(userId, value)
+    }
+  }
+
+  public getCooldownSeconds(userId: string): string {
+    let seconds = this._userCooldowns.get(userId)
+
+    if (!seconds) {
+      return ''
+    }
+
+    const days = Math.floor(seconds / (3600 * 24))
+    const hours = Math.floor((seconds % (3600 * 24)) / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    seconds = Math.floor(seconds % 60)
+
+    let result = ''
+
+    if (days) {
+      result += `${days}d `
+    }
+
+    if (hours) {
+      result += `${hours}h `
+    }
+
+    if (minutes) {
+      result += `${minutes}m `
+    }
+
+    if (seconds) {
+      result += `${seconds}s `
+    }
+
+    return result.substring(0, result.length - 1)
   }
 
   public addRequiredRole(guildId: string, roleId: string) {
