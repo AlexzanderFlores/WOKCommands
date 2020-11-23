@@ -1,14 +1,24 @@
+[X] Bot display name
+
 [X] Add Mongo connection logging
 
 [X] Add a function to get the current mongo connection
 
+[X] Bot color theme
+
+[ ] Add init() methods for commands that are ran only once when the bot starts up. Useful for simple listeners paired with a command
+
+[ ] Category icons
+
 [ ] Pagination dynamic help menu
+
+[ ] Overwritable default commands
 
 [ ] Ability to name and enable/disable features
 
 [X] Per-user cooldowns (shows time left)
 
-[ ] Global cooldowns (shows time left)
+[X] Global cooldowns (shows time left)
 
 [ ] Mention what roles the user is missing for required roles
 
@@ -20,7 +30,7 @@
 
 [ ] Configurable pre-made command names
 
-[ ] Guild owner only commands
+[ ] Bot owner only commands
 
 [ ] Customizable help menu
 

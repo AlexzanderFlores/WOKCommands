@@ -71,10 +71,25 @@ var WOKCommands = /** @class */ (function () {
         this._featureDir = '';
         this._mongo = '';
         this._mongoConnection = null;
+        this._displayName = '';
         this._syntaxError = 'Incorrect usage!';
         this._prefixes = {};
+        this._categories = new Map(); // <Category Name, Emoji Icon>
+        this._color = '';
         this._featureHandler = null;
         this._tagPeople = true;
+        this.updateCache = function (client) {
+            // @ts-ignore
+            for (var _i = 0, _a = client.guilds.cache; _i < _a.length; _i++) {
+                var _b = _a[_i], id = _b[0], guild = _b[1];
+                for (var _c = 0, _d = guild.channels.cache; _c < _d.length; _c++) {
+                    var _e = _d[_c], id_1 = _e[0], channel = _e[1];
+                    if (channel) {
+                        channel.messages.fetch();
+                    }
+                }
+            }
+        };
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
@@ -99,6 +114,8 @@ var WOKCommands = /** @class */ (function () {
         if (this._featureDir) {
             this._featureHandler = new FeatureHandler_1.default(client, this._featureDir);
         }
+        this.setCategoryEmoji('Configuration', '⚙️');
+        this.setCategoryEmoji('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -134,7 +151,6 @@ var WOKCommands = /** @class */ (function () {
                             _id = result._id, prefix = result.prefix;
                             this._prefixes[_id] = prefix;
                         }
-                        console.log(this._prefixes);
                         return [2 /*return*/];
                 }
             });
@@ -159,6 +175,17 @@ var WOKCommands = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(WOKCommands.prototype, "displayName", {
+        get: function () {
+            return this._displayName;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    WOKCommands.prototype.setDisplayName = function (displayName) {
+        this._displayName = displayName;
+        return this;
+    };
     WOKCommands.prototype.setSyntaxError = function (syntaxError) {
         this._syntaxError = syntaxError;
         return this;
@@ -188,6 +215,42 @@ var WOKCommands = /** @class */ (function () {
         if (guild) {
             this._prefixes[guild.id] = prefix;
         }
+    };
+    Object.defineProperty(WOKCommands.prototype, "categories", {
+        get: function () {
+            return this._categories;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(WOKCommands.prototype, "color", {
+        get: function () {
+            return this._color;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    WOKCommands.prototype.setColor = function (color) {
+        this._color = color;
+        return this;
+    };
+    WOKCommands.prototype.getEmoji = function (category) {
+        // @ts-ignore
+        return this._categories.get(category) || '';
+    };
+    WOKCommands.prototype.getCategory = function (emoji) {
+        var result = '';
+        this._categories.forEach(function (value, key) {
+            if (emoji === value) {
+                // @ts-ignore
+                result = key;
+                return false;
+            }
+        });
+        return result;
+    };
+    WOKCommands.prototype.setCategoryEmoji = function (category, emoji) {
+        this._categories.set(category, emoji || this.categories.get(category) || '');
     };
     Object.defineProperty(WOKCommands.prototype, "commandHandler", {
         get: function () {

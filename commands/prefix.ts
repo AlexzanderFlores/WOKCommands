@@ -8,6 +8,7 @@ export = {
   expectedArgs: '[New Prefix]',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the prefix for the current guild',
+  category: 'Configuration',
   callback: async (
     message: Message,
     args: string[],

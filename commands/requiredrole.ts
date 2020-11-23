@@ -9,6 +9,7 @@ export = {
   expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Specifies what role each command requires.',
+  category: 'Configuration',
   callback: async (
     message: Message,
     args: string[],

@@ -38,64 +38,67 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var required_roles_1 = __importDefault(require("../models/required-roles"));
+var disabled_commands_1 = __importDefault(require("../models/disabled-commands"));
 module.exports = {
-    aliases: ['requiredroles', 'requirerole', 'requireroles'],
     minArgs: 2,
     maxArgs: 2,
-    expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
+    expectedArgs: '<"enable" or "disable"> <Command Name>',
     requiredPermissions: ['ADMINISTRATOR'],
-    description: 'Specifies what role each command requires.',
+    description: 'Enables or disables a command for this guild',
     category: 'Configuration',
-    callback: function (message, args, text, prefix, client, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var name, roleId, guild, command;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+    callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
+        var newState, name, guild, command, mainCommand, isDisabled;
+        var _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
+                    newState = (_a = args.shift()) === null || _a === void 0 ? void 0 : _a.toLowerCase();
                     name = (args.shift() || '').toLowerCase();
-                    roleId = message.mentions.roles.first() || (args.shift() || '').toLowerCase();
-                    if (typeof roleId !== 'string') {
-                        roleId = roleId.id;
+                    if (newState !== 'enable' && newState !== 'disable') {
+                        message.reply('The state must be either "enable" or "disable"');
+                        return [2 /*return*/];
                     }
                     guild = message.guild;
                     if (!guild) {
-                        message.reply('You cannot change required roles in private messages');
+                        message.reply('You cannot enable or disable commands in private messages');
                         return [2 /*return*/];
                     }
                     command = instance.commandHandler.getCommand(name);
                     if (!command) return [3 /*break*/, 5];
-                    if (!(roleId === 'none')) return [3 /*break*/, 2];
-                    command.removeRequiredRole(guild.id, roleId);
-                    return [4 /*yield*/, required_roles_1.default.deleteOne({
+                    mainCommand = command.names[0];
+                    isDisabled = command.isDisabled(guild.id);
+                    if (!(newState === 'enable')) return [3 /*break*/, 2];
+                    if (!isDisabled) {
+                        message.reply('That command is already enabled!');
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, disabled_commands_1.default.deleteOne({
                             guildId: guild.id,
-                            command: command.names[0],
+                            command: mainCommand,
                         })];
                 case 1:
-                    _a.sent();
-                    message.reply("Removed all required roles from command \"" + command.names[0] + "\"");
+                    _b.sent();
+                    command.enable(guild.id);
+                    message.reply("\"" + mainCommand + "\" is now enabled!");
                     return [3 /*break*/, 4];
                 case 2:
-                    command.addRequiredRole(guild.id, roleId);
-                    return [4 /*yield*/, required_roles_1.default.findOneAndUpdate({
+                    if (isDisabled) {
+                        message.reply('That command is already disabled!');
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, new disabled_commands_1.default({
                             guildId: guild.id,
-                            command: command.names[0],
-                        }, {
-                            guildId: guild.id,
-                            command: command.names[0],
-                            $addToSet: {
-                                requiredRoles: roleId,
-                            },
-                        }, {
-                            upsert: true,
-                        })];
+                            command: mainCommand,
+                        }).save()];
                 case 3:
-                    _a.sent();
-                    message.reply("Added role \"" + roleId + "\" to command \"" + command.names[0] + "\"");
-                    _a.label = 4;
+                    _b.sent();
+                    command.disable(guild.id);
+                    message.reply("\"" + mainCommand + "\" is now disabled!");
+                    _b.label = 4;
                 case 4: return [3 /*break*/, 6];
                 case 5:
                     message.reply("Could not find command \"" + name + "\"! View all commands with \"" + instance.getPrefix(guild) + "commands\"");
-                    _a.label = 6;
+                    _b.label = 6;
                 case 6: return [2 /*return*/];
             }
         });

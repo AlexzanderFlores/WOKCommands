@@ -181,6 +181,7 @@ class CommandHandler {
       category,
       commands,
       aliases,
+      init,
       callback,
       execute,
       run,
@@ -237,7 +238,7 @@ class CommandHandler {
       missing.push('Description')
     }
 
-    if (missing) {
+    if (missing.length) {
       console.warn(
         `WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`
       )
@@ -246,6 +247,10 @@ class CommandHandler {
     const hasCallback = callback || execute || run
 
     if (hasCallback) {
+      if (init) {
+        init(client, instance)
+      }
+
       const command = new Command(
         instance,
         client,
@@ -262,24 +267,35 @@ class CommandHandler {
   }
 
   public get commands(): ICommand[] {
-    const results: {
-      names: string[]
-      category: string
-      description: string
-    }[] = []
+    const results: ICommand[] = []
     const added: string[] = []
 
-    this._commands.forEach(({ names, category = '', description = '' }) => {
-      if (!added.includes(names[0])) {
-        results.push({
-          names: [...names],
-          category,
-          description,
-        })
+    this._commands.forEach(
+      ({ names, category = '', description = '', expectedArgs = '' }) => {
+        if (!added.includes(names[0])) {
+          results.push({
+            names: [...names],
+            category,
+            description,
+            syntax: expectedArgs,
+          })
 
-        added.push(names[0])
+          added.push(names[0])
+        }
       }
-    })
+    )
+
+    return results
+  }
+
+  public getCommandsByCategory(category: string): ICommand[] {
+    const results: ICommand[] = []
+
+    for (const command of this.commands) {
+      if (command.category === category) {
+        results.push(command)
+      }
+    }
 
     return results
   }

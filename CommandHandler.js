@@ -166,7 +166,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         var configuration = require(file);
-        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions;
+        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions;
         var callbackCounter = 0;
         if (callback)
             ++callbackCounter;
@@ -202,11 +202,14 @@ var CommandHandler = /** @class */ (function () {
         if (!description) {
             missing.push('Description');
         }
-        if (missing) {
+        if (missing.length) {
             console.warn("WOKCommands > Command \"" + names[0] + "\" does not have the following properties: " + missing + ".");
         }
         var hasCallback = callback || execute || run;
         if (hasCallback) {
+            if (init) {
+                init(client, instance);
+            }
             var command = new Command_1.default(instance, client, names, hasCallback, configuration);
             for (var _b = 0, names_1 = names; _b < names_1.length; _b++) {
                 var name_2 = names_1[_b];
@@ -220,12 +223,13 @@ var CommandHandler = /** @class */ (function () {
             var results = [];
             var added = [];
             this._commands.forEach(function (_a) {
-                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c;
+                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? '' : _d;
                 if (!added.includes(names[0])) {
                     results.push({
                         names: __spreadArrays(names),
                         category: category,
                         description: description,
+                        syntax: expectedArgs,
                     });
                     added.push(names[0]);
                 }
@@ -235,6 +239,16 @@ var CommandHandler = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    CommandHandler.prototype.getCommandsByCategory = function (category) {
+        var results = [];
+        for (var _i = 0, _a = this.commands; _i < _a.length; _i++) {
+            var command = _a[_i];
+            if (command.category === category) {
+                results.push(command);
+            }
+        }
+        return results;
+    };
     CommandHandler.prototype.getCommand = function (name) {
         return this._commands.get(name);
     };
