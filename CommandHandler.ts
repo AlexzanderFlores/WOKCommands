@@ -1,17 +1,27 @@
 import { Client, Guild } from 'discord.js'
 import fs from 'fs'
 import WOKCommands from '.'
+import path from 'path'
+
 import Command from './Command'
 import getAllFiles from './get-all-files'
 import ICommand from './interfaces/ICommand'
 import disabledCommands from './models/disabled-commands'
 import requiredRoles from './models/required-roles'
 import permissions from './permissions'
+import cooldown from './models/cooldown'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
 
   constructor(instance: WOKCommands, client: Client, dir: string) {
+    // Register built in commands
+    for (const [file, fileName] of getAllFiles(
+      path.join(__dirname, 'commands')
+    )) {
+      this.registerCommand(instance, client, file, fileName)
+    }
+
     if (dir) {
       if (fs.existsSync(dir)) {
         const files = getAllFiles(dir)
@@ -60,12 +70,14 @@ class CommandHandler {
                     }
                   }
 
-                  const { member } = message
+                  const { member, author: user } = message
                   const {
                     minArgs,
                     maxArgs,
                     expectedArgs,
                     requiredPermissions = [],
+                    cooldown,
+                    globalCooldown,
                   } = command
                   let { syntaxError = instance.syntaxError } = command
 
@@ -128,16 +140,66 @@ class CommandHandler {
                     return
                   }
 
+                  // Check for cooldowns
+                  if ((cooldown || globalCooldown) && user) {
+                    const guildId = guild ? guild.id : 'dm'
+
+                    const secondsLeft = command.getCooldownSeconds(
+                      guildId,
+                      user.id
+                    )
+                    if (secondsLeft) {
+                      message.reply(
+                        `You must wait ${secondsLeft} before using that command again.`
+                      )
+                      return
+                    }
+
+                    command.setCooldown(guildId, user.id)
+                  }
+
                   command.execute(message, args)
                 }
               }
             }
+          })
+
+          // If we cannot connect to a database then ensure all cooldowns are less than 5m
+          instance.on('databaseConnected', (connection, state) => {
+            this._commands.forEach(async (command) => {
+              const connected = state === 'Connected'
+              command.verifyDatabaseCooldowns(connected)
+
+              // Load previously used cooldowns
+              if (connected) {
+                const results = await cooldown.find({
+                  name: command.names[0],
+                  type: command.globalCooldown ? 'global' : 'per-user',
+                })
+
+                // @ts-ignore
+                for (const { _id, cooldown } of results) {
+                  const [name, guildId, userId] = _id.split('-')
+                  console.log(name, guildId, userId, cooldown)
+                  command.setCooldown(guildId, userId, cooldown)
+                }
+              }
+            })
           })
         }
       } else {
         throw new Error(`Commands directory "${dir}" doesn't exist!`)
       }
     }
+
+    const decrementCountdown = () => {
+      this._commands.forEach((command) => {
+        command.decrementCooldowns()
+      })
+
+      setTimeout(decrementCountdown, 1000)
+    }
+    decrementCountdown()
   }
 
   public registerCommand(
@@ -149,8 +211,10 @@ class CommandHandler {
     const configuration = require(file)
     const {
       name = fileName,
+      category,
       commands,
       aliases,
+      init,
       callback,
       execute,
       run,
@@ -197,20 +261,34 @@ class CommandHandler {
       }
     }
 
+    const missing = []
+
+    if (!category) {
+      missing.push('Category')
+    }
+
     if (!description) {
+      missing.push('Description')
+    }
+
+    if (missing.length) {
       console.warn(
-        `WOKCommands > Command "${names[0]}" does not have a "description" property.`
+        `WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`
       )
     }
 
     const hasCallback = callback || execute || run
 
     if (hasCallback) {
+      if (init) {
+        init(client, instance)
+      }
+
       const command = new Command(
         instance,
         client,
         names,
-        callback || execute || run,
+        hasCallback,
         configuration
       )
 
@@ -222,19 +300,35 @@ class CommandHandler {
   }
 
   public get commands(): ICommand[] {
-    const results: { names: string[]; description: string }[] = []
+    const results: ICommand[] = []
     const added: string[] = []
 
-    this._commands.forEach(({ names, description = '' }) => {
-      if (!added.includes(names[0])) {
-        results.push({
-          names: [...names],
-          description,
-        })
+    this._commands.forEach(
+      ({ names, category = '', description = '', expectedArgs = '' }) => {
+        if (!added.includes(names[0])) {
+          results.push({
+            names: [...names],
+            category,
+            description,
+            syntax: expectedArgs,
+          })
 
-        added.push(names[0])
+          added.push(names[0])
+        }
       }
-    })
+    )
+
+    return results
+  }
+
+  public getCommandsByCategory(category: string): ICommand[] {
+    const results: ICommand[] = []
+
+    for (const command of this.commands) {
+      if (command.category === category) {
+        results.push(command)
+      }
+    }
 
     return results
   }

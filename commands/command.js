@@ -45,6 +45,7 @@ module.exports = {
     expectedArgs: '<"enable" or "disable"> <Command Name>',
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Enables or disables a command for this guild',
+    category: 'Configuration',
     callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
         var newState, name, guild, command, mainCommand, isDisabled;
         var _a;

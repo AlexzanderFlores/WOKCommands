@@ -39,6 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getMongoConnection = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
 var results = {
     0: 'Disconnected',
@@ -46,7 +47,7 @@ var results = {
     2: 'Connecting',
     3: 'Disconnecting',
 };
-var mongo = function (mongoPath) { return __awaiter(void 0, void 0, void 0, function () {
+var mongo = function (mongoPath, instance) { return __awaiter(void 0, void 0, void 0, function () {
     var state;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -59,9 +60,12 @@ var mongo = function (mongoPath) { return __awaiter(void 0, void 0, void 0, func
             case 1:
                 _a.sent();
                 state = results[mongoose_1.default.connection.readyState] || 'Unknown';
-                console.log('Mongo State:', state);
+                instance.emit('databaseConnected', mongoose_1.default.connection, state);
                 return [2 /*return*/];
         }
     });
 }); };
+exports.getMongoConnection = function () {
+    return mongoose_1.default.connection;
+};
 exports.default = mongo;

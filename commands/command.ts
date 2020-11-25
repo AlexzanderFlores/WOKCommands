@@ -8,6 +8,7 @@ export = {
   expectedArgs: '<"enable" or "disable"> <Command Name>',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Enables or disables a command for this guild',
+  category: 'Configuration',
   callback: async (
     message: Message,
     args: string[],

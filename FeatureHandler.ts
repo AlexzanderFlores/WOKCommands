@@ -4,6 +4,8 @@ import fs from 'fs'
 import getAllFiles from './get-all-files'
 
 class FeatureHandler {
+  private _features: Map<String, String[]> = new Map() // <Feature name, Disabled GuildIDs>
+
   constructor(client: Client, dir: string) {
     if (dir) {
       if (fs.existsSync(dir)) {
@@ -19,7 +21,9 @@ class FeatureHandler {
             const func = require(file)
 
             if (typeof func === 'function') {
-              func(client)
+              func(client, (guildId: string) => {
+                return this.isEnabled(guildId, file)
+              })
             }
           }
         }
@@ -27,6 +31,10 @@ class FeatureHandler {
         throw new Error(`Listeners directory "${dir}" doesn't exist!`)
       }
     }
+  }
+
+  private isEnabled = (guildId: string, feature: string): boolean => {
+    return !(this._features.get(feature) || []).includes(guildId)
   }
 }
 

@@ -8,18 +8,21 @@
 
 - [Installation](#installation)
 - [Setup](#setup)
+- [Setting a Custom Prefix](#setting-a-custom-prefix)
 - [Creating a Feature](#creating-a-feature)
 - [Creating a Command](#creating-a-command)
+- [Command Categories](#command-categories)
 - [Argument Rules](#argument-rules)
   - [Global Syntax Errors](#global-syntax-errors)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
+- [Custom Dynamic Help Menu](#custom-dynamic-help-menu)
 - [Enable or Disable a Command](#enable-or-disable-a-command)
 - [Required Permissions](#required-permissions)
 - [Configurable Required Roles](#configurable-required-roles)
-<!-- - [Command Cooldowns](#command-cooldowns)
+- [Command Cooldowns](#command-cooldowns)
   - [Global Cooldowns](#global-cooldowns)
-  - [Configurable Cooldown Error Messages](#configurable-cooldown-error-messages)
-- [Channel Specific Commands](#channel-specific-commands) -->
+  <!-- - [Configurable Cooldown Error Messages](#configurable-cooldown-error-messages)
+  - [Channel Specific Commands](#channel-specific-commands) -->
 - [Support & Feature Requests](#support--feature-requests)
 
 # Installation
@@ -68,6 +71,29 @@ client.on('ready', () => {
 
 client.login(process.env.TOKEN)
 ```
+
+# Setting a Custom Prefix
+
+You can easily set a custom command prefix for your bot using the following:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client()
+
+client.on('ready', () => {
+  // Initialize WOKCommands with specific folders and MongoDB
+  new WOKCommands(client, 'commands', 'features')
+    .setMongoPath(process.env.MONGO_URI)
+    .setDefaultPrefix('?')
+})
+
+client.login(process.env.TOKEN)
+```
+
+The default prefix is ! so this code snippet will make your bot's prefix ? instead.
 
 # Creating a Feature
 
@@ -128,6 +154,15 @@ This will make `!ping`, `!runping`, and `!p` execute the command. There are vari
 
 The `callback` function can also be named `run` or `execute`. This function can accept the following parameters:
 
+1. `message`: The standard Message object
+2. `args`: An array of all arguments provided with the command
+3. `text`: A string version of the args array
+4. `client`: The Discord.JS client for your bot
+5. `prefix`: The prefix for the server this command is being ran in, or "!" is one is not set
+6. `instance`: The WOKCommands instance which will contain some helper methods
+
+Example:
+
 ```JS
 // File name: "ping.js"
 // Folder "./commands"
@@ -139,12 +174,44 @@ module.exports = {
 }
 ```
 
-1. `message`: The standard Message object
-2. `args`: An array of all arguments provided with the command
-3. `text`: A string version of the args array
-4. `client`: The Discod.JS client for your bot
-5. `prefix`: The prefix for the server this command is being ran in, or "!" is one is not set
-6. `instance`: The WOKCommands instance which will contain some helper methods
+# Command Categories
+
+You can also specify an optional command category for each command:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  category: 'Fun',
+  callback: (message) => {
+    message.reply('pong')
+  }
+}
+```
+
+This is most useful for a dynamic help menu. The default dynamic help menu uses category emojis to navigate between pages. You can set a category's emoji with the following method:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client()
+
+client.on('ready', () => {
+  // Initialize WOKCommands with specific folders and MongoDB
+  new WOKCommands(client, 'commands', 'features')
+    .setMongoPath(process.env.MONGO_URI)
+    .setDefaultPrefix('?')
+    // Set the category emoji
+    .setCategoryEmoji('Fun', '🎮')
+})
+
+client.login(process.env.TOKEN)
+```
+
+The category name "Fun" must match the exact name specified in your commands, this is case sensitive.
 
 # Argument Rules
 
@@ -211,7 +278,7 @@ A per-command syntax error message will always overwrite a global one for that s
 
 # Per-Server Command Prefixes
 
-_This feature requires a MongoDB connection to be present._
+_This feature requires a database connection to be present._
 
 Allowing server owners to configure your bot's prefix will help prevent prefix collisions with existing bots. There is a simple command for server owners to configure prefixes:
 
@@ -219,15 +286,32 @@ Allowing server owners to configure your bot's prefix will help prevent prefix c
 
 The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix.
 
+# Custom Dynamic Help Menu
+
+The WOKCommands package ships with a dynamic help menu out of the box However each help menu is different and your bot might require specific needs. You can overwrite the default help command by creating your own:
+
+```JS
+// Folder: "commands"
+// File: "./help.js"
+
+module.exports = {
+  callback: (message, args, text, client, prefix, instance) => {
+    instance.commandHandler.commands.forEach((command) => {
+      console.log(command)
+    })
+  }
+}
+```
+
+This will log important information regarding each command. You can use this within a help command to display a meaningful dynamic help menu.
+
 # Enable or Disable a Command
+
+_This feature requires a database connection to be present._
 
 Server owners might not want all commands your bot comes with. It's important to allow them to enable or disable each command, and WOKCommands comes with this functionality out of the box.
 
-Server owners can view all commands or features with the following command:
-
-`!commands`
-
-This will then display a message with all commands, as well as their enabled or disable status. Server owners can toggle a command with the following command:
+Server owners can toggle a command with the following command:
 
 `!command <"enable" | "disable"> <Command Name>`
 
@@ -252,7 +336,7 @@ Whenever anyone runs that command that doesn't have the "ADMINISTRATOR" permissi
 
 # Configurable Required Roles
 
-_This feature requires a MongoDB connection to be present._
+_This feature requires a database connection to be present._
 
 Server owners will often want some commands to only be accessible from users with a specific role. Server owners will have the option to require this for any command your bot provides using the following command:
 
@@ -262,11 +346,11 @@ This will allow server owners to dynamically configure commands for their own se
 
 Using "none" will remove all required roles for that command.
 
-<!-- # Command Cooldowns
+# Command Cooldowns
 
-_This feature might require a MongoDB connection to be present._
+_This feature might require a database connection to be present._
 
-WOKCommands makes it easy to provide per-user cooldowns. These will only affect users in the server where they ran the command, and not globally across multiple servers with your bot.
+WOKCommands makes it easy to provide per-user cooldowns. These will only affect users in the server where they ran the command, and not globally across multiple servers using your bot.
 
 ```JS
 // File name: "ping.js"
@@ -289,11 +373,11 @@ The cooldown can be specified using the following format:
 | h         | Hours    | 1       | 24      | 5h      |
 | d         | Days     | 1       | 365     | 3d      |
 
-Durations over 5 minutes require a MongoDB server to be connected and will throw an exception if one is not found.
+For durations over 5 minutes a database connection is STRONGLY RECOMMENDED. Cooldowns with a duration larger than 5 minutes will automatically be updated to your database every 20 seconds. These durations will be loaded when your bot starts up, this ensures that restarts do not affect cooldowns.
 
 # Global Cooldowns
 
-_This feature might requires a MongoDB connection to be present._
+_This feature might requires a database connection to be present._
 
 Some use cases might require a global cooldown over all users for a specific server. This can be easily done with the following:
 
@@ -309,11 +393,13 @@ module.exports = {
 }
 ```
 
-The minimum amount of time for this is 1 minute. Durations over 5 minutes require a MongoDB server to be connected and will throw an exception if one is not found.
+The minimum duration is 1 minute for global cooldowns. For durations over 5 minutes a database connection is STRONGLY RECOMMENDED. Cooldowns with a duration larger than 5 minutes will automatically be updated to your database every 20 seconds. These durations will be loaded when your bot starts up, this ensures that restarts do not affect cooldowns.
 
-# Configurable Cooldown Error Messages
+For more examples of the cooldown format please see the chart at [Command Cooldowns](#command-cooldowns).
 
-_This feature requires a MongoDB connection to be present._
+<!-- # Configurable Cooldown Error Messages
+
+_This feature requires a database connection to be present._
 
 When using a cooldown you'll want to send a message to inform a user to use the command less often. That can be easily configured like so:
 
@@ -324,7 +410,7 @@ new WOKCommands(client, 'commands', 'listeners')
 
 # Channel Specific Commands
 
-_This feature requires a MongoDB connection to be present._
+_This feature requires a database connection to be present._
 
 Sometimes you may want a command to only be ran in a specific channel. WOKCommands includes this functionality and allows server owners to configure this themselves with a command:
 
