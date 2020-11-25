@@ -1,14 +1,13 @@
-import { Client, Guild, MessageEmbed } from 'discord.js'
-import path from 'path'
+import { Client, Guild } from 'discord.js'
 import { Connection } from 'mongoose'
+import { EventEmitter } from 'events'
 
 import CommandHandler from './CommandHandler'
 import FeatureHandler from './FeatureHandler'
 import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
-import getAllFiles from './get-all-files'
 
-class WOKCommands {
+class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
   private _featureDir = ''
@@ -24,6 +23,8 @@ class WOKCommands {
   private _tagPeople = true
 
   constructor(client: Client, commandsDir?: string, featureDir?: string) {
+    super()
+
     if (!client) {
       throw new Error('No Discord JS Client provided as first argument!')
     }
@@ -36,9 +37,8 @@ class WOKCommands {
 
     // Get the directory path of the project using this package
     // This way users don't need to use path.join(__dirname, 'dir')
-    if (module && module.parent) {
-      // @ts-ignore
-      const { path } = module.parent
+    if (module && require.main) {
+      const { path } = require.main
       if (path) {
         commandsDir = `${path}/${commandsDir || this._commandsDir}`
         if (featureDir) {
@@ -60,25 +60,20 @@ class WOKCommands {
 
     setTimeout(async () => {
       if (this._mongo) {
-        await mongo(this._mongo)
+        await mongo(this._mongo, this)
 
         this._mongoConnection = getMongoConnection()
       } else {
         console.warn(
           'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
         )
+
+        this.emit('databaseConnected', null, '')
       }
     }, 500)
 
-    // Register built in commands
-    for (const [file, fileName] of getAllFiles(
-      path.join(__dirname, 'commands')
-    )) {
-      this._commandHandler.registerCommand(this, client, file, fileName)
-    }
-
     // Load prefixes from Mongo
-    const loadPrefixes = async () => {
+    ;(async () => {
       const results: any[] = await prefixes.find({})
 
       for (const result of results) {
@@ -86,8 +81,7 @@ class WOKCommands {
 
         this._prefixes[_id] = prefix
       }
-    }
-    loadPrefixes()
+    })()
   }
 
   public get mongoPath(): string {

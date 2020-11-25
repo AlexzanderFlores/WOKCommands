@@ -46,15 +46,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 var fs_1 = __importDefault(require("fs"));
+var path_1 = __importDefault(require("path"));
 var Command_1 = __importDefault(require("./Command"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
 var disabled_commands_1 = __importDefault(require("./models/disabled-commands"));
 var required_roles_1 = __importDefault(require("./models/required-roles"));
 var permissions_1 = __importDefault(require("./permissions"));
+var cooldown_1 = __importDefault(require("./models/cooldown"));
 var CommandHandler = /** @class */ (function () {
     function CommandHandler(instance, client, dir) {
         var _this = this;
         this._commands = new Map();
+        // Register built in commands
+        for (var _i = 0, _a = get_all_files_1.default(path_1.default.join(__dirname, 'commands')); _i < _a.length; _i++) {
+            var _b = _a[_i], file = _b[0], fileName = _b[1];
+            this.registerCommand(instance, client, file, fileName);
+        }
         if (dir) {
             if (fs_1.default.existsSync(dir)) {
                 var files = get_all_files_1.default(dir);
@@ -63,8 +70,8 @@ var CommandHandler = /** @class */ (function () {
                     this.fetchDisabledCommands();
                     this.fetchRequiredRoles();
                     console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
-                    for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
-                        var _a = files_1[_i], file = _a[0], fileName = _a[1];
+                    for (var _c = 0, files_1 = files; _c < files_1.length; _c++) {
+                        var _d = files_1[_c], file = _d[0], fileName = _d[1];
                         this.registerCommand(instance, client, file, fileName);
                     }
                     client.on('message', function (message) {
@@ -90,7 +97,7 @@ var CommandHandler = /** @class */ (function () {
                                         }
                                     }
                                     var member = message.member, user = message.author;
-                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown = command.cooldown, globalCooldown = command.globalCooldown;
+                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown_2 = command.cooldown, globalCooldown = command.globalCooldown;
                                     var _b = command.syntaxError, syntaxError = _b === void 0 ? instance.syntaxError : _b;
                                     if (guild && member) {
                                         for (var _i = 0, requiredPermissions_1 = requiredPermissions; _i < requiredPermissions_1.length; _i++) {
@@ -136,7 +143,7 @@ var CommandHandler = /** @class */ (function () {
                                         return;
                                     }
                                     // Check for cooldowns
-                                    if ((cooldown || globalCooldown) && user) {
+                                    if ((cooldown_2 || globalCooldown) && user) {
                                         var guildId = guild ? guild.id : 'dm';
                                         var secondsLeft = command.getCooldownSeconds(guildId, user.id);
                                         if (secondsLeft) {
@@ -149,6 +156,37 @@ var CommandHandler = /** @class */ (function () {
                                 }
                             }
                         }
+                    });
+                    // If we cannot connect to a database then ensure all cooldowns are less than 5m
+                    instance.on('databaseConnected', function (connection, state) {
+                        _this._commands.forEach(function (command) { return __awaiter(_this, void 0, void 0, function () {
+                            var connected, results, _i, results_1, _a, _id, cooldown_3, _b, name_2, guildId, userId;
+                            return __generator(this, function (_c) {
+                                switch (_c.label) {
+                                    case 0:
+                                        connected = state === 'Connected';
+                                        command.verifyDatabaseCooldowns(connected);
+                                        if (!connected) return [3 /*break*/, 2];
+                                        return [4 /*yield*/, cooldown_1.default.find({
+                                                name: command.names[0],
+                                                type: command.globalCooldown ? 'global' : 'per-user',
+                                            })
+                                            // @ts-ignore
+                                        ];
+                                    case 1:
+                                        results = _c.sent();
+                                        // @ts-ignore
+                                        for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
+                                            _a = results_1[_i], _id = _a._id, cooldown_3 = _a.cooldown;
+                                            _b = _id.split('-'), name_2 = _b[0], guildId = _b[1], userId = _b[2];
+                                            console.log(name_2, guildId, userId, cooldown_3);
+                                            command.setCooldown(guildId, userId, cooldown_3);
+                                        }
+                                        _c.label = 2;
+                                    case 2: return [2 /*return*/];
+                                }
+                            });
+                        }); });
                     });
                 }
             }
@@ -212,9 +250,9 @@ var CommandHandler = /** @class */ (function () {
             }
             var command = new Command_1.default(instance, client, names, hasCallback, configuration);
             for (var _b = 0, names_1 = names; _b < names_1.length; _b++) {
-                var name_2 = names_1[_b];
+                var name_3 = names_1[_b];
                 // Ensure the alias is lower case because we read as lower case later on
-                this._commands.set(name_2.toLowerCase(), command);
+                this._commands.set(name_3.toLowerCase(), command);
             }
         }
     };
@@ -255,14 +293,14 @@ var CommandHandler = /** @class */ (function () {
     CommandHandler.prototype.fetchDisabledCommands = function () {
         var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var results, _i, results_1, result, guildId, command;
+            var results, _i, results_2, result, guildId, command;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, disabled_commands_1.default.find({})];
                     case 1:
                         results = _b.sent();
-                        for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
-                            result = results_1[_i];
+                        for (_i = 0, results_2 = results; _i < results_2.length; _i++) {
+                            result = results_2[_i];
                             guildId = result.guildId, command = result.command;
                             (_a = this._commands.get(command)) === null || _a === void 0 ? void 0 : _a.disable(guildId);
                         }
@@ -273,14 +311,14 @@ var CommandHandler = /** @class */ (function () {
     };
     CommandHandler.prototype.fetchRequiredRoles = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var results, _i, results_2, result, guildId, command, requiredRoles_2, cmd, _a, requiredRoles_1, roleId;
+            var results, _i, results_3, result, guildId, command, requiredRoles_2, cmd, _a, requiredRoles_1, roleId;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, required_roles_1.default.find({})];
                     case 1:
                         results = _b.sent();
-                        for (_i = 0, results_2 = results; _i < results_2.length; _i++) {
-                            result = results_2[_i];
+                        for (_i = 0, results_3 = results; _i < results_3.length; _i++) {
+                            result = results_3[_i];
                             guildId = result.guildId, command = result.command, requiredRoles_2 = result.requiredRoles;
                             cmd = this._commands.get(command);
                             if (cmd) {

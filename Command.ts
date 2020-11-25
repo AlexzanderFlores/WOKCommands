@@ -1,6 +1,8 @@
 import { Client, Message } from 'discord.js'
 import WOKCommands from '.'
+
 import ICmdConfig from './interfaces/ICmdConfig'
+import cooldownSchema from './models/cooldown'
 
 class Command {
   private instance: WOKCommands
@@ -16,10 +18,13 @@ class Command {
   private _requiredRoles?: Map<String, string[]> = new Map() // <GuildID, RoleIDs[]>
   private _callback: Function = () => {}
   private _disabled: string[] = []
+  private _cooldownDuration = 0
+  private _cooldownChar = ''
   private _cooldown: string
   private _userCooldowns: Map<String, number> = new Map() // <GuildID-UserID, Seconds> OR <dm-UserID, Seconds>
   private _globalCooldown: string
   private _guildCooldowns: Map<String, number> = new Map() // <GuildID, Seconds>
+  private _databaseCooldown = false
 
   constructor(
     instance: WOKCommands,
@@ -128,6 +133,14 @@ class Command {
     return this._requiredPermissions
   }
 
+  public get cooldownDuration(): number {
+    return this._cooldownDuration
+  }
+
+  public get cooldownChar(): string {
+    return this._cooldownChar
+  }
+
   public get cooldown(): string {
     return this._cooldown
   }
@@ -144,16 +157,77 @@ class Command {
       )
     }
 
-    const num = +results[0]
-    if (isNaN(num)) {
+    this._cooldownDuration = +results[0]
+    if (isNaN(this._cooldownDuration)) {
       throw new Error(`Invalid ${type} format! Number is invalid.`)
     }
 
-    const char = results[1]
-    if (char !== 's' && char !== 'm' && char !== 'h' && char !== 'd') {
+    this._cooldownChar = results[1]
+    if (
+      this._cooldownChar !== 's' &&
+      this._cooldownChar !== 'm' &&
+      this._cooldownChar !== 'h' &&
+      this._cooldownChar !== 'd'
+    ) {
       throw new Error(
         `Invalid ${type} format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.`
       )
+    }
+
+    if (
+      type === 'global cooldown' &&
+      this._cooldownChar === 's' &&
+      this._cooldownDuration < 60
+    ) {
+      throw new Error(
+        `Invalid ${type} format! The minimum duration for a global cooldown is 1m.`
+      )
+    }
+
+    const moreInfo =
+      ' For more information please see https://github.com/AlexzanderFlores/WOKCommands#command-cooldowns'
+
+    if (this._cooldownDuration < 1) {
+      throw new Error(
+        `Invalid ${type} format! Durations must be at least 1.${moreInfo}`
+      )
+    }
+
+    if (
+      (this._cooldownChar === 's' || this._cooldownChar === 'm') &&
+      this._cooldownDuration > 60
+    ) {
+      throw new Error(
+        `Invalid ${type} format! Second or minute durations cannot exceed 60.${moreInfo}`
+      )
+    }
+
+    if (this._cooldownChar === 'h' && this._cooldownDuration > 24) {
+      throw new Error(
+        `Invalid ${type} format! Hour durations cannot exceed 24.${moreInfo}`
+      )
+    }
+
+    if (this._cooldownChar === 'd' && this._cooldownDuration > 365) {
+      throw new Error(
+        `Invalid ${type} format! Day durations cannot exceed 365.${moreInfo}`
+      )
+    }
+  }
+
+  public verifyDatabaseCooldowns(connected: boolean) {
+    if (
+      this._cooldownChar === 'd' ||
+      this._cooldownChar === 'h' ||
+      (this._cooldownChar === 'm' && this._cooldownDuration >= 5)
+    ) {
+      this._databaseCooldown = true
+
+      if (!connected) {
+        console.warn(
+          `WOKCommands > A database connection is STRONGLY RECOMMENDED for cooldowns of 5 minutes or more.`
+        )
+      }
     }
   }
 
@@ -162,7 +236,7 @@ class Command {
    * Deletes expired cooldowns
    */
   public decrementCooldowns() {
-    for (const map of [this._userCooldowns, this._globalCooldown]) {
+    for (const map of [this._userCooldowns, this._guildCooldowns]) {
       if (typeof map !== 'string') {
         map.forEach((value, key) => {
           if (--value <= 0) {
@@ -170,19 +244,49 @@ class Command {
           } else {
             map.set(key, value)
           }
+
+          if (this._databaseCooldown) {
+            this.updateDatabaseCooldowns(`${this.names[0]}-${key}`, value)
+          }
         })
       }
     }
   }
 
-  public setCooldown(guildId: string, userId: string) {
+  public async updateDatabaseCooldowns(_id: String, cooldown: number) {
+    // Only update every 20s
+    if (cooldown % 20 === 0) {
+      console.log('SAVING TO DB')
+
+      const type = this.globalCooldown ? 'global' : 'per-user'
+
+      if (cooldown <= 0) {
+        await cooldownSchema.deleteOne({ _id, name: this.names[0], type })
+      } else {
+        await cooldownSchema.findOneAndUpdate(
+          {
+            _id,
+            name: this.names[0],
+            type,
+          },
+          {
+            _id,
+            name: this.names[0],
+            type,
+            cooldown,
+          },
+          { upsert: true }
+        )
+      }
+    }
+  }
+
+  public setCooldown(guildId: string, userId: string, customCooldown?: number) {
     const target = this.globalCooldown || this.cooldown
 
     if (target) {
-      const results = target.match(/[a-z]+|[^a-z]+/gi) || []
-
-      let seconds = +results[0]
-      const durationType = results[1]
+      let seconds = customCooldown || this._cooldownDuration
+      const durationType = customCooldown ? 's' : this._cooldownChar
 
       switch (durationType) {
         case 'm':
@@ -197,6 +301,9 @@ class Command {
           seconds *= 60 * 60 * 24
           break
       }
+
+      // Increment to ensure we save it to the database when it is divisible by 20
+      ++seconds
 
       if (this.globalCooldown) {
         this._guildCooldowns.set(guildId, seconds)

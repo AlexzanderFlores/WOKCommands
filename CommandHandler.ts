@@ -1,17 +1,27 @@
 import { Client, Guild } from 'discord.js'
 import fs from 'fs'
 import WOKCommands from '.'
+import path from 'path'
+
 import Command from './Command'
 import getAllFiles from './get-all-files'
 import ICommand from './interfaces/ICommand'
 import disabledCommands from './models/disabled-commands'
 import requiredRoles from './models/required-roles'
 import permissions from './permissions'
+import cooldown from './models/cooldown'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
 
   constructor(instance: WOKCommands, client: Client, dir: string) {
+    // Register built in commands
+    for (const [file, fileName] of getAllFiles(
+      path.join(__dirname, 'commands')
+    )) {
+      this.registerCommand(instance, client, file, fileName)
+    }
+
     if (dir) {
       if (fs.existsSync(dir)) {
         const files = getAllFiles(dir)
@@ -152,6 +162,29 @@ class CommandHandler {
                 }
               }
             }
+          })
+
+          // If we cannot connect to a database then ensure all cooldowns are less than 5m
+          instance.on('databaseConnected', (connection, state) => {
+            this._commands.forEach(async (command) => {
+              const connected = state === 'Connected'
+              command.verifyDatabaseCooldowns(connected)
+
+              // Load previously used cooldowns
+              if (connected) {
+                const results = await cooldown.find({
+                  name: command.names[0],
+                  type: command.globalCooldown ? 'global' : 'per-user',
+                })
+
+                // @ts-ignore
+                for (const { _id, cooldown } of results) {
+                  const [name, guildId, userId] = _id.split('-')
+                  console.log(name, guildId, userId, cooldown)
+                  command.setCooldown(guildId, userId, cooldown)
+                }
+              }
+            })
           })
         }
       } else {

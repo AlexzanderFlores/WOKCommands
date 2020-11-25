@@ -1,4 +1,5 @@
 import mongoose, { Connection } from 'mongoose'
+import WOKCommands from '.'
 
 const results: {
   [name: number]: string
@@ -9,7 +10,7 @@ const results: {
   3: 'Disconnecting',
 }
 
-const mongo = async (mongoPath: string) => {
+const mongo = async (mongoPath: string, instance: WOKCommands) => {
   await mongoose.connect(mongoPath, {
     keepAlive: true,
     useNewUrlParser: true,
@@ -19,7 +20,7 @@ const mongo = async (mongoPath: string) => {
 
   const state = results[mongoose.connection.readyState] || 'Unknown'
 
-  console.log('Mongo State:', state)
+  instance.emit('databaseConnected', mongoose.connection, state)
 }
 
 export const getMongoConnection = (): Connection => {

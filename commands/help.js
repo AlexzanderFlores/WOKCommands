@@ -73,7 +73,6 @@ module.exports = {
                     if (embed.title === instance.displayName + " Help Menu") {
                         var emoji = reaction.emoji.name;
                         if (emoji === '🚪') {
-                            // @ts-ignore
                             var _a = getFirstEmbed(instance), newEmbed = _a.embed, reactions = _a.reactions;
                             embed.setDescription(newEmbed.description);
                             embed.setFooter('');
