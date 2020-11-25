@@ -222,6 +222,7 @@ var WOKCommands = /** @class */ (function (_super) {
         if (guild) {
             this._prefixes[guild.id] = prefix;
         }
+        return this;
     };
     Object.defineProperty(WOKCommands.prototype, "categories", {
         get: function () {
@@ -258,6 +259,7 @@ var WOKCommands = /** @class */ (function (_super) {
     };
     WOKCommands.prototype.setCategoryEmoji = function (category, emoji) {
         this._categories.set(category, emoji || this.categories.get(category) || '');
+        return this;
     };
     Object.defineProperty(WOKCommands.prototype, "commandHandler", {
         get: function () {
