@@ -128,10 +128,11 @@ class WOKCommands extends EventEmitter {
     return this._prefixes[guild ? guild.id : ''] || this._defaultPrefix
   }
 
-  public setPrefix(guild: Guild | null, prefix: string) {
+  public setPrefix(guild: Guild | null, prefix: string): WOKCommands {
     if (guild) {
       this._prefixes[guild.id] = prefix
     }
+    return this
   }
 
   public get categories(): Map<String, String> {
@@ -166,8 +167,9 @@ class WOKCommands extends EventEmitter {
     return result
   }
 
-  public setCategoryEmoji(category: string, emoji: string) {
+  public setCategoryEmoji(category: string, emoji: string): WOKCommands {
     this._categories.set(category, emoji || this.categories.get(category) || '')
+    return this
   }
 
   public get commandHandler(): CommandHandler {

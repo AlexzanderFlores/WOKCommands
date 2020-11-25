@@ -33,6 +33,12 @@
 npm install wokcommands
 ```
 
+Development Build
+
+```bash
+npm install github:AlexzanderFlores/WOKCommands#dev
+```
+
 # Setup
 
 After you have installed WOKCommands there is a simple setup process:
