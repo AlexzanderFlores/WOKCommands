@@ -63,6 +63,14 @@ class WOKCommands extends EventEmitter {
         await mongo(this._mongo, this)
 
         this._mongoConnection = getMongoConnection()
+
+        const results: any[] = await prefixes.find({})
+
+        for (const result of results) {
+          const { _id, prefix } = result
+
+          this._prefixes[_id] = prefix
+        }
       } else {
         console.warn(
           'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
@@ -71,17 +79,6 @@ class WOKCommands extends EventEmitter {
         this.emit('databaseConnected', null, '')
       }
     }, 500)
-
-    // Load prefixes from Mongo
-    ;(async () => {
-      const results: any[] = await prefixes.find({})
-
-      for (const result of results) {
-        const { _id, prefix } = result
-
-        this._prefixes[_id] = prefix
-      }
-    })()
   }
 
   public get mongoPath(): string {

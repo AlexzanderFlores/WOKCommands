@@ -351,8 +351,6 @@ class Command {
     if (!array.includes(roleId)) {
       array.push(roleId)
       this._requiredRoles?.set(guildId, array)
-
-      console.log(`Added ${roleId} to ${this._names[0]} for guild ${guildId}`)
     }
   }
 
@@ -366,10 +364,6 @@ class Command {
     const index = array ? array.indexOf(roleId) : -1
     if (array && index >= 0) {
       array.splice(index, 1)
-
-      console.log(
-        `Removed ${roleId} from ${this._names[0]} for guild ${guildId}`
-      )
     }
   }
 

@@ -253,7 +253,6 @@ var Command = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         if (!(cooldown % 20 === 0)) return [3 /*break*/, 4];
-                        console.log('SAVING TO DB');
                         type = this.globalCooldown ? 'global' : 'per-user';
                         if (!(cooldown <= 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, cooldown_1.default.deleteOne({ _id: _id, name: this.names[0], type: type })];
@@ -336,7 +335,6 @@ var Command = /** @class */ (function () {
         if (!array.includes(roleId)) {
             array.push(roleId);
             (_b = this._requiredRoles) === null || _b === void 0 ? void 0 : _b.set(guildId, array);
-            console.log("Added " + roleId + " to " + this._names[0] + " for guild " + guildId);
         }
     };
     Command.prototype.removeRequiredRole = function (guildId, roleId) {
@@ -349,7 +347,6 @@ var Command = /** @class */ (function () {
         var index = array ? array.indexOf(roleId) : -1;
         if (array && index >= 0) {
             array.splice(index, 1);
-            console.log("Removed " + roleId + " from " + this._names[0] + " for guild " + guildId);
         }
     };
     Command.prototype.getRequiredRoles = function (guildId) {

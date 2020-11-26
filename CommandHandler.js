@@ -179,7 +179,6 @@ var CommandHandler = /** @class */ (function () {
                                         for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
                                             _a = results_1[_i], _id = _a._id, cooldown_3 = _a.cooldown;
                                             _b = _id.split('-'), name_2 = _b[0], guildId = _b[1], userId = _b[2];
-                                            console.log(name_2, guildId, userId, cooldown_3);
                                             command.setCooldown(guildId, userId, cooldown_3);
                                         }
                                         _c.label = 2;

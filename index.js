@@ -129,39 +129,32 @@ var WOKCommands = /** @class */ (function (_super) {
         _this.setCategoryEmoji('Configuration', '⚙️');
         _this.setCategoryEmoji('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
+            var results, _i, results_1, result, _id, prefix;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (!this._mongo) return [3 /*break*/, 2];
+                        if (!this._mongo) return [3 /*break*/, 3];
                         return [4 /*yield*/, mongo_1.default(this._mongo, this)];
                     case 1:
                         _a.sent();
                         this._mongoConnection = mongo_1.getMongoConnection();
-                        return [3 /*break*/, 3];
+                        return [4 /*yield*/, prefixes_1.default.find({})];
                     case 2:
-                        console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
-                        this.emit('databaseConnected', null, '');
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
-                }
-            });
-        }); }, 500);
-        (function () { return __awaiter(_this, void 0, void 0, function () {
-            var results, _i, results_1, result, _id, prefix;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, prefixes_1.default.find({})];
-                    case 1:
                         results = _a.sent();
                         for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
                             result = results_1[_i];
                             _id = result._id, prefix = result.prefix;
                             this._prefixes[_id] = prefix;
                         }
-                        return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 3:
+                        console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
+                        this.emit('databaseConnected', null, '');
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
                 }
             });
-        }); })();
+        }); }, 500);
         return _this;
     }
     Object.defineProperty(WOKCommands.prototype, "mongoPath", {

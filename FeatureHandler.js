@@ -136,7 +136,6 @@ var FeatureHandler = /** @class */ (function () {
                                     return [3 /*break*/, 1];
                                 case 4:
                                     instance.on('databaseConnected', function (connection, state) {
-                                        console.log('STATE:', state);
                                         if (state === 'Connected') {
                                             for (var _i = 0, waitingForDB_1 = waitingForDB; _i < waitingForDB_1.length; _i++) {
                                                 var _a = waitingForDB_1[_i], func = _a.func, client_1 = _a.client, instance_1 = _a.instance, isEnabled = _a.isEnabled;
