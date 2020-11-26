@@ -52,7 +52,7 @@ class WOKCommands extends EventEmitter {
 
     this._commandHandler = new CommandHandler(this, client, this._commandsDir)
     if (this._featureDir) {
-      this._featureHandler = new FeatureHandler(client, this._featureDir)
+      this._featureHandler = new FeatureHandler(client, this, this._featureDir)
     }
 
     this.setCategoryEmoji('Configuration', '⚙️')

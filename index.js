@@ -124,7 +124,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._featureDir = featureDir || _this._featureDir;
         _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir);
         if (_this._featureDir) {
-            _this._featureHandler = new FeatureHandler_1.default(client, _this._featureDir);
+            _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
         _this.setCategoryEmoji('Configuration', '⚙️');
         _this.setCategoryEmoji('Help', '❓');

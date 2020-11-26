@@ -10,8 +10,10 @@
 - [Setup](#setup)
 - [Setting a Custom Prefix](#setting-a-custom-prefix)
 - [Creating a Feature](#creating-a-feature)
+- [Configuring a Feature](#configuring-a-feature)
 - [Creating a Command](#creating-a-command)
 - [Command Categories](#command-categories)
+- [Command Initialization Method](#command-initialization-method)
 - [Argument Rules](#argument-rules)
   - [Global Syntax Errors](#global-syntax-errors)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
@@ -111,14 +113,42 @@ Here is a basic example that simply console logs each message sent:
 // File name: "log-messages.js"
 // Folder: "./features"
 
-module.exports = (client) => {
+module.exports = (client, instance) => {
   client.on('message', (message) => {
     console.log(message.content)
   })
 }
 ```
 
+`client` is the Discord JS client for your bot.
+
+`instance` is the WOKCommands instance that contains some helper functions.
+
 Each file inside of the "features" folder (or whatever you specified in "Setup") will be ran whenever your bot starts up.
+
+# Configuring a Feature
+
+Often times you may want to only load a feature once your database is connected to. This is useful if you load data from your database when initializing your feature.
+
+You can export a `config` object to delay loading of a feature until your database is connected, as well as specify `displayName` and `dbName` properties:
+
+```JS
+module.exports = (client, instance) => {
+  console.log('something that requires a database connection')
+}
+
+module.exports.config = {
+  displayName: 'Test', // Can be changed any time
+  dbName: 'TEST', // Should be unique and NEVER be changed once set
+  loadDBFirst: true,
+}
+```
+
+`loadDBFirst` will make this feature only load once your bot has successfully connected to your database.
+
+`displayName` is a name that will eventually be used in this package for enable/disable functionality. This is what users will see when interacting with your bot.
+
+`dbName` is something that once set should NEVER be changed. This is what will be used to keep track of what features are enabled or disabled in each Discord server. Separating these two means you can rename what your user's see without breaking what servers have a feature enabled or disabled. This property should always be in upper case.
 
 # Creating a Command
 
@@ -210,14 +240,41 @@ client.on('ready', () => {
   new WOKCommands(client, 'commands', 'features')
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
-    // Set the category emoji
+    // Set the category emoji:
     .setCategoryEmoji('Fun', '🎮')
+    // You can chain these calls together:
+    .setCategoryEmoji('Economy', '💸')
 })
 
 client.login(process.env.TOKEN)
 ```
 
 The category name "Fun" must match the exact name specified in your commands, this is case sensitive.
+
+# Command Initialization Method
+
+Some commands may require you to run code when they are loaded. This will often include create a basic listener, or fetching data from some source.
+
+You can use the `init()` method within your command to handle this type of functionality:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  category: 'Fun',
+  init: (client, instance) => {
+    console.log('ran only one time when the bot starts up')
+  },
+  callback: (message) => {
+    message.reply('pong')
+  }
+}
+```
+
+`client` is the Discord JS client for your bot.
+
+`instance` is the WOKCommands instance that contains some helper functions.
 
 # Argument Rules
 

@@ -180,7 +180,6 @@ class CommandHandler {
                 // @ts-ignore
                 for (const { _id, cooldown } of results) {
                   const [name, guildId, userId] = _id.split('-')
-                  console.log(name, guildId, userId, cooldown)
                   command.setCooldown(guildId, userId, cooldown)
                 }
               }
