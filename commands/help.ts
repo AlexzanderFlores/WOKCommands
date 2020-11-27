@@ -24,6 +24,10 @@ const getFirstEmbed = (instance: WOKCommands) => {
   } = {}
 
   for (const { category } of commands) {
+    if (!category) {
+      continue
+    }
+
     if (categories[category]) {
       ++categories[category].amount
     } else {
@@ -91,8 +95,11 @@ module.exports = {
 
         if (embeds && embeds.length === 1) {
           const embed = embeds[0]
+          const displayName = instance.displayName
+            ? instance.displayName + ' '
+            : ''
 
-          if (embed.title === `${instance.displayName} Help Menu`) {
+          if (embed.title === `${displayName}Help Menu`) {
             const emoji = reaction.emoji.name
             if (emoji === '🚪') {
               const { embed: newEmbed, reactions } = getFirstEmbed(instance)

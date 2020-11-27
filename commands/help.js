@@ -20,6 +20,9 @@ var getFirstEmbed = function (instance) {
     var categories = {};
     for (var _i = 0, commands_1 = commands; _i < commands_1.length; _i++) {
         var category = commands_1[_i].category;
+        if (!category) {
+            continue;
+        }
         if (categories[category]) {
             ++categories[category].amount;
         }
@@ -70,7 +73,10 @@ module.exports = {
                 var embeds = message.embeds, guild = message.guild;
                 if (embeds && embeds.length === 1) {
                     var embed = embeds[0];
-                    if (embed.title === instance.displayName + " Help Menu") {
+                    var displayName = instance.displayName
+                        ? instance.displayName + ' '
+                        : '';
+                    if (embed.title === displayName + "Help Menu") {
                         var emoji = reaction.emoji.name;
                         if (emoji === '🚪') {
                             var _a = getFirstEmbed(instance), newEmbed = _a.embed, reactions = _a.reactions;

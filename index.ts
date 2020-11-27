@@ -21,6 +21,7 @@ class WOKCommands extends EventEmitter {
   private _commandHandler: CommandHandler
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
+  private _botOwner = ''
 
   constructor(client: Client, commandsDir?: string, featureDir?: string) {
     super()
@@ -52,7 +53,7 @@ class WOKCommands extends EventEmitter {
 
     this._commandHandler = new CommandHandler(this, client, this._commandsDir)
     if (this._featureDir) {
-      this._featureHandler = new FeatureHandler(client, this._featureDir)
+      this._featureHandler = new FeatureHandler(client, this, this._featureDir)
     }
 
     this.setCategoryEmoji('Configuration', '⚙️')
@@ -63,6 +64,14 @@ class WOKCommands extends EventEmitter {
         await mongo(this._mongo, this)
 
         this._mongoConnection = getMongoConnection()
+
+        const results: any[] = await prefixes.find({})
+
+        for (const result of results) {
+          const { _id, prefix } = result
+
+          this._prefixes[_id] = prefix
+        }
       } else {
         console.warn(
           'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
@@ -71,17 +80,6 @@ class WOKCommands extends EventEmitter {
         this.emit('databaseConnected', null, '')
       }
     }, 500)
-
-    // Load prefixes from Mongo
-    ;(async () => {
-      const results: any[] = await prefixes.find({})
-
-      for (const result of results) {
-        const { _id, prefix } = result
-
-        this._prefixes[_id] = prefix
-      }
-    })()
   }
 
   public get mongoPath(): string {
@@ -128,10 +126,11 @@ class WOKCommands extends EventEmitter {
     return this._prefixes[guild ? guild.id : ''] || this._defaultPrefix
   }
 
-  public setPrefix(guild: Guild | null, prefix: string) {
+  public setPrefix(guild: Guild | null, prefix: string): WOKCommands {
     if (guild) {
       this._prefixes[guild.id] = prefix
     }
+    return this
   }
 
   public get categories(): Map<String, String> {
@@ -166,8 +165,9 @@ class WOKCommands extends EventEmitter {
     return result
   }
 
-  public setCategoryEmoji(category: string, emoji: string) {
+  public setCategoryEmoji(category: string, emoji: string): WOKCommands {
     this._categories.set(category, emoji || this.categories.get(category) || '')
+    return this
   }
 
   public get commandHandler(): CommandHandler {
@@ -178,12 +178,22 @@ class WOKCommands extends EventEmitter {
     return this._mongoConnection
   }
 
-  public setTagPeople(tagPeople: boolean) {
+  public setTagPeople(tagPeople: boolean): WOKCommands {
     this._tagPeople = tagPeople
+    return this
   }
 
-  public get tagPeople() {
+  public get tagPeople(): boolean {
     return this._tagPeople
+  }
+
+  public get botOwner(): string {
+    return this._botOwner
+  }
+
+  public setBotOwner(botOwner: string): WOKCommands {
+    this._botOwner = botOwner
+    return this
   }
 
   public updateCache = (client: Client) => {

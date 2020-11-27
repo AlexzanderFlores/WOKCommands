@@ -25,6 +25,7 @@ class Command {
   private _globalCooldown: string
   private _guildCooldowns: Map<String, number> = new Map() // <GuildID, Seconds>
   private _databaseCooldown = false
+  private _ownerOnly = false
 
   constructor(
     instance: WOKCommands,
@@ -41,6 +42,7 @@ class Command {
       requiredPermissions,
       cooldown,
       globalCooldown,
+      ownerOnly,
     }: ICmdConfig
   ) {
     this.instance = instance
@@ -55,6 +57,7 @@ class Command {
     this._requiredPermissions = requiredPermissions
     this._cooldown = cooldown || ''
     this._globalCooldown = globalCooldown || ''
+    this._ownerOnly = ownerOnly
     this._callback = callback
 
     if (this.cooldown && this.globalCooldown) {
@@ -91,6 +94,11 @@ class Command {
   }
 
   public execute(message: Message, args: string[]) {
+    if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
+      message.reply('Only the bot owner can run this command.')
+      return
+    }
+
     this._callback(
       message,
       args,
@@ -256,8 +264,6 @@ class Command {
   public async updateDatabaseCooldowns(_id: String, cooldown: number) {
     // Only update every 20s
     if (cooldown % 20 === 0) {
-      console.log('SAVING TO DB')
-
       const type = this.globalCooldown ? 'global' : 'per-user'
 
       if (cooldown <= 0) {
@@ -353,8 +359,6 @@ class Command {
     if (!array.includes(roleId)) {
       array.push(roleId)
       this._requiredRoles?.set(guildId, array)
-
-      console.log(`Added ${roleId} to ${this._names[0]} for guild ${guildId}`)
     }
   }
 
@@ -368,10 +372,6 @@ class Command {
     const index = array ? array.indexOf(roleId) : -1
     if (array && index >= 0) {
       array.splice(index, 1)
-
-      console.log(
-        `Removed ${roleId} from ${this._names[0]} for guild ${guildId}`
-      )
     }
   }
 

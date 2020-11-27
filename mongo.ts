@@ -18,9 +18,9 @@ const mongo = async (mongoPath: string, instance: WOKCommands) => {
     useFindAndModify: false,
   })
 
-  const state = results[mongoose.connection.readyState] || 'Unknown'
-
-  instance.emit('databaseConnected', mongoose.connection, state)
+  const { connection } = mongoose
+  const state = results[connection.readyState] || 'Unknown'
+  instance.emit('databaseConnected', connection, state)
 }
 
 export const getMongoConnection = (): Connection => {

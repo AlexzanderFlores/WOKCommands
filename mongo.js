@@ -48,7 +48,7 @@ var results = {
     3: 'Disconnecting',
 };
 var mongo = function (mongoPath, instance) { return __awaiter(void 0, void 0, void 0, function () {
-    var state;
+    var connection, state;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, mongoose_1.default.connect(mongoPath, {
@@ -59,8 +59,9 @@ var mongo = function (mongoPath, instance) { return __awaiter(void 0, void 0, vo
                 })];
             case 1:
                 _a.sent();
-                state = results[mongoose_1.default.connection.readyState] || 'Unknown';
-                instance.emit('databaseConnected', mongoose_1.default.connection, state);
+                connection = mongoose_1.default.connection;
+                state = results[connection.readyState] || 'Unknown';
+                instance.emit('databaseConnected', connection, state);
                 return [2 /*return*/];
         }
     });
