@@ -1,0 +1,66 @@
+import { Client, Message } from 'discord.js'
+import WOKCommands from '..'
+import languageSchema from '../models/languages'
+
+export = {
+  maxArgs: 1,
+  cooldown: '5s',
+  expectedArgs: '[Language]',
+  description: 'Displays or sets the language for this Discord server',
+  category: 'Configuration',
+  callback: async (
+    message: Message,
+    args: string[],
+    text: string,
+    client: Client,
+    prefix: string,
+    instance: WOKCommands
+  ) => {
+    const { guild } = message
+    if (!guild) {
+      return
+    }
+
+    const { messageHandler } = instance
+
+    const lang = text.toLowerCase()
+
+    if (!lang) {
+      message.reply(
+        instance.messageHandler.get(guild, 'CURRENT_LANGUAGE', {
+          LANGUAGE: instance.messageHandler.getLanguage(guild),
+        })
+      )
+      return
+    }
+
+    if (!messageHandler.languages().includes(lang)) {
+      message.reply(
+        messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
+          LANGUAGE: lang,
+        })
+      )
+      return
+    }
+
+    instance.messageHandler.setLanguage(guild, lang)
+    message.reply(
+      instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
+        LANGUAGE: lang,
+      })
+    )
+
+    await languageSchema.findOneAndUpdate(
+      {
+        _id: guild.id,
+      },
+      {
+        _id: guild.id,
+        language: lang,
+      },
+      {
+        upsert: true,
+      }
+    )
+  },
+}

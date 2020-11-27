@@ -3,8 +3,8 @@ import WOKCommands from '..'
 import prefixes from '../models/prefixes'
 
 export = {
-  minArgs: 0,
   maxArgs: 1,
+  cooldown: '5s',
   expectedArgs: '[New Prefix]',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the prefix for the current guild',

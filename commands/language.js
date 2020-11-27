@@ -38,43 +38,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var prefixes_1 = __importDefault(require("../models/prefixes"));
+var languages_1 = __importDefault(require("../models/languages"));
 module.exports = {
     maxArgs: 1,
     cooldown: '5s',
-    expectedArgs: '[New Prefix]',
-    requiredPermissions: ['ADMINISTRATOR'],
-    description: 'Displays or sets the prefix for the current guild',
+    expectedArgs: '[Language]',
+    description: 'Displays or sets the language for this Discord server',
     category: 'Configuration',
     callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var guild, id;
+        var guild, messageHandler, lang;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    if (!(args.length === 0)) return [3 /*break*/, 1];
-                    message.reply("The current prefix is \"" + prefix + "\"");
-                    return [3 /*break*/, 4];
-                case 1:
                     guild = message.guild;
-                    if (!guild) return [3 /*break*/, 3];
-                    id = guild.id;
-                    return [4 /*yield*/, prefixes_1.default.findOneAndUpdate({
-                            _id: id,
+                    if (!guild) {
+                        return [2 /*return*/];
+                    }
+                    messageHandler = instance.messageHandler;
+                    lang = text.toLowerCase();
+                    if (!lang) {
+                        message.reply(instance.messageHandler.get(guild, 'CURRENT_LANGUAGE', {
+                            LANGUAGE: instance.messageHandler.getLanguage(guild),
+                        }));
+                        return [2 /*return*/];
+                    }
+                    if (!messageHandler.languages().includes(lang)) {
+                        message.reply(messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
+                            LANGUAGE: lang,
+                        }));
+                        return [2 /*return*/];
+                    }
+                    instance.messageHandler.setLanguage(guild, lang);
+                    message.reply(instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
+                        LANGUAGE: lang,
+                    }));
+                    return [4 /*yield*/, languages_1.default.findOneAndUpdate({
+                            _id: guild.id,
                         }, {
-                            _id: id,
-                            prefix: text,
+                            _id: guild.id,
+                            language: lang,
                         }, {
                             upsert: true,
                         })];
-                case 2:
+                case 1:
                     _a.sent();
-                    instance.setPrefix(guild, text);
-                    message.reply("Set prefix to \"" + text + "\"");
-                    return [3 /*break*/, 4];
-                case 3:
-                    message.reply('You cannot set a prefix in a private message.');
-                    _a.label = 4;
-                case 4: return [2 /*return*/];
+                    return [2 /*return*/];
             }
         });
     }); },

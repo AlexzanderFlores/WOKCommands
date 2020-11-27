@@ -91,7 +91,7 @@ var Command = /** @class */ (function () {
     }
     Command.prototype.execute = function (message, args) {
         if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
-            message.reply('Only the bot owner can run this command.');
+            message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
             return;
         }
         this._callback(message, args, args.join(' '), this.client, this.instance.getPrefix(message.guild), this.instance);

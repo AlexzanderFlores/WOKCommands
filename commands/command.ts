@@ -5,6 +5,7 @@ import disabledCommands from '../models/disabled-commands'
 export = {
   minArgs: 2,
   maxArgs: 2,
+  cooldown: '5s',
   expectedArgs: '<"enable" or "disable"> <Command Name>',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Enables or disables a command for this guild',

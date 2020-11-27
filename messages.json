@@ -1,0 +1,30 @@
+{
+  "LANGUAGE_NOT_SUPPORTED": {
+    "english": "This bot does not have support for {LANGUAGE} at this time.",
+    "spanish": "Este bot no es compatible con {LANGUAGE} en este momento."
+  },
+  "CURRENT_LANGUAGE": {
+    "english": "The current langauge is set to {LANGUAGE}.",
+    "spanish": "El idioma actual está establecido en {LANGUAGE}."
+  },
+  "NEW_LANGUAGE": {
+    "english": "Language set to {LANGUAGE}.",
+    "spanish": "Idioma configurado en {LANGUAGE}."
+  },
+  "BOT_OWNERS_ONLY": {
+    "english": "Only the bot owner can run this command.",
+    "spanish": "Solo el propietario del bot puede ejecutar este comando."
+  },
+  "DISABLED_COMMAND": {
+    "english": "That command is currently disabled in this server.",
+    "spanish": "Ese comando está actualmente deshabilitado en este servidor."
+  },
+  "MISSING_PERMISSION": {
+    "english": "You must have the {PERM} permission in order to use this command.",
+    "spanish": "Debe tener el permiso {PERM} para poder utilizar este comando."
+  },
+  "MISSING_ROLES": {
+    "english": "You do not have the required roles to use this command!",
+    "spanish": "¡No tienes los roles necesarios para usar este comando!"
+  }
+}

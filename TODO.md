@@ -26,7 +26,7 @@
 
 [ ] Configurable auto delete for pre-built commands
 
-[ ] Bot owner only commands
+[X] Bot owner only commands
 
 [ ] Ability to customize who can run the pre-made commands (not just admins)
 

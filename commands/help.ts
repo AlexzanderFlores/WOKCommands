@@ -86,11 +86,13 @@ module.exports = {
   description: "Displays this bot's commands",
   category: 'Help',
   init: (client: Client, instance: WOKCommands) => {
-    instance.updateCache(client)
+    client.on('messageReactionAdd', async (reaction, user) => {
+      const { message } = reaction
+      if (message.partial) {
+        await message.fetch()
+      }
 
-    client.on('messageReactionAdd', (reaction, user) => {
       if (!user.bot) {
-        const { message } = reaction
         const { embeds, guild } = message
 
         if (embeds && embeds.length === 1) {

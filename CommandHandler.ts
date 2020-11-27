@@ -64,7 +64,7 @@ class CommandHandler {
 
                     if (isDisabled) {
                       message.reply(
-                        'That command is currently disabled in this server'
+                        instance.messageHandler.get(guild, 'DISABLED_COMMAND')
                       )
                       return
                     }
@@ -86,7 +86,13 @@ class CommandHandler {
                       // @ts-ignore
                       if (!member.hasPermission(perm)) {
                         message.reply(
-                          `You must have the "${perm}" permission in order to use this command.`
+                          instance.messageHandler.get(
+                            guild,
+                            'MISSING_PERMISSION',
+                            {
+                              PERM: perm,
+                            }
+                          )
                         )
                         return
                       }
@@ -106,7 +112,7 @@ class CommandHandler {
 
                       if (!hasRole) {
                         message.reply(
-                          'You do not have any of the required roles to use this command!'
+                          instance.messageHandler.get(guild, 'MISSING_ROLES')
                         )
                         return
                       }

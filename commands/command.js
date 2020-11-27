@@ -42,6 +42,7 @@ var disabled_commands_1 = __importDefault(require("../models/disabled-commands")
 module.exports = {
     minArgs: 2,
     maxArgs: 2,
+    cooldown: '5s',
     expectedArgs: '<"enable" or "disable"> <Command Name>',
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Enables or disables a command for this guild',

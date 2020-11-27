@@ -95,7 +95,9 @@ class Command {
 
   public execute(message: Message, args: string[]) {
     if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
-      message.reply('Only the bot owner can run this command.')
+      message.reply(
+        this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY')
+      )
       return
     }
 

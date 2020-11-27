@@ -6,6 +6,7 @@ export = {
   aliases: ['requiredroles', 'requirerole', 'requireroles'],
   minArgs: 2,
   maxArgs: 2,
+  cooldown: '5s',
   expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Specifies what role each command requires.',
