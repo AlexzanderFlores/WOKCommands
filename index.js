@@ -91,6 +91,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._color = '';
         _this._featureHandler = null;
         _this._tagPeople = true;
+        _this._botOwner = '';
         _this.updateCache = function (client) {
             // @ts-ignore
             for (var _i = 0, _a = client.guilds.cache; _i < _a.length; _i++) {
@@ -270,6 +271,7 @@ var WOKCommands = /** @class */ (function (_super) {
     });
     WOKCommands.prototype.setTagPeople = function (tagPeople) {
         this._tagPeople = tagPeople;
+        return this;
     };
     Object.defineProperty(WOKCommands.prototype, "tagPeople", {
         get: function () {
@@ -278,6 +280,17 @@ var WOKCommands = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(WOKCommands.prototype, "botOwner", {
+        get: function () {
+            return this._botOwner;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    WOKCommands.prototype.setBotOwner = function (botOwner) {
+        this._botOwner = botOwner;
+        return this;
+    };
     return WOKCommands;
 }(events_1.EventEmitter));
 module.exports = WOKCommands;

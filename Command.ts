@@ -25,6 +25,7 @@ class Command {
   private _globalCooldown: string
   private _guildCooldowns: Map<String, number> = new Map() // <GuildID, Seconds>
   private _databaseCooldown = false
+  private _ownerOnly = false
 
   constructor(
     instance: WOKCommands,
@@ -41,6 +42,7 @@ class Command {
       requiredPermissions,
       cooldown,
       globalCooldown,
+      ownerOnly,
     }: ICmdConfig
   ) {
     this.instance = instance
@@ -55,6 +57,7 @@ class Command {
     this._requiredPermissions = requiredPermissions
     this._cooldown = cooldown || ''
     this._globalCooldown = globalCooldown || ''
+    this._ownerOnly = ownerOnly
     this._callback = callback
 
     if (this.cooldown && this.globalCooldown) {
@@ -91,6 +94,11 @@ class Command {
   }
 
   public execute(message: Message, args: string[]) {
+    if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
+      message.reply('Only the bot owner can run this command.')
+      return
+    }
+
     this._callback(
       message,
       args,

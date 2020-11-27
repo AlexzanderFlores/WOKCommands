@@ -21,6 +21,7 @@ class WOKCommands extends EventEmitter {
   private _commandHandler: CommandHandler
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
+  private _botOwner = ''
 
   constructor(client: Client, commandsDir?: string, featureDir?: string) {
     super()
@@ -177,12 +178,22 @@ class WOKCommands extends EventEmitter {
     return this._mongoConnection
   }
 
-  public setTagPeople(tagPeople: boolean) {
+  public setTagPeople(tagPeople: boolean): WOKCommands {
     this._tagPeople = tagPeople
+    return this
   }
 
-  public get tagPeople() {
+  public get tagPeople(): boolean {
     return this._tagPeople
+  }
+
+  public get botOwner(): string {
+    return this._botOwner
+  }
+
+  public setBotOwner(botOwner: string): WOKCommands {
+    this._botOwner = botOwner
+    return this
   }
 
   public updateCache = (client: Client) => {

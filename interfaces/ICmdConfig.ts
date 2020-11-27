@@ -10,4 +10,5 @@ export default interface ICmdConfig {
   callback: Function
   cooldown: string
   globalCooldown: string
+  ownerOnly: boolean
 }
