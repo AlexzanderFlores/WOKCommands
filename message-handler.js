@@ -68,14 +68,15 @@ var MessageHandler = /** @class */ (function () {
         this._messages = {};
         this._instance = instance;
         (function () { return __awaiter(_this, void 0, void 0, function () {
-            var _a, _i, _b, messageId, _c, _d, language, results, _e, results_1, _f, guildId, language;
-            return __generator(this, function (_g) {
-                switch (_g.label) {
+            var _a, _i, _b, messageId, _c, _d, language;
+            var _this = this;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
                     case 0:
                         _a = this;
                         return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(messagePath)); })];
                     case 1:
-                        _a._messages = _g.sent();
+                        _a._messages = _e.sent();
                         for (_i = 0, _b = Object.keys(this._messages); _i < _b.length; _i++) {
                             messageId = _b[_i];
                             for (_c = 0, _d = Object.keys(this._messages[messageId]); _c < _d.length; _c++) {
@@ -83,17 +84,29 @@ var MessageHandler = /** @class */ (function () {
                                 this._languages.push(language.toLowerCase());
                             }
                         }
-                        return [4 /*yield*/, languages_1.default.find()
-                            // @ts-ignore
-                        ];
-                    case 2:
-                        results = _g.sent();
-                        // @ts-ignore
-                        for (_e = 0, results_1 = results; _e < results_1.length; _e++) {
-                            _f = results_1[_e], guildId = _f._id, language = _f.language;
-                            console.log("Set \"" + language + "\" for \"" + guildId + "\"");
-                            this._guildLanguages.set(guildId, language);
-                        }
+                        instance.on('databaseConnected', function (connection, state) { return __awaiter(_this, void 0, void 0, function () {
+                            var results, _i, results_1, _a, guildId, language;
+                            return __generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0:
+                                        if (state !== 'Connected') {
+                                            return [2 /*return*/];
+                                        }
+                                        return [4 /*yield*/, languages_1.default.find()
+                                            // @ts-ignore
+                                        ];
+                                    case 1:
+                                        results = _b.sent();
+                                        // @ts-ignore
+                                        for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
+                                            _a = results_1[_i], guildId = _a._id, language = _a.language;
+                                            console.log("Set \"" + language + "\" for \"" + guildId + "\"");
+                                            this._guildLanguages.set(guildId, language);
+                                        }
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
                         return [2 /*return*/];
                 }
             });
@@ -124,10 +137,37 @@ var MessageHandler = /** @class */ (function () {
     MessageHandler.prototype.get = function (guild, messageId, args) {
         if (args === void 0) { args = {}; }
         var language = this.getLanguage(guild);
-        var result = this._messages[messageId][language];
+        var translations = this._messages[messageId];
+        if (!translations) {
+            console.error("WOKCommands > Could not find the correct message to send for \"" + messageId + "\"");
+            return 'Could not find the correct message to send. Please report this to the bot developer.';
+        }
+        var result = translations[language];
         for (var _i = 0, _a = Object.keys(args); _i < _a.length; _i++) {
             var key = _a[_i];
-            result = result.replace("{" + key + "}", args[key]);
+            var expression = new RegExp("{" + key + "}", 'g');
+            result = result.replace(expression, args[key]);
+        }
+        return result;
+    };
+    MessageHandler.prototype.getEmbed = function (guild, embedId, itemId, args) {
+        if (args === void 0) { args = {}; }
+        var language = this.getLanguage(guild);
+        var items = this._messages[embedId];
+        if (!items) {
+            console.error("WOKCommands > Could not find the correct item to send for \"" + embedId + "\" -> \"" + itemId + "\"");
+            return 'Could not find the correct message to send. Please report this to the bot developer.';
+        }
+        var translations = items[itemId];
+        if (!translations) {
+            console.error("WOKCommands > Could not find the correct message to send for \"" + embedId + "\"");
+            return 'Could not find the correct message to send. Please report this to the bot developer.';
+        }
+        var result = translations[language];
+        for (var _i = 0, _a = Object.keys(args); _i < _a.length; _i++) {
+            var key = _a[_i];
+            var expression = new RegExp("{" + key + "}", 'g');
+            result = result.replace(expression, args[key]);
         }
         return result;
     };

@@ -4,7 +4,7 @@ import prefixes from '../models/prefixes'
 
 export = {
   maxArgs: 1,
-  cooldown: '5s',
+  cooldown: '2s',
   expectedArgs: '[New Prefix]',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the prefix for the current guild',
@@ -17,11 +17,15 @@ export = {
     prefix: string,
     instance: WOKCommands
   ) => {
-    if (args.length === 0) {
-      message.reply(`The current prefix is "${prefix}"`)
-    } else {
-      const { guild } = message
+    const { guild } = message
 
+    if (args.length === 0) {
+      message.reply(
+        instance.messageHandler.get(guild, 'CURRENT_PREFIX', {
+          PREFIX: prefix,
+        })
+      )
+    } else {
       if (guild) {
         const { id } = guild
 
@@ -40,9 +44,15 @@ export = {
 
         instance.setPrefix(guild, text)
 
-        message.reply(`Set prefix to "${text}"`)
+        message.reply(
+          instance.messageHandler.get(guild, 'SET_PREFIX', {
+            PREFIX: text,
+          })
+        )
       } else {
-        message.reply('You cannot set a prefix in a private message.')
+        message.reply(
+          instance.messageHandler.get(guild, 'CANNOT_SET_PREFIX_IN_DMS')
+        )
       }
     }
   },

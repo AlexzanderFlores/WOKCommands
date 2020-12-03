@@ -62,6 +62,12 @@ var Command = /** @class */ (function () {
         this._category = category;
         this._minArgs = minArgs || 0;
         this._maxArgs = maxArgs === undefined ? -1 : maxArgs;
+        if (typeof syntaxError === 'string') {
+            console.warn("WOKCommands > String syntax errors are deprecated. Please use an object instead to specify the language.");
+            syntaxError = {
+                english: syntaxError,
+            };
+        }
         this._syntaxError = syntaxError;
         this._expectedArgs = expectedArgs;
         this._description = description;
@@ -126,7 +132,7 @@ var Command = /** @class */ (function () {
     });
     Object.defineProperty(Command.prototype, "syntaxError", {
         get: function () {
-            return this._syntaxError;
+            return this._syntaxError || {};
         },
         enumerable: false,
         configurable: true

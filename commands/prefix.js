@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var prefixes_1 = __importDefault(require("../models/prefixes"));
 module.exports = {
     maxArgs: 1,
-    cooldown: '5s',
+    cooldown: '2s',
     expectedArgs: '[New Prefix]',
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Displays or sets the prefix for the current guild',
@@ -51,11 +51,13 @@ module.exports = {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    guild = message.guild;
                     if (!(args.length === 0)) return [3 /*break*/, 1];
-                    message.reply("The current prefix is \"" + prefix + "\"");
+                    message.reply(instance.messageHandler.get(guild, 'CURRENT_PREFIX', {
+                        PREFIX: prefix,
+                    }));
                     return [3 /*break*/, 4];
                 case 1:
-                    guild = message.guild;
                     if (!guild) return [3 /*break*/, 3];
                     id = guild.id;
                     return [4 /*yield*/, prefixes_1.default.findOneAndUpdate({
@@ -69,10 +71,12 @@ module.exports = {
                 case 2:
                     _a.sent();
                     instance.setPrefix(guild, text);
-                    message.reply("Set prefix to \"" + text + "\"");
+                    message.reply(instance.messageHandler.get(guild, 'SET_PREFIX', {
+                        PREFIX: text,
+                    }));
                     return [3 /*break*/, 4];
                 case 3:
-                    message.reply('You cannot set a prefix in a private message.');
+                    message.reply(instance.messageHandler.get(guild, 'CANNOT_SET_PREFIX_IN_DMS'));
                     _a.label = 4;
                 case 4: return [2 /*return*/];
             }

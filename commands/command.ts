@@ -5,7 +5,7 @@ import disabledCommands from '../models/disabled-commands'
 export = {
   minArgs: 2,
   maxArgs: 2,
-  cooldown: '5s',
+  cooldown: '2s',
   expectedArgs: '<"enable" or "disable"> <Command Name>',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Enables or disables a command for this guild',
@@ -18,17 +18,19 @@ export = {
     prefix: string,
     instance: WOKCommands
   ) => {
+    const { guild } = message
     const newState = args.shift()?.toLowerCase()
     const name = (args.shift() || '').toLowerCase()
 
-    if (newState !== 'enable' && newState !== 'disable') {
-      message.reply('The state must be either "enable" or "disable"')
+    if (!guild) {
+      message.reply(
+        instance.messageHandler.get(guild, 'CANNOT_ENABLE_DISABLE_IN_DMS')
+      )
       return
     }
 
-    const { guild } = message
-    if (!guild) {
-      message.reply('You cannot enable or disable commands in private messages')
+    if (newState !== 'enable' && newState !== 'disable') {
+      message.reply(instance.messageHandler.get(guild, 'ENABLE_DISABLE_STATE'))
       return
     }
 
@@ -40,7 +42,9 @@ export = {
 
       if (newState === 'enable') {
         if (!isDisabled) {
-          message.reply('That command is already enabled!')
+          message.reply(
+            instance.messageHandler.get(guild, 'COMMAND_ALREADY_ENABLED')
+          )
           return
         }
 
@@ -51,10 +55,16 @@ export = {
 
         command.enable(guild.id)
 
-        message.reply(`"${mainCommand}" is now enabled!`)
+        message.reply(
+          instance.messageHandler.get(guild, 'COMMAND_NOW_ENABLED', {
+            COMMAND: mainCommand,
+          })
+        )
       } else {
         if (isDisabled) {
-          message.reply('That command is already disabled!')
+          message.reply(
+            instance.messageHandler.get(guild, 'COMMAND_ALREADY_DISABLED')
+          )
           return
         }
 
@@ -65,13 +75,17 @@ export = {
 
         command.disable(guild.id)
 
-        message.reply(`"${mainCommand}" is now disabled!`)
+        message.reply(
+          instance.messageHandler.get(guild, 'COMMAND_NOW_DISABLED', {
+            COMMAND: mainCommand,
+          })
+        )
       }
     } else {
       message.reply(
-        `Could not find command "${name}"! View all commands with "${instance.getPrefix(
-          guild
-        )}commands"`
+        instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+          COMMAND: name,
+        })
       )
     }
   },

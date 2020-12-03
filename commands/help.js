@@ -45,11 +45,11 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var discord_js_1 = require("discord.js");
 var pageLimit = 3;
-var getFirstEmbed = function (instance) {
-    var commands = instance.commandHandler.commands;
+var getFirstEmbed = function (guild, instance) {
+    var commands = instance.commandHandler.commands, messageHandler = instance.messageHandler;
     var embed = new discord_js_1.MessageEmbed()
-        .setTitle(instance.displayName + " Help Menu")
-        .setDescription("Please select a command category by clicking it's reaction.");
+        .setTitle(instance.displayName + " " + messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE'))
+        .setDescription(messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY'));
     if (instance.color) {
         embed.setColor(instance.color);
     }
@@ -124,7 +124,7 @@ module.exports = {
                                 if (embed.title === displayName + "Help Menu") {
                                     emoji = reaction.emoji.name;
                                     if (emoji === '🚪') {
-                                        _a = getFirstEmbed(instance), newEmbed = _a.embed, reactions = _a.reactions;
+                                        _a = getFirstEmbed(guild, instance), newEmbed = _a.embed, reactions = _a.reactions;
                                         embed.setDescription(newEmbed.description);
                                         embed.setFooter('');
                                         message.edit(embed);
@@ -196,7 +196,7 @@ module.exports = {
         }); });
     },
     callback: function (message, args, text, client, prefix, instance) {
-        var _a = getFirstEmbed(instance), embed = _a.embed, reactions = _a.reactions;
+        var _a = getFirstEmbed(message.guild, instance), embed = _a.embed, reactions = _a.reactions;
         message.channel
             .send('', {
             embed: embed,

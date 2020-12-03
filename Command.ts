@@ -11,7 +11,7 @@ class Command {
   private _category = ''
   private _minArgs: number = 0
   private _maxArgs: number = -1
-  private _syntaxError?: string
+  private _syntaxError?: { [key: string]: string }
   private _expectedArgs?: string
   private _description?: string
   private _requiredPermissions?: string[] = []
@@ -51,6 +51,14 @@ class Command {
     this._category = category
     this._minArgs = minArgs || 0
     this._maxArgs = maxArgs === undefined ? -1 : maxArgs
+    if (typeof syntaxError === 'string') {
+      console.warn(
+        `WOKCommands > String syntax errors are deprecated. Please use an object instead to specify the language.`
+      )
+      syntaxError = {
+        english: syntaxError,
+      }
+    }
     this._syntaxError = syntaxError
     this._expectedArgs = expectedArgs
     this._description = description
@@ -127,8 +135,8 @@ class Command {
     return this._maxArgs
   }
 
-  public get syntaxError(): string | undefined {
-    return this._syntaxError
+  public get syntaxError(): { [key: string]: string } {
+    return this._syntaxError || {}
   }
 
   public get expectedArgs(): string | undefined {

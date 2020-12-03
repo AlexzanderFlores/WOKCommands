@@ -1,15 +1,24 @@
-import { Client, Message, MessageEmbed } from 'discord.js'
+import { Client, Guild, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '../'
 
 const pageLimit = 3
 
-const getFirstEmbed = (instance: WOKCommands) => {
-  const { commands } = instance.commandHandler
+const getFirstEmbed = (guild: Guild | null, instance: WOKCommands) => {
+  const {
+    commandHandler: { commands },
+    messageHandler,
+  } = instance
 
   const embed = new MessageEmbed()
-    .setTitle(`${instance.displayName} Help Menu`)
+    .setTitle(
+      `${instance.displayName} ${messageHandler.getEmbed(
+        guild,
+        'HELP_MENU',
+        'TITLE'
+      )}`
+    )
     .setDescription(
-      "Please select a command category by clicking it's reaction."
+      messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY')
     )
 
   if (instance.color) {
@@ -104,7 +113,10 @@ module.exports = {
           if (embed.title === `${displayName}Help Menu`) {
             const emoji = reaction.emoji.name
             if (emoji === '🚪') {
-              const { embed: newEmbed, reactions } = getFirstEmbed(instance)
+              const { embed: newEmbed, reactions } = getFirstEmbed(
+                guild,
+                instance
+              )
               embed.setDescription(newEmbed.description)
               embed.setFooter('')
               message.edit(embed)
@@ -206,7 +218,7 @@ module.exports = {
     prefix: string,
     instance: WOKCommands
   ) => {
-    const { embed, reactions } = getFirstEmbed(instance)
+    const { embed, reactions } = getFirstEmbed(message.guild, instance)
 
     message.channel
       .send('', {

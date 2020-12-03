@@ -7,6 +7,7 @@ import FeatureHandler from './FeatureHandler'
 import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
+import { deprecate } from 'util'
 
 class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
@@ -15,7 +16,7 @@ class WOKCommands extends EventEmitter {
   private _mongo = ''
   private _mongoConnection: Connection | null = null
   private _displayName = ''
-  private _syntaxError = 'Incorrect usage!'
+  private _syntaxError = ''
   private _prefixes: { [name: string]: string } = {}
   private _categories: Map<String, String> = new Map() // <Category Name, Emoji Icon>
   private _color = ''
@@ -83,6 +84,8 @@ class WOKCommands extends EventEmitter {
 
     this._messageHandler = new MessageHandler(this, messagesPath)
 
+    this._syntaxError = this._messageHandler.get(null, 'SYNTAX_ERROR')
+
     this.setCategoryEmoji('Configuration', '⚙️')
     this.setCategoryEmoji('Help', '❓')
 
@@ -122,17 +125,31 @@ class WOKCommands extends EventEmitter {
     return this._syntaxError
   }
 
+  public getSyntaxError(guild: Guild | null): string {
+    if (this.syntaxError || !guild) {
+      return this.syntaxError
+    }
+
+    return this._messageHandler.get(guild, 'SYNTAX_ERROR')
+  }
+
+  /**
+   * @deprecated Please use the messages.json file instead of this method.
+   */
+  public setSyntaxError(syntaxError: string): WOKCommands {
+    console.warn(
+      `WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead.`
+    )
+    this._syntaxError = syntaxError
+    return this
+  }
+
   public get displayName(): string {
     return this._displayName
   }
 
   public setDisplayName(displayName: string): WOKCommands {
     this._displayName = displayName
-    return this
-  }
-
-  public setSyntaxError(syntaxError: string): WOKCommands {
-    this._syntaxError = syntaxError
     return this
   }
 

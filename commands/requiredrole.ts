@@ -6,7 +6,7 @@ export = {
   aliases: ['requiredroles', 'requirerole', 'requireroles'],
   minArgs: 2,
   maxArgs: 2,
-  cooldown: '5s',
+  cooldown: '2s',
   expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Specifies what role each command requires.',
@@ -29,7 +29,12 @@ export = {
 
     const { guild } = message
     if (!guild) {
-      message.reply('You cannot change required roles in private messages')
+      message.reply(
+        instance.messageHandler.get(
+          guild,
+          'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS'
+        )
+      )
       return
     }
 
@@ -45,7 +50,9 @@ export = {
         })
 
         message.reply(
-          `Removed all required roles from command "${command.names[0]}"`
+          instance.messageHandler.get(guild, 'REMOVED_ALL_REQUIRED_ROLES', {
+            COMMAND: command.names[0],
+          })
         )
       } else {
         command.addRequiredRole(guild.id, roleId)
@@ -67,13 +74,18 @@ export = {
           }
         )
 
-        message.reply(`Added role "${roleId}" to command "${command.names[0]}"`)
+        message.reply(
+          instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
+            ROLE: roleId,
+            COMMAND: command.names[0],
+          })
+        )
       }
     } else {
       message.reply(
-        `Could not find command "${name}"! View all commands with "${instance.getPrefix(
-          guild
-        )}commands"`
+        instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+          COMMAND: name,
+        })
       )
     }
   },

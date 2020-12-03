@@ -4,7 +4,7 @@ import languageSchema from '../models/languages'
 
 export = {
   maxArgs: 1,
-  cooldown: '5s',
+  cooldown: '2s',
   expectedArgs: '[Language]',
   description: 'Displays or sets the language for this Discord server',
   category: 'Configuration',

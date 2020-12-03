@@ -42,26 +42,26 @@ var disabled_commands_1 = __importDefault(require("../models/disabled-commands")
 module.exports = {
     minArgs: 2,
     maxArgs: 2,
-    cooldown: '5s',
+    cooldown: '2s',
     expectedArgs: '<"enable" or "disable"> <Command Name>',
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Enables or disables a command for this guild',
     category: 'Configuration',
     callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var newState, name, guild, command, mainCommand, isDisabled;
+        var guild, newState, name, command, mainCommand, isDisabled;
         var _a;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
+                    guild = message.guild;
                     newState = (_a = args.shift()) === null || _a === void 0 ? void 0 : _a.toLowerCase();
                     name = (args.shift() || '').toLowerCase();
-                    if (newState !== 'enable' && newState !== 'disable') {
-                        message.reply('The state must be either "enable" or "disable"');
+                    if (!guild) {
+                        message.reply(instance.messageHandler.get(guild, 'CANNOT_ENABLE_DISABLE_IN_DMS'));
                         return [2 /*return*/];
                     }
-                    guild = message.guild;
-                    if (!guild) {
-                        message.reply('You cannot enable or disable commands in private messages');
+                    if (newState !== 'enable' && newState !== 'disable') {
+                        message.reply(instance.messageHandler.get(guild, 'ENABLE_DISABLE_STATE'));
                         return [2 /*return*/];
                     }
                     command = instance.commandHandler.getCommand(name);
@@ -70,7 +70,7 @@ module.exports = {
                     isDisabled = command.isDisabled(guild.id);
                     if (!(newState === 'enable')) return [3 /*break*/, 2];
                     if (!isDisabled) {
-                        message.reply('That command is already enabled!');
+                        message.reply(instance.messageHandler.get(guild, 'COMMAND_ALREADY_ENABLED'));
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, disabled_commands_1.default.deleteOne({
@@ -80,11 +80,13 @@ module.exports = {
                 case 1:
                     _b.sent();
                     command.enable(guild.id);
-                    message.reply("\"" + mainCommand + "\" is now enabled!");
+                    message.reply(instance.messageHandler.get(guild, 'COMMAND_NOW_ENABLED', {
+                        COMMAND: mainCommand,
+                    }));
                     return [3 /*break*/, 4];
                 case 2:
                     if (isDisabled) {
-                        message.reply('That command is already disabled!');
+                        message.reply(instance.messageHandler.get(guild, 'COMMAND_ALREADY_DISABLED'));
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, new disabled_commands_1.default({
@@ -94,11 +96,15 @@ module.exports = {
                 case 3:
                     _b.sent();
                     command.disable(guild.id);
-                    message.reply("\"" + mainCommand + "\" is now disabled!");
+                    message.reply(instance.messageHandler.get(guild, 'COMMAND_NOW_DISABLED', {
+                        COMMAND: mainCommand,
+                    }));
                     _b.label = 4;
                 case 4: return [3 /*break*/, 6];
                 case 5:
-                    message.reply("Could not find command \"" + name + "\"! View all commands with \"" + instance.getPrefix(guild) + "commands\"");
+                    message.reply(instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+                        COMMAND: name,
+                    }));
                     _b.label = 6;
                 case 6: return [2 /*return*/];
             }
