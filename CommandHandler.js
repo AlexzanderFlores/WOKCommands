@@ -67,8 +67,6 @@ var CommandHandler = /** @class */ (function () {
                 var files = get_all_files_1.default(dir);
                 var amount = files.length;
                 if (amount > 0) {
-                    this.fetchDisabledCommands();
-                    this.fetchRequiredRoles();
                     console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
                     for (var _c = 0, files_1 = files; _c < files_1.length; _c++) {
                         var _d = files_1[_c], file = _d[0], fileName = _d[1];
@@ -173,14 +171,20 @@ var CommandHandler = /** @class */ (function () {
                                     case 0:
                                         connected = state === 'Connected';
                                         command.verifyDatabaseCooldowns(connected);
-                                        if (!connected) return [3 /*break*/, 2];
+                                        if (!connected) return [3 /*break*/, 4];
+                                        return [4 /*yield*/, this.fetchDisabledCommands()];
+                                    case 1:
+                                        _c.sent();
+                                        return [4 /*yield*/, this.fetchRequiredRoles()];
+                                    case 2:
+                                        _c.sent();
                                         return [4 /*yield*/, cooldown_1.default.find({
                                                 name: command.names[0],
                                                 type: command.globalCooldown ? 'global' : 'per-user',
                                             })
                                             // @ts-ignore
                                         ];
-                                    case 1:
+                                    case 3:
                                         results = _c.sent();
                                         // @ts-ignore
                                         for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
@@ -188,8 +192,8 @@ var CommandHandler = /** @class */ (function () {
                                             _b = _id.split('-'), name_2 = _b[0], guildId = _b[1], userId = _b[2];
                                             command.setCooldown(guildId, userId, cooldown_3);
                                         }
-                                        _c.label = 2;
-                                    case 2: return [2 /*return*/];
+                                        _c.label = 4;
+                                    case 4: return [2 /*return*/];
                                 }
                             });
                         }); });

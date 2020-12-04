@@ -55,6 +55,10 @@ module.exports = {
                         return [2 /*return*/];
                     }
                     messageHandler = instance.messageHandler;
+                    if (!instance.isDBConnected()) {
+                        message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'));
+                        return [2 /*return*/];
+                    }
                     lang = text.toLowerCase();
                     if (!lang) {
                         message.reply(instance.messageHandler.get(guild, 'CURRENT_LANGUAGE', {

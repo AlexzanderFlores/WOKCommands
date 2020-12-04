@@ -29,6 +29,11 @@ export = {
       if (guild) {
         const { id } = guild
 
+        if (!instance.isDBConnected()) {
+          message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'))
+          return
+        }
+
         await prefixes.findOneAndUpdate(
           {
             _id: id,

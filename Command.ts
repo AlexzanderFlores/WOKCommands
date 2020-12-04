@@ -168,6 +168,12 @@ class Command {
   }
 
   public verifyCooldown(cooldown: string, type: string) {
+    if (typeof cooldown !== 'string') {
+      throw new Error(
+        `Invalid ${type} format! Must be a string, examples: "10s" "5m" etc.`
+      )
+    }
+
     const results = cooldown.match(/[a-z]+|[^a-z]+/gi) || []
     if (results.length !== 2) {
       throw new Error(
@@ -263,7 +269,7 @@ class Command {
             map.set(key, value)
           }
 
-          if (this._databaseCooldown) {
+          if (this._databaseCooldown && this.instance.isDBConnected) {
             this.updateDatabaseCooldowns(`${this.names[0]}-${key}`, value)
           }
         })

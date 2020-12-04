@@ -32,7 +32,6 @@ export default class MessageHandler {
 
         // @ts-ignore
         for (const { _id: guildId, language } of results) {
-          console.log(`Set "${language}" for "${guildId}"`)
           this._guildLanguages.set(guildId, language)
         }
       })

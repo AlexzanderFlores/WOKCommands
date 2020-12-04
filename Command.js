@@ -187,6 +187,9 @@ var Command = /** @class */ (function () {
         configurable: true
     });
     Command.prototype.verifyCooldown = function (cooldown, type) {
+        if (typeof cooldown !== 'string') {
+            throw new Error("Invalid " + type + " format! Must be a string, examples: \"10s\" \"5m\" etc.");
+        }
         var results = cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
         if (results.length !== 2) {
             throw new Error("Invalid " + type + " format! Please provide \"<Duration><Type>\", examples: \"10s\" \"5m\" etc.");
@@ -247,7 +250,7 @@ var Command = /** @class */ (function () {
                     else {
                         map.set(key, value);
                     }
-                    if (_this._databaseCooldown) {
+                    if (_this._databaseCooldown && _this.instance.isDBConnected) {
                         _this.updateDatabaseCooldowns(_this.names[0] + "-" + key, value);
                     }
                 });

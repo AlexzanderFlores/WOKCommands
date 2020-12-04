@@ -63,6 +63,10 @@ module.exports = {
                         message.reply(instance.messageHandler.get(guild, 'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS'));
                         return [2 /*return*/];
                     }
+                    if (!instance.isDBConnected()) {
+                        message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'));
+                        return [2 /*return*/];
+                    }
                     command = instance.commandHandler.getCommand(name);
                     if (!command) return [3 /*break*/, 5];
                     if (!(roleId === 'none')) return [3 /*break*/, 2];

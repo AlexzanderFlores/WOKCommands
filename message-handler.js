@@ -100,7 +100,6 @@ var MessageHandler = /** @class */ (function () {
                                         // @ts-ignore
                                         for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
                                             _a = results_1[_i], guildId = _a._id, language = _a.language;
-                                            console.log("Set \"" + language + "\" for \"" + guildId + "\"");
                                             this._guildLanguages.set(guildId, language);
                                         }
                                         return [2 /*return*/];

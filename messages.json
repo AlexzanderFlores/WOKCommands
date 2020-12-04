@@ -87,6 +87,10 @@
     "english": "Incorrect usage!",
     "spanish": "¡Uso incorrecto!"
   },
+  "NO_DATABASE_FOUND": {
+    "english": "No database connection found!",
+    "spanish": "¡No se encontró conexión a la base de datos!"
+  },
   "HELP_MENU": {
     "TITLE": {
       "english": "Help Menu",

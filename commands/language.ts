@@ -23,6 +23,11 @@ export = {
 
     const { messageHandler } = instance
 
+    if (!instance.isDBConnected()) {
+      message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'))
+      return
+    }
+
     const lang = text.toLowerCase()
 
     if (!lang) {

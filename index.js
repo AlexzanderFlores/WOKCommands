@@ -280,6 +280,10 @@ var WOKCommands = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    WOKCommands.prototype.isDBConnected = function () {
+        var connection = this.mongoConnection;
+        return !!(connection && connection.readyState === 1);
+    };
     WOKCommands.prototype.setTagPeople = function (tagPeople) {
         this._tagPeople = tagPeople;
         return this;

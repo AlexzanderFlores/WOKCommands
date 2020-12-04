@@ -28,9 +28,6 @@ class CommandHandler {
 
         const amount = files.length
         if (amount > 0) {
-          this.fetchDisabledCommands()
-          this.fetchRequiredRoles()
-
           console.log(
             `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
           )
@@ -185,6 +182,9 @@ class CommandHandler {
 
               // Load previously used cooldowns
               if (connected) {
+                await this.fetchDisabledCommands()
+                await this.fetchRequiredRoles()
+
                 const results = await cooldown.find({
                   name: command.names[0],
                   type: command.globalCooldown ? 'global' : 'per-user',

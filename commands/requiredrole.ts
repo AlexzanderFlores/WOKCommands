@@ -38,6 +38,11 @@ export = {
       return
     }
 
+    if (!instance.isDBConnected()) {
+      message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'))
+      return
+    }
+
     const command = instance.commandHandler.getCommand(name)
 
     if (command) {

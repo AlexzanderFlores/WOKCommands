@@ -29,6 +29,11 @@ export = {
       return
     }
 
+    if (!instance.isDBConnected()) {
+      message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'))
+      return
+    }
+
     if (newState !== 'enable' && newState !== 'disable') {
       message.reply(instance.messageHandler.get(guild, 'ENABLE_DISABLE_STATE'))
       return

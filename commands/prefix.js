@@ -60,6 +60,10 @@ module.exports = {
                 case 1:
                     if (!guild) return [3 /*break*/, 3];
                     id = guild.id;
+                    if (!instance.isDBConnected()) {
+                        message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'));
+                        return [2 /*return*/];
+                    }
                     return [4 /*yield*/, prefixes_1.default.findOneAndUpdate({
                             _id: id,
                         }, {

@@ -7,7 +7,6 @@ import FeatureHandler from './FeatureHandler'
 import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
-import { deprecate } from 'util'
 
 class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
@@ -220,6 +219,11 @@ class WOKCommands extends EventEmitter {
 
   public get mongoConnection(): Connection | null {
     return this._mongoConnection
+  }
+
+  public isDBConnected(): boolean {
+    const connection = this.mongoConnection
+    return !!(connection && connection.readyState === 1)
   }
 
   public setTagPeople(tagPeople: boolean): WOKCommands {
