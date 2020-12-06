@@ -33,3 +33,5 @@
 [ ] Configurable channel.send() instead of .reply()
 
 [ ] MySQL support
+
+[X] Language and message customization

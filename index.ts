@@ -139,7 +139,7 @@ class WOKCommands extends EventEmitter {
     console.warn(
       `WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead.`
     )
-    this._syntaxError = syntaxError
+    // this._syntaxError = syntaxError
     return this
   }
 

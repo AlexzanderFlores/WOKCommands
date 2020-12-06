@@ -40,6 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var languages_1 = __importDefault(require("../models/languages"));
 module.exports = {
+    aliases: ['lang'],
     maxArgs: 1,
     cooldown: '2s',
     expectedArgs: '[Language]',
@@ -70,6 +71,7 @@ module.exports = {
                         message.reply(messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
                             LANGUAGE: lang,
                         }));
+                        instance.emit('languageNotSupported', message, lang);
                         return [2 /*return*/];
                     }
                     instance.messageHandler.setLanguage(guild, lang);

@@ -103,7 +103,7 @@ module.exports = {
     category: 'Help',
     init: function (client, instance) {
         client.on('messageReactionAdd', function (reaction, user) { return __awaiter(void 0, void 0, void 0, function () {
-            var message, embeds, guild, embed, displayName, emoji, _a, newEmbed, reactions, category, split, cmdStr, commands, hasMultiplePages, desc, page, maxPages, start, a, counter, command, names, mainName;
+            var message, embeds, guild, embed, displayName, emoji, _a, newEmbed, reactions, category, commandsString, split, cmdStr, commands, hasMultiplePages, desc, page, maxPages, start, a, counter, command, names, mainName;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -121,7 +121,8 @@ module.exports = {
                                 displayName = instance.displayName
                                     ? instance.displayName + ' '
                                     : '';
-                                if (embed.title === displayName + "Help Menu") {
+                                if (embed.title ===
+                                    "" + displayName + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE')) {
                                     emoji = reaction.emoji.name;
                                     if (emoji === '🚪') {
                                         _a = getFirstEmbed(guild, instance), newEmbed = _a.embed, reactions = _a.reactions;
@@ -133,18 +134,19 @@ module.exports = {
                                         return [2 /*return*/];
                                     }
                                     category = instance.getCategory(emoji);
+                                    commandsString = instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'COMMANDS');
                                     if (embed.description) {
                                         split = embed.description.split('\n');
-                                        cmdStr = ' Commands';
+                                        cmdStr = ' ' + commandsString;
                                         if (split[0].endsWith(cmdStr)) {
                                             category = split[0].replace(cmdStr, '');
                                         }
                                     }
                                     commands = instance.commandHandler.getCommandsByCategory(category);
                                     hasMultiplePages = commands.length > pageLimit;
-                                    desc = category + " Commands\n\nUse \uD83D\uDEAA to return to the previous menu.";
+                                    desc = category + " " + commandsString + "\n\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'DESCRIPTION_FIRST_LINE');
                                     if (hasMultiplePages) {
-                                        desc += '\n\nUse ⬅ and ➡ to navigate between pages.';
+                                        desc += "\n\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'DESCRIPTION_SECOND_LINE');
                                     }
                                     page = 1;
                                     if (embed && embed.footer && embed.footer.text) {
@@ -173,9 +175,9 @@ module.exports = {
                                             mainName = names.shift();
                                             desc += "\n\n#" + ++counter + ") **" + mainName + "** - " + command.description;
                                             if (names.length) {
-                                                desc += "\nAliases: \"" + names.join('", "') + "\"";
+                                                desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'ALIASES') + ": \"" + names.join('", "') + "\"";
                                             }
-                                            desc += "\nSyntax: \"" + instance.getPrefix(guild) + mainName + (command.syntax ? ' ' : '') + command.syntax + "\"";
+                                            desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'SYNTAX') + ": \"" + instance.getPrefix(guild) + mainName + (command.syntax ? ' ' : '') + command.syntax + "\"";
                                         }
                                     }
                                     embed.setDescription(desc);

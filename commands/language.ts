@@ -3,6 +3,7 @@ import WOKCommands from '..'
 import languageSchema from '../models/languages'
 
 export = {
+  aliases: ['lang'],
   maxArgs: 1,
   cooldown: '2s',
   expectedArgs: '[Language]',
@@ -45,6 +46,9 @@ export = {
           LANGUAGE: lang,
         })
       )
+
+      instance.emit('languageNotSupported', message, lang)
+
       return
     }
 

@@ -110,7 +110,14 @@ module.exports = {
             ? instance.displayName + ' '
             : ''
 
-          if (embed.title === `${displayName}Help Menu`) {
+          if (
+            embed.title ===
+            `${displayName}${instance.messageHandler.getEmbed(
+              guild,
+              'HELP_MENU',
+              'TITLE'
+            )}`
+          ) {
             const emoji = reaction.emoji.name
             if (emoji === '🚪') {
               const { embed: newEmbed, reactions } = getFirstEmbed(
@@ -127,9 +134,15 @@ module.exports = {
 
             let category = instance.getCategory(emoji)
 
+            const commandsString = instance.messageHandler.getEmbed(
+              guild,
+              'HELP_MENU',
+              'COMMANDS'
+            )
+
             if (embed.description) {
               const split = embed.description.split('\n')
-              const cmdStr = ' Commands'
+              const cmdStr = ' ' + commandsString
               if (split[0].endsWith(cmdStr)) {
                 category = split[0].replace(cmdStr, '')
               }
@@ -140,9 +153,18 @@ module.exports = {
             )
             const hasMultiplePages = commands.length > pageLimit
 
-            let desc = `${category} Commands\n\nUse 🚪 to return to the previous menu.`
+            let desc = `${category} ${commandsString}\n\n${instance.messageHandler.getEmbed(
+              guild,
+              'HELP_MENU',
+              'DESCRIPTION_FIRST_LINE'
+            )}`
+
             if (hasMultiplePages) {
-              desc += '\n\nUse ⬅ and ➡ to navigate between pages.'
+              desc += `\n\n${instance.messageHandler.getEmbed(
+                guild,
+                'HELP_MENU',
+                'DESCRIPTION_SECOND_LINE'
+              )}`
             }
 
             let page = 1
@@ -186,10 +208,18 @@ module.exports = {
                 }`
 
                 if (names.length) {
-                  desc += `\nAliases: "${names.join('", "')}"`
+                  desc += `\n${instance.messageHandler.getEmbed(
+                    guild,
+                    'HELP_MENU',
+                    'ALIASES'
+                  )}: "${names.join('", "')}"`
                 }
 
-                desc += `\nSyntax: "${instance.getPrefix(guild)}${mainName}${
+                desc += `\n${instance.messageHandler.getEmbed(
+                  guild,
+                  'HELP_MENU',
+                  'SYNTAX'
+                )}: "${instance.getPrefix(guild)}${mainName}${
                   command.syntax ? ' ' : ''
                 }${command.syntax}"`
               }

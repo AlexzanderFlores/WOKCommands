@@ -188,7 +188,7 @@ var WOKCommands = /** @class */ (function (_super) {
      */
     WOKCommands.prototype.setSyntaxError = function (syntaxError) {
         console.warn("WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead.");
-        this._syntaxError = syntaxError;
+        // this._syntaxError = syntaxError
         return this;
     };
     Object.defineProperty(WOKCommands.prototype, "displayName", {

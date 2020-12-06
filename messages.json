@@ -84,8 +84,8 @@
     "spanish": "Se agregó el rol {ROLE} al comando {COMMAND}."
   },
   "SYNTAX_ERROR": {
-    "english": "Incorrect usage!",
-    "spanish": "¡Uso incorrecto!"
+    "english": "Incorrect usage! Please use \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
+    "spanish": "¡Uso incorrecto! Utilice \"{PREFIX} {COMMAND} {ARGUMENTS}\""
   },
   "NO_DATABASE_FOUND": {
     "english": "No database connection found!",
@@ -103,6 +103,22 @@
     "COMMANDS": {
       "english": "commands",
       "spanish": "comandos"
+    },
+    "DESCRIPTION_FIRST_LINE": {
+      "english": "Use 🚪 to return to the previous menu.",
+      "spanish": "Utilice 🚪 para volver al menú anterior."
+    },
+    "DESCRIPTION_SECOND_LINE": {
+      "english": "Use ⬅ and ➡ to navigate between pages.",
+      "spanish": "Utilice ⬅ y ➡ para navegar entre páginas."
+    },
+    "ALIASES": {
+      "english": "Aliases",
+      "spanish": "Alias"
+    },
+    "SYNTAX": {
+      "english": "Syntax",
+      "spanish": "Sintaxis"
     }
   }
 }
