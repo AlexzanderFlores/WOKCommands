@@ -1,0 +1,124 @@
+{
+  "LANGUAGE_NOT_SUPPORTED": {
+    "english": "This bot does not have support for {LANGUAGE} at this time.",
+    "spanish": "Este bot no es compatible con {LANGUAGE} en este momento."
+  },
+  "CURRENT_LANGUAGE": {
+    "english": "The current langauge is set to {LANGUAGE}.",
+    "spanish": "El idioma actual está establecido en {LANGUAGE}."
+  },
+  "NEW_LANGUAGE": {
+    "english": "Language set to {LANGUAGE}.",
+    "spanish": "Idioma configurado en {LANGUAGE}."
+  },
+  "BOT_OWNERS_ONLY": {
+    "english": "Only the bot owner can run this command.",
+    "spanish": "Solo el propietario del bot puede ejecutar este comando."
+  },
+  "DISABLED_COMMAND": {
+    "english": "That command is currently disabled in this server.",
+    "spanish": "Ese comando está actualmente deshabilitado en este servidor."
+  },
+  "MISSING_PERMISSION": {
+    "english": "You must have the {PERM} permission in order to use this command.",
+    "spanish": "Debe tener el permiso {PERM} para poder utilizar este comando."
+  },
+  "MISSING_ROLES": {
+    "english": "You do not have the required roles to use this command!",
+    "spanish": "¡No tienes los roles necesarios para usar este comando!"
+  },
+  "COOLDOWN": {
+    "english": "You must wait {COOLDOWN} before using that command again.",
+    "spanish": "Debe esperar {COOLDOWN} antes de usar ese comando nuevamente."
+  },
+  "ENABLE_DISABLE_STATE": {
+    "english": "The state must be either \"enable\" or \"disable\".",
+    "spanish": "El estado debe ser \"habilitar\" o \"deshabilitar\"."
+  },
+  "CANNOT_ENABLE_DISABLE_IN_DMS": {
+    "english": "You cannot enable or disable commands in private messages.",
+    "spanish": "No puede habilitar o deshabilitar comandos en mensajes privados."
+  },
+  "COMMAND_ALREADY_ENABLED": {
+    "english": "That command is already enabled!",
+    "spanish": "¡Ese comando ya está habilitado!"
+  },
+  "COMMAND_ALREADY_DISABLED": {
+    "english": "That command is already disabled!",
+    "spanish": "¡Ese comando ya está desactivado!"
+  },
+  "COMMAND_NOW_ENABLED": {
+    "english": "{COMMAND} is now enabled!",
+    "spanish": "¡{COMMAND} ahora está habilitado!"
+  },
+  "COMMAND_NOW_DISABLED": {
+    "english": "{COMMAND} is now disabled!",
+    "spanish": "¡{COMMAND} ahora está deshabilitada!"
+  },
+  "UNKNOWN_COMMAND": {
+    "english": "Could not find command {COMMAND}!",
+    "spanish": "¡No se pudo encontrar el comando {COMMAND}!"
+  },
+  "CURRENT_PREFIX": {
+    "english": "The current prefix is {PREFIX}.",
+    "spanish": "El prefijo actual es {PREFIX}."
+  },
+  "SET_PREFIX": {
+    "english": "Set the command prefix to {PREFIX}.",
+    "spanish": "Establezca el prefijo del comando en {PREFIX}."
+  },
+  "CANNOT_SET_PREFIX_IN_DMS": {
+    "english": "You cannot set a prefix in a private message.",
+    "spanish": "No puede establecer un prefijo en un mensaje privado."
+  },
+  "CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS": {
+    "english": "You cannot change required roles in private messages.",
+    "spanish": "No puede cambiar los roles requeridos en los mensajes privados."
+  },
+  "REMOVED_ALL_REQUIRED_ROLES": {
+    "english": "Removed all required roles from command {COMMAND}.",
+    "spanish": "Se eliminaron todos los roles requeridos del comando {COMMAND}."
+  },
+  "ADDED_REQUIRED_ROLE": {
+    "english": "Added role {ROLE} to command {COMMAND}.",
+    "spanish": "Se agregó el rol {ROLE} al comando {COMMAND}."
+  },
+  "SYNTAX_ERROR": {
+    "english": "Incorrect usage! Please use \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
+    "spanish": "¡Uso incorrecto! Utilice \"{PREFIX} {COMMAND} {ARGUMENTS}\""
+  },
+  "NO_DATABASE_FOUND": {
+    "english": "No database connection found!",
+    "spanish": "¡No se encontró conexión a la base de datos!"
+  },
+  "HELP_MENU": {
+    "TITLE": {
+      "english": "Help Menu",
+      "spanish": "Menú de ayuda"
+    },
+    "SELECT_A_CATEGORY": {
+      "english": "Please select a command category by clicking it's reaction.",
+      "spanish": "Seleccione una categoría de comando haciendo clic en su reacción."
+    },
+    "COMMANDS": {
+      "english": "commands",
+      "spanish": "comandos"
+    },
+    "DESCRIPTION_FIRST_LINE": {
+      "english": "Use 🚪 to return to the previous menu.",
+      "spanish": "Utilice 🚪 para volver al menú anterior."
+    },
+    "DESCRIPTION_SECOND_LINE": {
+      "english": "Use ⬅ and ➡ to navigate between pages.",
+      "spanish": "Utilice ⬅ y ➡ para navegar entre páginas."
+    },
+    "ALIASES": {
+      "english": "Aliases",
+      "spanish": "Alias"
+    },
+    "SYNTAX": {
+      "english": "Syntax",
+      "spanish": "Sintaxis"
+    }
+  }
+}

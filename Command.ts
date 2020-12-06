@@ -11,7 +11,7 @@ class Command {
   private _category = ''
   private _minArgs: number = 0
   private _maxArgs: number = -1
-  private _syntaxError?: string
+  private _syntaxError?: { [key: string]: string }
   private _expectedArgs?: string
   private _description?: string
   private _requiredPermissions?: string[] = []
@@ -51,6 +51,14 @@ class Command {
     this._category = category
     this._minArgs = minArgs || 0
     this._maxArgs = maxArgs === undefined ? -1 : maxArgs
+    if (typeof syntaxError === 'string') {
+      console.warn(
+        `WOKCommands > String syntax errors are deprecated. Please use an object instead to specify the language.`
+      )
+      syntaxError = {
+        english: syntaxError,
+      }
+    }
     this._syntaxError = syntaxError
     this._expectedArgs = expectedArgs
     this._description = description
@@ -95,7 +103,9 @@ class Command {
 
   public execute(message: Message, args: string[]) {
     if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
-      message.reply('Only the bot owner can run this command.')
+      message.reply(
+        this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY')
+      )
       return
     }
 
@@ -125,8 +135,8 @@ class Command {
     return this._maxArgs
   }
 
-  public get syntaxError(): string | undefined {
-    return this._syntaxError
+  public get syntaxError(): { [key: string]: string } {
+    return this._syntaxError || {}
   }
 
   public get expectedArgs(): string | undefined {
@@ -158,6 +168,12 @@ class Command {
   }
 
   public verifyCooldown(cooldown: string, type: string) {
+    if (typeof cooldown !== 'string') {
+      throw new Error(
+        `Invalid ${type} format! Must be a string, examples: "10s" "5m" etc.`
+      )
+    }
+
     const results = cooldown.match(/[a-z]+|[^a-z]+/gi) || []
     if (results.length !== 2) {
       throw new Error(
@@ -253,7 +269,7 @@ class Command {
             map.set(key, value)
           }
 
-          if (this._databaseCooldown) {
+          if (this._databaseCooldown && this.instance.isDBConnected) {
             this.updateDatabaseCooldowns(`${this.names[0]}-${key}`, value)
           }
         })

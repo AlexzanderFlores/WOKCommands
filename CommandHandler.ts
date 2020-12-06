@@ -28,9 +28,6 @@ class CommandHandler {
 
         const amount = files.length
         if (amount > 0) {
-          this.fetchDisabledCommands()
-          this.fetchRequiredRoles()
-
           console.log(
             `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
           )
@@ -64,7 +61,7 @@ class CommandHandler {
 
                     if (isDisabled) {
                       message.reply(
-                        'That command is currently disabled in this server'
+                        instance.messageHandler.get(guild, 'DISABLED_COMMAND')
                       )
                       return
                     }
@@ -79,14 +76,18 @@ class CommandHandler {
                     cooldown,
                     globalCooldown,
                   } = command
-                  let { syntaxError = instance.syntaxError } = command
-
                   if (guild && member) {
                     for (const perm of requiredPermissions) {
                       // @ts-ignore
                       if (!member.hasPermission(perm)) {
                         message.reply(
-                          `You must have the "${perm}" permission in order to use this command.`
+                          instance.messageHandler.get(
+                            guild,
+                            'MISSING_PERMISSION',
+                            {
+                              PERM: perm,
+                            }
+                          )
                         )
                         return
                       }
@@ -106,7 +107,7 @@ class CommandHandler {
 
                       if (!hasRole) {
                         message.reply(
-                          'You do not have any of the required roles to use this command!'
+                          instance.messageHandler.get(guild, 'MISSING_ROLES')
                         )
                         return
                       }
@@ -120,23 +121,30 @@ class CommandHandler {
                       maxArgs !== -1 &&
                       args.length > maxArgs)
                   ) {
+                    const syntaxError = command.syntaxError || {}
+                    const { messageHandler } = instance
+
+                    let error =
+                      syntaxError[messageHandler.getLanguage(guild)] ||
+                      instance.messageHandler.get(guild, 'SYNTAX_ERROR')
+
                     // Replace {PREFIX} with the actual prefix
-                    if (syntaxError) {
-                      syntaxError = syntaxError.replace(/{PREFIX}/g, prefix)
+                    if (error) {
+                      error = error.replace(/{PREFIX}/g, prefix)
                     }
 
                     // Replace {COMMAND} with the name of the command that was ran
-                    syntaxError = syntaxError.replace(/{COMMAND}/g, name)
+                    error = error.replace(/{COMMAND}/g, name)
 
                     // Replace {ARGUMENTS} with the expectedArgs property from the command
                     // If one was not provided then replace {ARGUMENTS} with an empty string
-                    syntaxError = syntaxError.replace(
+                    error = error.replace(
                       / {ARGUMENTS}/g,
                       expectedArgs ? ` ${expectedArgs}` : ''
                     )
 
                     // Reply with the local or global syntax error
-                    message.reply(syntaxError)
+                    message.reply(error)
                     return
                   }
 
@@ -144,13 +152,15 @@ class CommandHandler {
                   if ((cooldown || globalCooldown) && user) {
                     const guildId = guild ? guild.id : 'dm'
 
-                    const secondsLeft = command.getCooldownSeconds(
+                    const timeLeft = command.getCooldownSeconds(
                       guildId,
                       user.id
                     )
-                    if (secondsLeft) {
+                    if (timeLeft) {
                       message.reply(
-                        `You must wait ${secondsLeft} before using that command again.`
+                        instance.messageHandler.get(guild, 'COOLDOWN', {
+                          COOLDOWN: timeLeft,
+                        })
                       )
                       return
                     }
@@ -172,6 +182,9 @@ class CommandHandler {
 
               // Load previously used cooldowns
               if (connected) {
+                await this.fetchDisabledCommands()
+                await this.fetchRequiredRoles()
+
                 const results = await cooldown.find({
                   name: command.names[0],
                   type: command.globalCooldown ? 'global' : 'per-user',

@@ -62,6 +62,12 @@ var Command = /** @class */ (function () {
         this._category = category;
         this._minArgs = minArgs || 0;
         this._maxArgs = maxArgs === undefined ? -1 : maxArgs;
+        if (typeof syntaxError === 'string') {
+            console.warn("WOKCommands > String syntax errors are deprecated. Please use an object instead to specify the language.");
+            syntaxError = {
+                english: syntaxError,
+            };
+        }
         this._syntaxError = syntaxError;
         this._expectedArgs = expectedArgs;
         this._description = description;
@@ -91,7 +97,7 @@ var Command = /** @class */ (function () {
     }
     Command.prototype.execute = function (message, args) {
         if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
-            message.reply('Only the bot owner can run this command.');
+            message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
             return;
         }
         this._callback(message, args, args.join(' '), this.client, this.instance.getPrefix(message.guild), this.instance);
@@ -126,7 +132,7 @@ var Command = /** @class */ (function () {
     });
     Object.defineProperty(Command.prototype, "syntaxError", {
         get: function () {
-            return this._syntaxError;
+            return this._syntaxError || {};
         },
         enumerable: false,
         configurable: true
@@ -181,6 +187,9 @@ var Command = /** @class */ (function () {
         configurable: true
     });
     Command.prototype.verifyCooldown = function (cooldown, type) {
+        if (typeof cooldown !== 'string') {
+            throw new Error("Invalid " + type + " format! Must be a string, examples: \"10s\" \"5m\" etc.");
+        }
         var results = cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
         if (results.length !== 2) {
             throw new Error("Invalid " + type + " format! Please provide \"<Duration><Type>\", examples: \"10s\" \"5m\" etc.");
@@ -241,7 +250,7 @@ var Command = /** @class */ (function () {
                     else {
                         map.set(key, value);
                     }
-                    if (_this._databaseCooldown) {
+                    if (_this._databaseCooldown && _this.instance.isDBConnected) {
                         _this.updateDatabaseCooldowns(_this.names[0] + "-" + key, value);
                     }
                 });

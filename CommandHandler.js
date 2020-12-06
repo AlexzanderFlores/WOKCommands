@@ -67,8 +67,6 @@ var CommandHandler = /** @class */ (function () {
                 var files = get_all_files_1.default(dir);
                 var amount = files.length;
                 if (amount > 0) {
-                    this.fetchDisabledCommands();
-                    this.fetchRequiredRoles();
                     console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
                     for (var _c = 0, files_1 = files; _c < files_1.length; _c++) {
                         var _d = files_1[_c], file = _d[0], fileName = _d[1];
@@ -92,34 +90,35 @@ var CommandHandler = /** @class */ (function () {
                                     if (guild) {
                                         var isDisabled = command.isDisabled(guild.id);
                                         if (isDisabled) {
-                                            message.reply('That command is currently disabled in this server');
+                                            message.reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND'));
                                             return;
                                         }
                                     }
                                     var member = message.member, user = message.author;
                                     var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown_2 = command.cooldown, globalCooldown = command.globalCooldown;
-                                    var _b = command.syntaxError, syntaxError = _b === void 0 ? instance.syntaxError : _b;
                                     if (guild && member) {
                                         for (var _i = 0, requiredPermissions_1 = requiredPermissions; _i < requiredPermissions_1.length; _i++) {
                                             var perm = requiredPermissions_1[_i];
                                             // @ts-ignore
                                             if (!member.hasPermission(perm)) {
-                                                message.reply("You must have the \"" + perm + "\" permission in order to use this command.");
+                                                message.reply(instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
+                                                    PERM: perm,
+                                                }));
                                                 return;
                                             }
                                         }
                                         var roles = command.getRequiredRoles(guild.id);
                                         if (roles && roles.length) {
                                             var hasRole = false;
-                                            for (var _c = 0, roles_1 = roles; _c < roles_1.length; _c++) {
-                                                var role = roles_1[_c];
+                                            for (var _b = 0, roles_1 = roles; _b < roles_1.length; _b++) {
+                                                var role = roles_1[_b];
                                                 if (member.roles.cache.has(role)) {
                                                     hasRole = true;
                                                     break;
                                                 }
                                             }
                                             if (!hasRole) {
-                                                message.reply('You do not have any of the required roles to use this command!');
+                                                message.reply(instance.messageHandler.get(guild, 'MISSING_ROLES'));
                                                 return;
                                             }
                                         }
@@ -129,25 +128,31 @@ var CommandHandler = /** @class */ (function () {
                                         (maxArgs !== undefined &&
                                             maxArgs !== -1 &&
                                             args.length > maxArgs)) {
+                                        var syntaxError = command.syntaxError || {};
+                                        var messageHandler = instance.messageHandler;
+                                        var error = syntaxError[messageHandler.getLanguage(guild)] ||
+                                            instance.messageHandler.get(guild, 'SYNTAX_ERROR');
                                         // Replace {PREFIX} with the actual prefix
-                                        if (syntaxError) {
-                                            syntaxError = syntaxError.replace(/{PREFIX}/g, prefix);
+                                        if (error) {
+                                            error = error.replace(/{PREFIX}/g, prefix);
                                         }
                                         // Replace {COMMAND} with the name of the command that was ran
-                                        syntaxError = syntaxError.replace(/{COMMAND}/g, name_1);
+                                        error = error.replace(/{COMMAND}/g, name_1);
                                         // Replace {ARGUMENTS} with the expectedArgs property from the command
                                         // If one was not provided then replace {ARGUMENTS} with an empty string
-                                        syntaxError = syntaxError.replace(/ {ARGUMENTS}/g, expectedArgs ? " " + expectedArgs : '');
+                                        error = error.replace(/ {ARGUMENTS}/g, expectedArgs ? " " + expectedArgs : '');
                                         // Reply with the local or global syntax error
-                                        message.reply(syntaxError);
+                                        message.reply(error);
                                         return;
                                     }
                                     // Check for cooldowns
                                     if ((cooldown_2 || globalCooldown) && user) {
                                         var guildId = guild ? guild.id : 'dm';
-                                        var secondsLeft = command.getCooldownSeconds(guildId, user.id);
-                                        if (secondsLeft) {
-                                            message.reply("You must wait " + secondsLeft + " before using that command again.");
+                                        var timeLeft = command.getCooldownSeconds(guildId, user.id);
+                                        if (timeLeft) {
+                                            message.reply(instance.messageHandler.get(guild, 'COOLDOWN', {
+                                                COOLDOWN: timeLeft,
+                                            }));
                                             return;
                                         }
                                         command.setCooldown(guildId, user.id);
@@ -166,14 +171,20 @@ var CommandHandler = /** @class */ (function () {
                                     case 0:
                                         connected = state === 'Connected';
                                         command.verifyDatabaseCooldowns(connected);
-                                        if (!connected) return [3 /*break*/, 2];
+                                        if (!connected) return [3 /*break*/, 4];
+                                        return [4 /*yield*/, this.fetchDisabledCommands()];
+                                    case 1:
+                                        _c.sent();
+                                        return [4 /*yield*/, this.fetchRequiredRoles()];
+                                    case 2:
+                                        _c.sent();
                                         return [4 /*yield*/, cooldown_1.default.find({
                                                 name: command.names[0],
                                                 type: command.globalCooldown ? 'global' : 'per-user',
                                             })
                                             // @ts-ignore
                                         ];
-                                    case 1:
+                                    case 3:
                                         results = _c.sent();
                                         // @ts-ignore
                                         for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
@@ -181,8 +192,8 @@ var CommandHandler = /** @class */ (function () {
                                             _b = _id.split('-'), name_2 = _b[0], guildId = _b[1], userId = _b[2];
                                             command.setCooldown(guildId, userId, cooldown_3);
                                         }
-                                        _c.label = 2;
-                                    case 2: return [2 /*return*/];
+                                        _c.label = 4;
+                                    case 4: return [2 /*return*/];
                                 }
                             });
                         }); });

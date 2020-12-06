@@ -75,9 +75,10 @@ var CommandHandler_1 = __importDefault(require("./CommandHandler"));
 var FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 var mongo_1 = __importStar(require("./mongo"));
 var prefixes_1 = __importDefault(require("./models/prefixes"));
+var message_handler_1 = __importDefault(require("./message-handler"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
-    function WOKCommands(client, commandsDir, featureDir) {
+    function WOKCommands(client, commandsDir, featureDir, messagesPath) {
         var _this = _super.call(this) || this;
         _this._defaultPrefix = '!';
         _this._commandsDir = 'commands';
@@ -85,27 +86,22 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._mongo = '';
         _this._mongoConnection = null;
         _this._displayName = '';
-        _this._syntaxError = 'Incorrect usage!';
+        _this._syntaxError = '';
         _this._prefixes = {};
         _this._categories = new Map(); // <Category Name, Emoji Icon>
         _this._color = '';
         _this._featureHandler = null;
         _this._tagPeople = true;
         _this._botOwner = '';
-        _this.updateCache = function (client) {
-            // @ts-ignore
-            for (var _i = 0, _a = client.guilds.cache; _i < _a.length; _i++) {
-                var _b = _a[_i], id = _b[0], guild = _b[1];
-                for (var _c = 0, _d = guild.channels.cache; _c < _d.length; _c++) {
-                    var _e = _d[_c], id_1 = _e[0], channel = _e[1];
-                    if (channel) {
-                        channel.messages.fetch();
-                    }
-                }
-            }
-        };
+        _this._defaultLanguage = 'english';
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
+        }
+        var partials = client.options.partials;
+        if (!partials ||
+            !partials.includes('MESSAGE') ||
+            !partials.includes('REACTION')) {
+            console.warn("WOKCommands > It is encouraged to use both \"MESSAGE\" and \"REACTION\" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials");
         }
         if (!commandsDir) {
             console.warn('WOKCommands > No commands folder specified. Using "commands"');
@@ -119,6 +115,9 @@ var WOKCommands = /** @class */ (function (_super) {
                 if (featureDir) {
                     featureDir = path + "/" + featureDir;
                 }
+                if (messagesPath) {
+                    messagesPath = path + "/" + messagesPath;
+                }
             }
         }
         _this._commandsDir = commandsDir || _this._commandsDir;
@@ -127,6 +126,8 @@ var WOKCommands = /** @class */ (function (_super) {
         if (_this._featureDir) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
+        _this._messageHandler = new message_handler_1.default(_this, messagesPath);
+        _this._syntaxError = _this._messageHandler.get(null, 'SYNTAX_ERROR');
         _this.setCategoryEmoji('Configuration', '⚙️');
         _this.setCategoryEmoji('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -176,6 +177,20 @@ var WOKCommands = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    WOKCommands.prototype.getSyntaxError = function (guild) {
+        if (this.syntaxError || !guild) {
+            return this.syntaxError;
+        }
+        return this._messageHandler.get(guild, 'SYNTAX_ERROR');
+    };
+    /**
+     * @deprecated Please use the messages.json file instead of this method.
+     */
+    WOKCommands.prototype.setSyntaxError = function (syntaxError) {
+        console.warn("WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead.");
+        // this._syntaxError = syntaxError
+        return this;
+    };
     Object.defineProperty(WOKCommands.prototype, "displayName", {
         get: function () {
             return this._displayName;
@@ -185,10 +200,6 @@ var WOKCommands = /** @class */ (function (_super) {
     });
     WOKCommands.prototype.setDisplayName = function (displayName) {
         this._displayName = displayName;
-        return this;
-    };
-    WOKCommands.prototype.setSyntaxError = function (syntaxError) {
-        this._syntaxError = syntaxError;
         return this;
     };
     Object.defineProperty(WOKCommands.prototype, "prefixes", {
@@ -269,6 +280,10 @@ var WOKCommands = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    WOKCommands.prototype.isDBConnected = function () {
+        var connection = this.mongoConnection;
+        return !!(connection && connection.readyState === 1);
+    };
     WOKCommands.prototype.setTagPeople = function (tagPeople) {
         this._tagPeople = tagPeople;
         return this;
@@ -291,6 +306,24 @@ var WOKCommands = /** @class */ (function (_super) {
         this._botOwner = botOwner;
         return this;
     };
+    Object.defineProperty(WOKCommands.prototype, "defaultLanguage", {
+        get: function () {
+            return this._defaultLanguage;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    WOKCommands.prototype.setDefaultLanguage = function (defaultLanguage) {
+        this._defaultLanguage = defaultLanguage;
+        return this;
+    };
+    Object.defineProperty(WOKCommands.prototype, "messageHandler", {
+        get: function () {
+            return this._messageHandler;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return WOKCommands;
 }(events_1.EventEmitter));
 module.exports = WOKCommands;

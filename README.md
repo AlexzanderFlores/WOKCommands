@@ -15,7 +15,6 @@
 - [Command Categories](#command-categories)
 - [Command Initialization Method](#command-initialization-method)
 - [Argument Rules](#argument-rules)
-  - [Global Syntax Errors](#global-syntax-errors)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
 - [Custom Dynamic Help Menu](#custom-dynamic-help-menu)
 - [Enable or Disable a Command](#enable-or-disable-a-command)
@@ -25,6 +24,12 @@
   - [Global Cooldowns](#global-cooldowns)
   <!-- - [Configurable Cooldown Error Messages](#configurable-cooldown-error-messages)
   - [Channel Specific Commands](#channel-specific-commands) -->
+- [Language Support](#language-support)
+  - [Language Configuration](#language-configuration)
+  - [Storing custom messages and translations](#storing-custom-messages-and-translations)
+  - [Loading message text](#-loading-message-text)
+  - [Global Syntax Errors](#global-syntax-errors)
+- [Events](#events)
 - [Support & Feature Requests](#support--feature-requests)
 
 # Installation
@@ -50,7 +55,9 @@ const DiscordJS = require('discord.js')
 const WOKCommands = require('wokcommands')
 require('dotenv').config()
 
-const client = new DiscordJS.Client()
+const client = new DiscordJS.Client({
+  partials: ['MESSAGE', 'REACTION'],
+})
 
 client.on('ready', () => {
   // Initialize WOKCommands
@@ -69,7 +76,9 @@ const DiscordJS = require('discord.js')
 const WOKCommands = require('wokcommands')
 require('dotenv').config()
 
-const client = new DiscordJS.Client()
+const client = new DiscordJS.Client({
+  partials: ['MESSAGE', 'REACTION'],
+})
 
 client.on('ready', () => {
   // Initialize WOKCommands with specific folders and MongoDB
@@ -312,33 +321,6 @@ module.exports = {
 
 In either case the `{PREFIX}` will be replaced with the server's prefix. If the server prefix hasn't been set it will default to "!".
 
-# Global Syntax Errors
-
-In a lot of cases your syntax errors will be very similar. You can specify a global syntax format using the following:
-
-```JS
-new WOKCommands(client)
-  .setSyntaxError('Incorrect syntax! Please use {PREFIX}{COMMAND} {ARGUMENTS}')
-```
-
-The `{PREFIX}`, `{COMMAND}` and `{ARGUMENTS}` must always be in upper case. These will be replaced with the correct content when an error occurs. The `{ARGUMENTS}` variable must be specified in the command like so:
-
-```JS
-// File name: "ping.js"
-// Folder "./commands"
-
-module.exports = {
-  minArgs: 1,
-  maxArgs: -1, // -1 means no limit
-  expectedArgs: "<Target user's @>",
-  callback: (message) => {
-    message.reply('pong')
-  }
-}
-```
-
-A per-command syntax error message will always overwrite a global one for that specific command.
-
 # Per-Server Command Prefixes
 
 _This feature requires a database connection to be present._
@@ -480,6 +462,142 @@ Sometimes you may want a command to only be ran in a specific channel. WOKComman
 `!channelOnly <Command Name> <Channel Tag>`
 
 This will allow the server owners to specify a command and tag a channel to only allow that command to be ran in that channel. Running the exact command again will toggle the channel requirement. -->
+
+# Language Support
+
+## Language Configuration
+
+Server owners can configure what language messages are sent in, you can do so with this simple command:
+
+`!language [new language]`
+
+If server owners want to see what language is currently set they can simply omit the new language argument and run:
+
+`!language`
+
+## Storing custom messages and translations
+
+As the developer you can create a `messages.json` file that contains your own text and translations. There are two types of objects within this file: `direct messages` and `embeds`. Direct messages will be a single message in different languages, while embeds will contain different types of fields. An example of each:
+
+Direct messages:
+
+```JSON
+{
+  "NEW_LANGUAGE": {
+    "english": "Language set to {LANGUAGE}.",
+    "spanish": "Idioma configurado en {LANGUAGE}."
+  }
+}
+```
+
+Embed:
+
+```JSON
+{
+  "HELP_MENU": {
+    "TITLE": {
+      "english": "Help Menu",
+      "spanish": "Menú de ayuda"
+    }
+  }
+}
+```
+
+You can find the default `message.json` here: (Coming soon), or you can define your own and import it like so:
+
+```JS
+// Assumes messages.json is in the same directory as this code's file
+new WOKCommands(client, 'commands', 'features', 'messages.json')
+```
+
+## Loading message text
+
+You should not load text from your `messages.json` file directly, instead there is a built-in function to ensure the correct language is returned. A simple example:
+
+```JSON
+// messages.json
+{
+  "EXAMPLE": {
+    "english": "An example message",
+    "spanish": "Un mensaje de ejemplo"
+  }
+}
+```
+
+```JS
+// File name: "example.js"
+// Folder "./commands"
+
+module.exports = {
+  callback: (message, args, text, client, prefix, instance) => {
+    const { guild } = message
+    message.reply(instance.messageHandler.get(guild, 'EXAMPLE'))
+  },
+}
+```
+
+If you ran the "!example" in a server it will reply with "An example message". If that server was configured to Spanish it will reply with "Un mensaje de ejemplo" instead.
+
+## Global Syntax Errors
+
+In a lot of cases your syntax errors will be very similar. You can specify a global syntax error within your `messages.json` file like so:
+
+```JSON
+{
+  "SYNTAX_ERROR": {
+    "english": "Incorrect usage! Please use \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
+    "spanish": "¡Uso incorrecto! Utilice \"{PREFIX} {COMMAND} {ARGUMENTS}\""
+  },
+}
+```
+
+The `{PREFIX}`, `{COMMAND}` and `{ARGUMENTS}` must always be in upper case. These will be replaced with the correct content when an error occurs. The `{ARGUMENTS}` variable must be specified in the command like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  minArgs: 1,
+  maxArgs: -1, // -1 means no limit
+  expectedArgs: "<Target user's @>",
+  callback: (message) => {
+    message.reply('pong')
+  }
+}
+```
+
+A per-command syntax error message will always overwrite a global one for that specific command.
+
+# Events
+
+This package includes some useful events. Here is an example of listening to all supported events:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client()
+
+client.on('ready', () => {
+  const wok = new WOKCommands(client, 'commands', 'features')
+    .setMongoPath(process.env.MONGO_URI)
+    .setDefaultPrefix('?')
+
+  // Ran whenever a supported database connection is connected
+  wok.on('databaseConnected', (connection, state) => {
+    console.log('The state is', state)
+  })
+
+  // Ran when a server owner attempts to set a language that you have not supported yet
+  wok.on('languageNotSupported', (message, lang) => {
+    console.log('Attempted to set language to', lang)
+  })
+})
+
+client.login(process.env.TOKEN)
+```
 
 # Support & Feature Requests
 

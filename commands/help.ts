@@ -1,15 +1,24 @@
-import { Client, Message, MessageEmbed } from 'discord.js'
+import { Client, Guild, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '../'
 
 const pageLimit = 3
 
-const getFirstEmbed = (instance: WOKCommands) => {
-  const { commands } = instance.commandHandler
+const getFirstEmbed = (guild: Guild | null, instance: WOKCommands) => {
+  const {
+    commandHandler: { commands },
+    messageHandler,
+  } = instance
 
   const embed = new MessageEmbed()
-    .setTitle(`${instance.displayName} Help Menu`)
+    .setTitle(
+      `${instance.displayName} ${messageHandler.getEmbed(
+        guild,
+        'HELP_MENU',
+        'TITLE'
+      )}`
+    )
     .setDescription(
-      "Please select a command category by clicking it's reaction."
+      messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY')
     )
 
   if (instance.color) {
@@ -86,11 +95,13 @@ module.exports = {
   description: "Displays this bot's commands",
   category: 'Help',
   init: (client: Client, instance: WOKCommands) => {
-    instance.updateCache(client)
+    client.on('messageReactionAdd', async (reaction, user) => {
+      const { message } = reaction
+      if (message.partial) {
+        await message.fetch()
+      }
 
-    client.on('messageReactionAdd', (reaction, user) => {
       if (!user.bot) {
-        const { message } = reaction
         const { embeds, guild } = message
 
         if (embeds && embeds.length === 1) {
@@ -99,10 +110,20 @@ module.exports = {
             ? instance.displayName + ' '
             : ''
 
-          if (embed.title === `${displayName}Help Menu`) {
+          if (
+            embed.title ===
+            `${displayName}${instance.messageHandler.getEmbed(
+              guild,
+              'HELP_MENU',
+              'TITLE'
+            )}`
+          ) {
             const emoji = reaction.emoji.name
             if (emoji === '🚪') {
-              const { embed: newEmbed, reactions } = getFirstEmbed(instance)
+              const { embed: newEmbed, reactions } = getFirstEmbed(
+                guild,
+                instance
+              )
               embed.setDescription(newEmbed.description)
               embed.setFooter('')
               message.edit(embed)
@@ -113,9 +134,15 @@ module.exports = {
 
             let category = instance.getCategory(emoji)
 
+            const commandsString = instance.messageHandler.getEmbed(
+              guild,
+              'HELP_MENU',
+              'COMMANDS'
+            )
+
             if (embed.description) {
               const split = embed.description.split('\n')
-              const cmdStr = ' Commands'
+              const cmdStr = ' ' + commandsString
               if (split[0].endsWith(cmdStr)) {
                 category = split[0].replace(cmdStr, '')
               }
@@ -126,9 +153,18 @@ module.exports = {
             )
             const hasMultiplePages = commands.length > pageLimit
 
-            let desc = `${category} Commands\n\nUse 🚪 to return to the previous menu.`
+            let desc = `${category} ${commandsString}\n\n${instance.messageHandler.getEmbed(
+              guild,
+              'HELP_MENU',
+              'DESCRIPTION_FIRST_LINE'
+            )}`
+
             if (hasMultiplePages) {
-              desc += '\n\nUse ⬅ and ➡ to navigate between pages.'
+              desc += `\n\n${instance.messageHandler.getEmbed(
+                guild,
+                'HELP_MENU',
+                'DESCRIPTION_SECOND_LINE'
+              )}`
             }
 
             let page = 1
@@ -172,10 +208,18 @@ module.exports = {
                 }`
 
                 if (names.length) {
-                  desc += `\nAliases: "${names.join('", "')}"`
+                  desc += `\n${instance.messageHandler.getEmbed(
+                    guild,
+                    'HELP_MENU',
+                    'ALIASES'
+                  )}: "${names.join('", "')}"`
                 }
 
-                desc += `\nSyntax: "${instance.getPrefix(guild)}${mainName}${
+                desc += `\n${instance.messageHandler.getEmbed(
+                  guild,
+                  'HELP_MENU',
+                  'SYNTAX'
+                )}: "${instance.getPrefix(guild)}${mainName}${
                   command.syntax ? ' ' : ''
                 }${command.syntax}"`
               }
@@ -204,7 +248,7 @@ module.exports = {
     prefix: string,
     instance: WOKCommands
   ) => {
-    const { embed, reactions } = getFirstEmbed(instance)
+    const { embed, reactions } = getFirstEmbed(message.guild, instance)
 
     message.channel
       .send('', {

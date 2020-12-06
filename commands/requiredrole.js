@@ -43,6 +43,7 @@ module.exports = {
     aliases: ['requiredroles', 'requirerole', 'requireroles'],
     minArgs: 2,
     maxArgs: 2,
+    cooldown: '2s',
     expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Specifies what role each command requires.',
@@ -59,7 +60,11 @@ module.exports = {
                     }
                     guild = message.guild;
                     if (!guild) {
-                        message.reply('You cannot change required roles in private messages');
+                        message.reply(instance.messageHandler.get(guild, 'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS'));
+                        return [2 /*return*/];
+                    }
+                    if (!instance.isDBConnected()) {
+                        message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'));
                         return [2 /*return*/];
                     }
                     command = instance.commandHandler.getCommand(name);
@@ -72,7 +77,9 @@ module.exports = {
                         })];
                 case 1:
                     _a.sent();
-                    message.reply("Removed all required roles from command \"" + command.names[0] + "\"");
+                    message.reply(instance.messageHandler.get(guild, 'REMOVED_ALL_REQUIRED_ROLES', {
+                        COMMAND: command.names[0],
+                    }));
                     return [3 /*break*/, 4];
                 case 2:
                     command.addRequiredRole(guild.id, roleId);
@@ -90,11 +97,16 @@ module.exports = {
                         })];
                 case 3:
                     _a.sent();
-                    message.reply("Added role \"" + roleId + "\" to command \"" + command.names[0] + "\"");
+                    message.reply(instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
+                        ROLE: roleId,
+                        COMMAND: command.names[0],
+                    }));
                     _a.label = 4;
                 case 4: return [3 /*break*/, 6];
                 case 5:
-                    message.reply("Could not find command \"" + name + "\"! View all commands with \"" + instance.getPrefix(guild) + "commands\"");
+                    message.reply(instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+                        COMMAND: name,
+                    }));
                     _a.label = 6;
                 case 6: return [2 /*return*/];
             }

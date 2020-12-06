@@ -6,6 +6,7 @@ import CommandHandler from './CommandHandler'
 import FeatureHandler from './FeatureHandler'
 import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
+import MessageHandler from './message-handler'
 
 class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
@@ -14,7 +15,7 @@ class WOKCommands extends EventEmitter {
   private _mongo = ''
   private _mongoConnection: Connection | null = null
   private _displayName = ''
-  private _syntaxError = 'Incorrect usage!'
+  private _syntaxError = ''
   private _prefixes: { [name: string]: string } = {}
   private _categories: Map<String, String> = new Map() // <Category Name, Emoji Icon>
   private _color = ''
@@ -22,12 +23,31 @@ class WOKCommands extends EventEmitter {
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
   private _botOwner = ''
+  private _defaultLanguage = 'english'
+  private _messageHandler: MessageHandler
 
-  constructor(client: Client, commandsDir?: string, featureDir?: string) {
+  constructor(
+    client: Client,
+    commandsDir?: string,
+    featureDir?: string,
+    messagesPath?: string
+  ) {
     super()
 
     if (!client) {
       throw new Error('No Discord JS Client provided as first argument!')
+    }
+
+    const { partials } = client.options
+
+    if (
+      !partials ||
+      !partials.includes('MESSAGE') ||
+      !partials.includes('REACTION')
+    ) {
+      console.warn(
+        `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
+      )
     }
 
     if (!commandsDir) {
@@ -42,8 +62,13 @@ class WOKCommands extends EventEmitter {
       const { path } = require.main
       if (path) {
         commandsDir = `${path}/${commandsDir || this._commandsDir}`
+
         if (featureDir) {
           featureDir = `${path}/${featureDir}`
+        }
+
+        if (messagesPath) {
+          messagesPath = `${path}/${messagesPath}`
         }
       }
     }
@@ -55,6 +80,10 @@ class WOKCommands extends EventEmitter {
     if (this._featureDir) {
       this._featureHandler = new FeatureHandler(client, this, this._featureDir)
     }
+
+    this._messageHandler = new MessageHandler(this, messagesPath)
+
+    this._syntaxError = this._messageHandler.get(null, 'SYNTAX_ERROR')
 
     this.setCategoryEmoji('Configuration', '⚙️')
     this.setCategoryEmoji('Help', '❓')
@@ -95,17 +124,31 @@ class WOKCommands extends EventEmitter {
     return this._syntaxError
   }
 
+  public getSyntaxError(guild: Guild | null): string {
+    if (this.syntaxError || !guild) {
+      return this.syntaxError
+    }
+
+    return this._messageHandler.get(guild, 'SYNTAX_ERROR')
+  }
+
+  /**
+   * @deprecated Please use the messages.json file instead of this method.
+   */
+  public setSyntaxError(syntaxError: string): WOKCommands {
+    console.warn(
+      `WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead.`
+    )
+    // this._syntaxError = syntaxError
+    return this
+  }
+
   public get displayName(): string {
     return this._displayName
   }
 
   public setDisplayName(displayName: string): WOKCommands {
     this._displayName = displayName
-    return this
-  }
-
-  public setSyntaxError(syntaxError: string): WOKCommands {
-    this._syntaxError = syntaxError
     return this
   }
 
@@ -178,6 +221,11 @@ class WOKCommands extends EventEmitter {
     return this._mongoConnection
   }
 
+  public isDBConnected(): boolean {
+    const connection = this.mongoConnection
+    return !!(connection && connection.readyState === 1)
+  }
+
   public setTagPeople(tagPeople: boolean): WOKCommands {
     this._tagPeople = tagPeople
     return this
@@ -196,15 +244,17 @@ class WOKCommands extends EventEmitter {
     return this
   }
 
-  public updateCache = (client: Client) => {
-    // @ts-ignore
-    for (const [id, guild] of client.guilds.cache) {
-      for (const [id, channel] of guild.channels.cache) {
-        if (channel) {
-          channel.messages.fetch()
-        }
-      }
-    }
+  public get defaultLanguage(): string {
+    return this._defaultLanguage
+  }
+
+  public setDefaultLanguage(defaultLanguage: string): WOKCommands {
+    this._defaultLanguage = defaultLanguage
+    return this
+  }
+
+  public get messageHandler(): MessageHandler {
+    return this._messageHandler
   }
 }
 

@@ -3,7 +3,7 @@ export default interface ICmdConfig {
   category: string
   minArgs?: number
   maxArgs?: number
-  syntaxError?: string
+  syntaxError?: { [key: string]: string }
   expectedArgs?: string
   description?: string
   requiredPermissions?: string[]
