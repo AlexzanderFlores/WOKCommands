@@ -53,7 +53,7 @@ class Command {
     this._maxArgs = maxArgs === undefined ? -1 : maxArgs
     if (typeof syntaxError === 'string') {
       console.warn(
-        `WOKCommands > String syntax errors are deprecated. Please use an object instead to specify the language.`
+        `WOKCommands > String syntax errors are deprecated. Please use an object instead to specify the language. See https://github.com/AlexzanderFlores/WOKCommands#storing-custom-messages-and-translations`
       )
       syntaxError = {
         english: syntaxError,
@@ -102,7 +102,10 @@ class Command {
   }
 
   public execute(message: Message, args: string[]) {
-    if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
+    if (
+      this._ownerOnly &&
+      !this.instance.botOwner.includes(message.author.id)
+    ) {
       message.reply(
         this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY')
       )

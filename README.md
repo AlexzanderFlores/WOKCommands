@@ -16,19 +16,18 @@
 - [Command Initialization Method](#command-initialization-method)
 - [Argument Rules](#argument-rules)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
+- [Bot Owner Only Commands](#bot-owner-only-commands)
 - [Custom Dynamic Help Menu](#custom-dynamic-help-menu)
 - [Enable or Disable a Command](#enable-or-disable-a-command)
 - [Required Permissions](#required-permissions)
 - [Configurable Required Roles](#configurable-required-roles)
 - [Command Cooldowns](#command-cooldowns)
   - [Global Cooldowns](#global-cooldowns)
-  <!-- - [Configurable Cooldown Error Messages](#configurable-cooldown-error-messages)
-  - [Channel Specific Commands](#channel-specific-commands) -->
 - [Language Support](#language-support)
-  - [Language Configuration](#language-configuration)
-  - [Storing custom messages and translations](#storing-custom-messages-and-translations)
-  - [Loading message text](#-loading-message-text)
-  - [Global Syntax Errors](#global-syntax-errors)
+  - [Language Configuration](##language-configuration)
+  - [Storing custom messages and translations](##storing-custom-messages-and-translations)
+  - [Loading message text](##-loading-message-text)
+  - [Global Syntax Errors](##global-syntax-errors)
 - [Events](#events)
 - [Support & Feature Requests](#support--feature-requests)
 
@@ -331,6 +330,43 @@ Allowing server owners to configure your bot's prefix will help prevent prefix c
 
 The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix.
 
+# Bot Owner Only Commands
+
+Sometimes you might want to make a command that only the bot owner will have access to. An example of this would be a status command that updates the "Playing" status of your bot. You can do so by first specifying your Discord ID:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client({
+  partials: ['MESSAGE', 'REACTION'],
+})
+
+client.on('ready', () => {
+  new WOKCommands(client, 'commands', 'features')
+    // Use your own ID of course
+    // If you have only 1 ID you can pass in a string instead of an array
+    .setBotOwner(['251120969320497153', 'another id', 'another id'])
+})
+
+client.login(process.env.TOKEN)
+```
+
+After that you can specify a command to only work for owners like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  ownerOnly: true,
+  callback: (message) => {
+    message.reply('pong')
+  },
+}
+```
+
 # Custom Dynamic Help Menu
 
 The WOKCommands package ships with a dynamic help menu out of the box However each help menu is different and your bot might require specific needs. You can overwrite the default help command by creating your own:
@@ -442,27 +478,6 @@ The minimum duration is 1 minute for global cooldowns. For durations over 5 minu
 
 For more examples of the cooldown format please see the chart at [Command Cooldowns](#command-cooldowns).
 
-<!-- # Configurable Cooldown Error Messages
-
-_This feature requires a database connection to be present._
-
-When using a cooldown you'll want to send a message to inform a user to use the command less often. That can be easily configured like so:
-
-```JS
-new WOKCommands(client, 'commands', 'listeners')
-  .setCooldownMessage('You must wait to use this command again')
-```
-
-# Channel Specific Commands
-
-_This feature requires a database connection to be present._
-
-Sometimes you may want a command to only be ran in a specific channel. WOKCommands includes this functionality and allows server owners to configure this themselves with a command:
-
-`!channelOnly <Command Name> <Channel Tag>`
-
-This will allow the server owners to specify a command and tag a channel to only allow that command to be ran in that channel. Running the exact command again will toggle the channel requirement. -->
-
 # Language Support
 
 ## Language Configuration
@@ -503,7 +518,7 @@ Embed:
 }
 ```
 
-You can find the default `message.json` here: (Coming soon), or you can define your own and import it like so:
+You can find the default `messages.json` here: https://github.com/AlexzanderFlores/WOKCommands/blob/main/messages.json. You will also need to define where your `messages.json` file lives in the WOKCommands constructor like so:
 
 ```JS
 // Assumes messages.json is in the same directory as this code's file
