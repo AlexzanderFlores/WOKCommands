@@ -44,6 +44,7 @@ module.exports = {
     maxArgs: 1,
     cooldown: '2s',
     expectedArgs: '[Language]',
+    requiredPermissions: ['ADMINISTRATOR'],
     description: 'Displays or sets the language for this Discord server',
     category: 'Configuration',
     callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
