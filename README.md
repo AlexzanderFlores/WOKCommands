@@ -346,7 +346,8 @@ const client = new DiscordJS.Client({
 client.on('ready', () => {
   new WOKCommands(client, 'commands', 'features')
     // Use your own ID of course
-    .setBotOwner('251120969320497153')
+    // If you have only 1 ID you can pass in a string instead of an array
+    .setBotOwner(['251120969320497153', 'another id', 'another id'])
 })
 
 client.login(process.env.TOKEN)

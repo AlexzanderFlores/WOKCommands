@@ -22,7 +22,7 @@ class WOKCommands extends EventEmitter {
   private _commandHandler: CommandHandler
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
-  private _botOwner = ''
+  private _botOwner: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
 
@@ -235,11 +235,14 @@ class WOKCommands extends EventEmitter {
     return this._tagPeople
   }
 
-  public get botOwner(): string {
+  public get botOwner(): string[] {
     return this._botOwner
   }
 
-  public setBotOwner(botOwner: string): WOKCommands {
+  public setBotOwner(botOwner: string | string[]): WOKCommands {
+    if (typeof botOwner === 'string') {
+      botOwner = [botOwner]
+    }
     this._botOwner = botOwner
     return this
   }

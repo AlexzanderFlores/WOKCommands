@@ -92,7 +92,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._color = '';
         _this._featureHandler = null;
         _this._tagPeople = true;
-        _this._botOwner = '';
+        _this._botOwner = [];
         _this._defaultLanguage = 'english';
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
@@ -303,6 +303,9 @@ var WOKCommands = /** @class */ (function (_super) {
         configurable: true
     });
     WOKCommands.prototype.setBotOwner = function (botOwner) {
+        if (typeof botOwner === 'string') {
+            botOwner = [botOwner];
+        }
         this._botOwner = botOwner;
         return this;
     };

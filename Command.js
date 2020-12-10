@@ -96,7 +96,8 @@ var Command = /** @class */ (function () {
         }
     }
     Command.prototype.execute = function (message, args) {
-        if (this._ownerOnly && message.author.id !== this.instance.botOwner) {
+        if (this._ownerOnly &&
+            !this.instance.botOwner.includes(message.author.id)) {
             message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
             return;
         }
