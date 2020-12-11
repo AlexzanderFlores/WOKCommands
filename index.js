@@ -86,7 +86,6 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._mongo = '';
         _this._mongoConnection = null;
         _this._displayName = '';
-        _this._syntaxError = '';
         _this._prefixes = {};
         _this._categories = new Map(); // <Category Name, Emoji Icon>
         _this._color = '';
@@ -127,7 +126,6 @@ var WOKCommands = /** @class */ (function (_super) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
         _this._messageHandler = new message_handler_1.default(_this, messagesPath);
-        _this._syntaxError = _this._messageHandler.get(null, 'SYNTAX_ERROR');
         _this.setCategoryEmoji('Configuration', '⚙️');
         _this.setCategoryEmoji('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -170,24 +168,11 @@ var WOKCommands = /** @class */ (function (_super) {
         this._mongo = mongoPath;
         return this;
     };
-    Object.defineProperty(WOKCommands.prototype, "syntaxError", {
-        get: function () {
-            return this._syntaxError;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    WOKCommands.prototype.getSyntaxError = function (guild) {
-        if (this.syntaxError || !guild) {
-            return this.syntaxError;
-        }
-        return this._messageHandler.get(guild, 'SYNTAX_ERROR');
-    };
     /**
      * @deprecated Please use the messages.json file instead of this method.
      */
     WOKCommands.prototype.setSyntaxError = function (syntaxError) {
-        console.warn("WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead.");
+        console.warn("WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead. See https://www.npmjs.com/package/wokcommands#language-support for more information");
         // this._syntaxError = syntaxError
         return this;
     };
