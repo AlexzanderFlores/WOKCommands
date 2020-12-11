@@ -553,6 +553,36 @@ module.exports = {
 
 If you ran the "!example" in a server it will reply with "An example message". If that server was configured to Spanish it will reply with "Un mensaje de ejemplo" instead.
 
+You can set dynamic placeholders in your messages like so:
+
+```JSON
+// messages.json
+{
+  "EXAMPLE": {
+    "english": "An example message. {TEST}",
+    "spanish": "Un mensaje de ejemplo. {TEST}"
+  }
+}
+```
+
+You can then dynamically insert values like so:
+
+```JS
+// File name: "example.js"
+// Folder "./commands"
+
+module.exports = {
+  callback: (message, args, text, client, prefix, instance) => {
+    const { guild } = message
+    message.reply(instance.messageHandler.get(guild, 'EXAMPLE', {
+      TEST: 'hello world'
+    }))
+  },
+}
+```
+
+Now running `!ping` will display "An example message. hello world".
+
 ## Global Syntax Errors
 
 In a lot of cases your syntax errors will be very similar. You can specify a global syntax error within your `messages.json` file like so:
