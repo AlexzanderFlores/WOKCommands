@@ -247,8 +247,34 @@ var WOKCommands = /** @class */ (function (_super) {
         return result;
     };
     WOKCommands.prototype.setCategoryEmoji = function (category, emoji) {
-        this._categories.set(category, emoji || this.categories.get(category) || '');
+        if (typeof category == 'string') {
+            if (!emoji) {
+                throw new Error("WOKCommands > An emoji is required for category \"" + category + "\"");
+            }
+            if (this.isEmojiUsed(emoji)) {
+                console.warn("WOKCommands > The emoji \"" + emoji + "\" for category \"" + category + "\" is already used.");
+            }
+            this._categories.set(category, emoji || this.categories.get(category) || '');
+        }
+        else {
+            for (var _i = 0, category_1 = category; _i < category_1.length; _i++) {
+                var cat = category_1[_i];
+                if (this.isEmojiUsed(cat.emoji)) {
+                    console.warn("WOKCommands > The emoji \"" + cat.emoji + "\" for category \"" + cat.name + "\" is already used.");
+                }
+                this._categories.set(cat.name, cat.emoji || this.categories.get(cat.name) || '');
+            }
+        }
         return this;
+    };
+    WOKCommands.prototype.isEmojiUsed = function (emoji) {
+        var isUsed = false;
+        this._categories.forEach(function (value) {
+            if (value === emoji) {
+                isUsed = true;
+            }
+        });
+        return isUsed;
     };
     Object.defineProperty(WOKCommands.prototype, "commandHandler", {
         get: function () {

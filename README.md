@@ -249,9 +249,21 @@ client.on('ready', () => {
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
     // Set the category emoji:
-    .setCategoryEmoji('Fun', '🎮')
-    // You can chain these calls together:
-    .setCategoryEmoji('Economy', '💸')
+    .setCategoryEmoji([
+      {
+        name: 'Fun',
+        emoji: '🎮'
+      },
+      {
+        name: 'Economy',
+        emoji: '💸'
+      },
+      {
+        // You can change the default emojis as well
+        name: 'Configuration',
+        emoji: '🚧'
+      }
+    ])
 })
 
 client.login(process.env.TOKEN)

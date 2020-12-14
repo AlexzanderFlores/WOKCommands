@@ -192,9 +192,55 @@ class WOKCommands extends EventEmitter {
     return result
   }
 
-  public setCategoryEmoji(category: string, emoji: string): WOKCommands {
-    this._categories.set(category, emoji || this.categories.get(category) || '')
+  public setCategoryEmoji(
+    category: string | [{ [key: string]: any }],
+    emoji?: string
+  ): WOKCommands {
+    if (typeof category == 'string') {
+      if (!emoji) {
+        throw new Error(
+          `WOKCommands > An emoji is required for category "${category}"`
+        )
+      }
+
+      if (this.isEmojiUsed(emoji)) {
+        console.warn(
+          `WOKCommands > The emoji "${emoji}" for category "${category}" is already used.`
+        )
+      }
+
+      this._categories.set(
+        category,
+        emoji || this.categories.get(category) || ''
+      )
+    } else {
+      for (const cat of category) {
+        if (this.isEmojiUsed(cat.emoji)) {
+          console.warn(
+            `WOKCommands > The emoji "${cat.emoji}" for category "${cat.name}" is already used.`
+          )
+        }
+
+        this._categories.set(
+          cat.name,
+          cat.emoji || this.categories.get(cat.name) || ''
+        )
+      }
+    }
+
     return this
+  }
+
+  private isEmojiUsed(emoji: string): boolean {
+    let isUsed = false
+
+    this._categories.forEach((value) => {
+      if (value === emoji) {
+        isUsed = true
+      }
+    })
+
+    return isUsed
   }
 
   public get commandHandler(): CommandHandler {
