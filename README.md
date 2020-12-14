@@ -248,8 +248,8 @@ client.on('ready', () => {
   new WOKCommands(client, 'commands', 'features')
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
-    // Set the category emoji:
-    .setCategoryEmoji([
+    // Set the category emoji by using it's settings:
+    .setCategorySettings([
       {
         name: 'Fun',
         emoji: '🎮'
@@ -261,7 +261,10 @@ client.on('ready', () => {
       {
         // You can change the default emojis as well
         name: 'Configuration',
-        emoji: '🚧'
+        emoji: '🚧',
+        // You can also hide a category from the help menu
+        // Admins bypass this
+        hidden: true
       }
     ])
 })

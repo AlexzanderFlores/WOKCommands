@@ -3,7 +3,9 @@ import WOKCommands from '../'
 
 const pageLimit = 3
 
-const getFirstEmbed = (guild: Guild | null, instance: WOKCommands) => {
+const getFirstEmbed = (message: Message, instance: WOKCommands) => {
+  const { guild, member } = message
+
   const {
     commandHandler: { commands },
     messageHandler,
@@ -32,8 +34,13 @@ const getFirstEmbed = (guild: Guild | null, instance: WOKCommands) => {
     }
   } = {}
 
+  const isAdmin = member && member.hasPermission('ADMINISTRATOR')
+
   for (const { category } of commands) {
-    if (!category) {
+    if (
+      !category ||
+      (!isAdmin && instance.hiddenCategories.includes(category))
+    ) {
       continue
     }
 
@@ -121,7 +128,7 @@ module.exports = {
             const emoji = reaction.emoji.name
             if (emoji === '🚪') {
               const { embed: newEmbed, reactions } = getFirstEmbed(
-                guild,
+                message,
                 instance
               )
               embed.setDescription(newEmbed.description)
@@ -248,7 +255,7 @@ module.exports = {
     prefix: string,
     instance: WOKCommands
   ) => {
-    const { embed, reactions } = getFirstEmbed(message.guild, instance)
+    const { embed, reactions } = getFirstEmbed(message, instance)
 
     message.channel
       .send('', {

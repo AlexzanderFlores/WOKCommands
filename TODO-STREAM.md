@@ -1,9 +1,14 @@
 [X] Ability to specify multiple category emojis at once
 [X] Customize default category emojis
 [X] Warning if two categories use the same emoji
+[X] Be able to hide specific categories from the help menu
 
-[ ] Be able to hide specific categories from the help menu
+[ ] Cancel the cooldown during a command
+
 [ ] Ability to hide a command from the help menu (example: owner/dev only commands)
+[ ] Hide disabled commands
+[ ] Hide categories where no commands are visible
+
 [ ] Blacklist and unblacklist command
 [ ] Channel specific commands (customizable by the server owners, they can also specify what roles bypass this)
 [ ] Ability to disable any of the default commands
@@ -15,7 +20,6 @@
 [ ] Display on/off status in help menu for commands and features (configurable)
 [ ] Hide disabled commands/features in help menu
 [ ] Make the preifx not care about the case
-[ ] Cancel the cooldown during a command
 [ ] Ability to specify some roles that do not get cooldowns
 [ ] Ability to access custom emojis for categories
 [ ] Ability to use the help command to view the usage of a specific command
