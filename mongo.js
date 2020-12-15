@@ -66,7 +66,8 @@ var mongo = function (mongoPath, instance) { return __awaiter(void 0, void 0, vo
         }
     });
 }); };
-exports.getMongoConnection = function () {
+var getMongoConnection = function () {
     return mongoose_1.default.connection;
 };
+exports.getMongoConnection = getMongoConnection;
 exports.default = mongo;
