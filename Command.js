@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var cooldown_1 = __importDefault(require("./models/cooldown"));
 var Command = /** @class */ (function () {
     function Command(instance, client, names, callback, _a) {
-        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, ownerOnly = _a.ownerOnly;
+        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, ownerOnly = _a.ownerOnly, hidden = _a.hidden, guildOnly = _a.guildOnly;
         this._names = [];
         this._category = '';
         this._minArgs = 0;
@@ -56,6 +56,8 @@ var Command = /** @class */ (function () {
         this._guildCooldowns = new Map(); // <GuildID, Seconds>
         this._databaseCooldown = false;
         this._ownerOnly = false;
+        this._hidden = false;
+        this._guildOnly = false;
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -75,6 +77,8 @@ var Command = /** @class */ (function () {
         this._cooldown = cooldown || '';
         this._globalCooldown = globalCooldown || '';
         this._ownerOnly = ownerOnly;
+        this._hidden = hidden;
+        this._guildOnly = guildOnly;
         this._callback = callback;
         if (this.cooldown && this.globalCooldown) {
             throw new Error("Command \"" + names[0] + "\" has both a global and per-user cooldown. Commands can only have up to one of these properties.");
@@ -99,6 +103,10 @@ var Command = /** @class */ (function () {
         if (this._ownerOnly &&
             !this.instance.botOwner.includes(message.author.id)) {
             message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
+            return;
+        }
+        if (this.guildOnly && !message.guild) {
+            message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
             return;
         }
         this._callback(message, args, args.join(' '), this.client, this.instance.getPrefix(message.guild), this.instance);
@@ -226,6 +234,20 @@ var Command = /** @class */ (function () {
             throw new Error("Invalid " + type + " format! Day durations cannot exceed 365." + moreInfo);
         }
     };
+    Object.defineProperty(Command.prototype, "hidden", {
+        get: function () {
+            return this._hidden;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Command.prototype, "guildOnly", {
+        get: function () {
+            return this._guildOnly;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Command.prototype.verifyDatabaseCooldowns = function (connected) {
         if (this._cooldownChar === 'd' ||
             this._cooldownChar === 'h' ||

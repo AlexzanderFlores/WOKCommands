@@ -26,6 +26,8 @@ class Command {
   private _guildCooldowns: Map<String, number> = new Map() // <GuildID, Seconds>
   private _databaseCooldown = false
   private _ownerOnly = false
+  private _hidden = false
+  private _guildOnly = false
 
   constructor(
     instance: WOKCommands,
@@ -43,6 +45,8 @@ class Command {
       cooldown,
       globalCooldown,
       ownerOnly,
+      hidden,
+      guildOnly,
     }: ICmdConfig
   ) {
     this.instance = instance
@@ -66,6 +70,8 @@ class Command {
     this._cooldown = cooldown || ''
     this._globalCooldown = globalCooldown || ''
     this._ownerOnly = ownerOnly
+    this._hidden = hidden
+    this._guildOnly = guildOnly
     this._callback = callback
 
     if (this.cooldown && this.globalCooldown) {
@@ -108,6 +114,13 @@ class Command {
     ) {
       message.reply(
         this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY')
+      )
+      return
+    }
+
+    if (this.guildOnly && !message.guild) {
+      message.reply(
+        this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND')
       )
       return
     }
@@ -240,6 +253,14 @@ class Command {
         `Invalid ${type} format! Day durations cannot exceed 365.${moreInfo}`
       )
     }
+  }
+
+  public get hidden(): boolean {
+    return this._hidden
+  }
+
+  public get guildOnly(): boolean {
+    return this._guildOnly
   }
 
   public verifyDatabaseCooldowns(connected: boolean) {

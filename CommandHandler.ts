@@ -316,13 +316,20 @@ class CommandHandler {
     const added: string[] = []
 
     this._commands.forEach(
-      ({ names, category = '', description = '', expectedArgs = '' }) => {
+      ({
+        names,
+        category = '',
+        description = '',
+        expectedArgs = '',
+        hidden = false,
+      }) => {
         if (!added.includes(names[0])) {
           results.push({
             names: [...names],
             category,
             description,
             syntax: expectedArgs,
+            hidden,
           })
 
           added.push(names[0])
@@ -333,10 +340,17 @@ class CommandHandler {
     return results
   }
 
-  public getCommandsByCategory(category: string): ICommand[] {
+  public getCommandsByCategory(
+    category: string,
+    visibleOnly?: boolean
+  ): ICommand[] {
     const results: ICommand[] = []
 
     for (const command of this.commands) {
+      if (visibleOnly && command.hidden) {
+        continue
+      }
+
       if (command.category === category) {
         results.push(command)
       }

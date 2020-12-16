@@ -91,6 +91,10 @@
     "english": "No database connection found!",
     "spanish": "¡No se encontró conexión a la base de datos!"
   },
+  "GUILD_ONLY_COMMAND": {
+    "english": "This command can only be used within a server.",
+    "spanish": "Este comando solo se puede utilizar dentro de un servidor."
+  },
   "HELP_MENU": {
     "TITLE": {
       "english": "Help Menu",

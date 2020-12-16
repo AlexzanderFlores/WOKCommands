@@ -271,13 +271,14 @@ var CommandHandler = /** @class */ (function () {
             var results = [];
             var added = [];
             this._commands.forEach(function (_a) {
-                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? '' : _d;
+                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? '' : _d, _e = _a.hidden, hidden = _e === void 0 ? false : _e;
                 if (!added.includes(names[0])) {
                     results.push({
                         names: __spreadArrays(names),
                         category: category,
                         description: description,
                         syntax: expectedArgs,
+                        hidden: hidden,
                     });
                     added.push(names[0]);
                 }
@@ -287,10 +288,13 @@ var CommandHandler = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    CommandHandler.prototype.getCommandsByCategory = function (category) {
+    CommandHandler.prototype.getCommandsByCategory = function (category, visibleOnly) {
         var results = [];
         for (var _i = 0, _a = this.commands; _i < _a.length; _i++) {
             var command = _a[_i];
+            if (visibleOnly && command.hidden) {
+                continue;
+            }
             if (command.category === category) {
                 results.push(command);
             }
