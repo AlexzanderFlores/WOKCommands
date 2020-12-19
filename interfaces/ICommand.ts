@@ -3,4 +3,5 @@ export default interface ICommand {
   category: string
   description: string
   syntax: string
+  hidden: boolean
 }

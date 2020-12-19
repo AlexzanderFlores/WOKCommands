@@ -3,7 +3,9 @@ import WOKCommands from '../'
 
 const pageLimit = 3
 
-const getFirstEmbed = (guild: Guild | null, instance: WOKCommands) => {
+const getFirstEmbed = (message: Message, instance: WOKCommands) => {
+  const { guild, member } = message
+
   const {
     commandHandler: { commands },
     messageHandler,
@@ -32,8 +34,15 @@ const getFirstEmbed = (guild: Guild | null, instance: WOKCommands) => {
     }
   } = {}
 
+  const isAdmin = member && member.hasPermission('ADMINISTRATOR')
+
+  // TODO: See if I can use the commandHandler.getCommandsByCategory method instead
+  // possibly duplicate code
   for (const { category } of commands) {
-    if (!category) {
+    if (
+      !category ||
+      (!isAdmin && instance.hiddenCategories.includes(category))
+    ) {
       continue
     }
 
@@ -52,13 +61,23 @@ const getFirstEmbed = (guild: Guild | null, instance: WOKCommands) => {
   const keys = Object.keys(categories)
   for (let a = 0; a < keys.length; ++a) {
     const key = keys[a]
-    const { amount, emoji } = categories[key]
+    const { emoji } = categories[key]
 
     if (!emoji) {
       console.warn(
         `WOKCommands > Category "${key}" does not have an emoji icon.`
       )
 
+      continue
+    }
+
+    const visibleCommands = instance.commandHandler.getCommandsByCategory(
+      key,
+      true
+    )
+    const amount = visibleCommands.length
+
+    if (amount === 0) {
       continue
     }
 
@@ -121,7 +140,7 @@ module.exports = {
             const emoji = reaction.emoji.name
             if (emoji === '🚪') {
               const { embed: newEmbed, reactions } = getFirstEmbed(
-                guild,
+                message,
                 instance
               )
               embed.setDescription(newEmbed.description)
@@ -198,14 +217,16 @@ module.exports = {
               ++a
             ) {
               const command = commands[a]
+              let { description, hidden, category, names, syntax } = command
 
-              if (command.category === category) {
-                const names = [...command.names]
+              if (!hidden && category === category) {
+                // TODO: Should I check if this is a string?
+                names = [...names]
                 const mainName = names.shift()
 
-                desc += `\n\n#${++counter}) **${mainName}** - ${
-                  command.description
-                }`
+                desc += `\n\n#${++counter}) **${mainName}**${
+                  description ? ' - ' : ''
+                }${description}`
 
                 if (names.length) {
                   desc += `\n${instance.messageHandler.getEmbed(
@@ -220,8 +241,8 @@ module.exports = {
                   'HELP_MENU',
                   'SYNTAX'
                 )}: "${instance.getPrefix(guild)}${mainName}${
-                  command.syntax ? ' ' : ''
-                }${command.syntax}"`
+                  syntax ? ' ' : ''
+                }${syntax}"`
               }
             }
 
@@ -248,7 +269,7 @@ module.exports = {
     prefix: string,
     instance: WOKCommands
   ) => {
-    const { embed, reactions } = getFirstEmbed(message.guild, instance)
+    const { embed, reactions } = getFirstEmbed(message, instance)
 
     message.channel
       .send('', {

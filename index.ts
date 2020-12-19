@@ -17,6 +17,7 @@ class WOKCommands extends EventEmitter {
   private _displayName = ''
   private _prefixes: { [name: string]: string } = {}
   private _categories: Map<String, String> = new Map() // <Category Name, Emoji Icon>
+  private _hiddenCategories: string[] = []
   private _color = ''
   private _commandHandler: CommandHandler
   private _featureHandler: FeatureHandler | null = null
@@ -87,8 +88,8 @@ class WOKCommands extends EventEmitter {
 
     this._messageHandler = new MessageHandler(this, messagesPath)
 
-    this.setCategoryEmoji('Configuration', '⚙️')
-    this.setCategoryEmoji('Help', '❓')
+    this.setCategorySettings('Configuration', '⚙️')
+    this.setCategorySettings('Help', '❓')
 
     setTimeout(async () => {
       if (this._mongo) {
@@ -171,6 +172,10 @@ class WOKCommands extends EventEmitter {
     return this._categories
   }
 
+  public get hiddenCategories(): string[] {
+    return this._hiddenCategories
+  }
+
   public get color(): string {
     return this._color
   }
@@ -199,9 +204,74 @@ class WOKCommands extends EventEmitter {
     return result
   }
 
-  public setCategoryEmoji(category: string, emoji: string): WOKCommands {
-    this._categories.set(category, emoji || this.categories.get(category) || '')
+  /**
+   * @deprecated Please use the setCategorySettings instead of this method.
+   */
+  public setCategoryEmoji(
+    category: string | [{ [key: string]: any }],
+    emoji?: string
+  ): WOKCommands {
+    console.warn(
+      `WOKCommands > The setCategoryEmoji method is deprecated, please use setCategorySettings`
+    )
+
+    this.setCategorySettings(category, emoji)
     return this
+  }
+
+  public setCategorySettings(
+    category: string | [{ [key: string]: any }],
+    emoji?: string
+  ): WOKCommands {
+    if (typeof category == 'string') {
+      if (!emoji) {
+        throw new Error(
+          `WOKCommands > An emoji is required for category "${category}"`
+        )
+      }
+
+      if (this.isEmojiUsed(emoji)) {
+        console.warn(
+          `WOKCommands > The emoji "${emoji}" for category "${category}" is already used.`
+        )
+      }
+
+      this._categories.set(
+        category,
+        emoji || this.categories.get(category) || ''
+      )
+    } else {
+      for (const cat of category) {
+        if (this.isEmojiUsed(cat.emoji)) {
+          console.warn(
+            `WOKCommands > The emoji "${cat.emoji}" for category "${cat.name}" is already used.`
+          )
+        }
+
+        this._categories.set(
+          cat.name,
+          cat.emoji || this.categories.get(cat.name) || ''
+        )
+
+        if (cat.hidden) {
+          this._hiddenCategories.push(cat.name)
+        }
+      }
+    }
+
+    return this
+  }
+
+  private isEmojiUsed(emoji: string): boolean {
+    let isUsed = false
+
+    this._categories.forEach((value) => {
+      if (value === emoji) {
+        isUsed = true
+      }
+    })
+
+    return isUsed
   }
 
   public get commandHandler(): CommandHandler {

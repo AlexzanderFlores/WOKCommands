@@ -45,7 +45,8 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var discord_js_1 = require("discord.js");
 var pageLimit = 3;
-var getFirstEmbed = function (guild, instance) {
+var getFirstEmbed = function (message, instance) {
+    var guild = message.guild, member = message.member;
     var commands = instance.commandHandler.commands, messageHandler = instance.messageHandler;
     var embed = new discord_js_1.MessageEmbed()
         .setTitle(instance.displayName + " " + messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE'))
@@ -54,9 +55,13 @@ var getFirstEmbed = function (guild, instance) {
         embed.setColor(instance.color);
     }
     var categories = {};
+    var isAdmin = member && member.hasPermission('ADMINISTRATOR');
+    // TODO: See if I can use the commandHandler.getCommandsByCategory method instead
+    // possibly duplicate code
     for (var _i = 0, commands_1 = commands; _i < commands_1.length; _i++) {
         var category = commands_1[_i].category;
-        if (!category) {
+        if (!category ||
+            (!isAdmin && instance.hiddenCategories.includes(category))) {
             continue;
         }
         if (categories[category]) {
@@ -73,9 +78,14 @@ var getFirstEmbed = function (guild, instance) {
     var keys = Object.keys(categories);
     for (var a = 0; a < keys.length; ++a) {
         var key = keys[a];
-        var _a = categories[key], amount = _a.amount, emoji = _a.emoji;
+        var emoji = categories[key].emoji;
         if (!emoji) {
             console.warn("WOKCommands > Category \"" + key + "\" does not have an emoji icon.");
+            continue;
+        }
+        var visibleCommands = instance.commandHandler.getCommandsByCategory(key, true);
+        var amount = visibleCommands.length;
+        if (amount === 0) {
             continue;
         }
         var reaction = emoji;
@@ -103,7 +113,7 @@ module.exports = {
     category: 'Help',
     init: function (client, instance) {
         client.on('messageReactionAdd', function (reaction, user) { return __awaiter(void 0, void 0, void 0, function () {
-            var message, embeds, guild, embed, displayName, emoji, _a, newEmbed, reactions, category, commandsString, split, cmdStr, commands, hasMultiplePages, desc, page, maxPages, start, a, counter, command, names, mainName;
+            var message, embeds, guild, embed, displayName, emoji, _a, newEmbed, reactions, category, commandsString, split, cmdStr, commands, hasMultiplePages, desc, page, maxPages, start, a, counter, command, description, hidden, category_1, names, syntax, mainName;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -125,7 +135,7 @@ module.exports = {
                                     "" + displayName + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE')) {
                                     emoji = reaction.emoji.name;
                                     if (emoji === '🚪') {
-                                        _a = getFirstEmbed(guild, instance), newEmbed = _a.embed, reactions = _a.reactions;
+                                        _a = getFirstEmbed(message, instance), newEmbed = _a.embed, reactions = _a.reactions;
                                         embed.setDescription(newEmbed.description);
                                         embed.setFooter('');
                                         message.edit(embed);
@@ -170,14 +180,16 @@ module.exports = {
                                     start = (page - 1) * pageLimit;
                                     for (a = start, counter = a; a < commands.length && a < start + pageLimit; ++a) {
                                         command = commands[a];
-                                        if (command.category === category) {
-                                            names = __spreadArrays(command.names);
+                                        description = command.description, hidden = command.hidden, category_1 = command.category, names = command.names, syntax = command.syntax;
+                                        if (!hidden && category_1 === category_1) {
+                                            // TODO: Should I check if this is a string?
+                                            names = __spreadArrays(names);
                                             mainName = names.shift();
-                                            desc += "\n\n#" + ++counter + ") **" + mainName + "** - " + command.description;
+                                            desc += "\n\n#" + ++counter + ") **" + mainName + "**" + (description ? ' - ' : '') + description;
                                             if (names.length) {
                                                 desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'ALIASES') + ": \"" + names.join('", "') + "\"";
                                             }
-                                            desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'SYNTAX') + ": \"" + instance.getPrefix(guild) + mainName + (command.syntax ? ' ' : '') + command.syntax + "\"";
+                                            desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'SYNTAX') + ": \"" + instance.getPrefix(guild) + mainName + (syntax ? ' ' : '') + syntax + "\"";
                                         }
                                     }
                                     embed.setDescription(desc);
@@ -198,7 +210,7 @@ module.exports = {
         }); });
     },
     callback: function (message, args, text, client, prefix, instance) {
-        var _a = getFirstEmbed(message.guild, instance), embed = _a.embed, reactions = _a.reactions;
+        var _a = getFirstEmbed(message, instance), embed = _a.embed, reactions = _a.reactions;
         message.channel
             .send('', {
             embed: embed,

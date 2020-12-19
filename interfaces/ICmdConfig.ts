@@ -11,4 +11,6 @@ export default interface ICmdConfig {
   cooldown: string
   globalCooldown: string
   ownerOnly: boolean
+  hidden: boolean
+  guildOnly: boolean
 }

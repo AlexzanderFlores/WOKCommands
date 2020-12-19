@@ -88,6 +88,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._displayName = '';
         _this._prefixes = {};
         _this._categories = new Map(); // <Category Name, Emoji Icon>
+        _this._hiddenCategories = [];
         _this._color = '';
         _this._featureHandler = null;
         _this._tagPeople = true;
@@ -130,8 +131,8 @@ var WOKCommands = /** @class */ (function (_super) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
         _this._messageHandler = new message_handler_1.default(_this, messagesPath);
-        _this.setCategoryEmoji('Configuration', '⚙️');
-        _this.setCategoryEmoji('Help', '❓');
+        _this.setCategorySettings('Configuration', '⚙️');
+        _this.setCategorySettings('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
             var results, _i, results_1, result, _id, prefix;
             return __generator(this, function (_a) {
@@ -226,6 +227,13 @@ var WOKCommands = /** @class */ (function (_super) {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(WOKCommands.prototype, "hiddenCategories", {
+        get: function () {
+            return this._hiddenCategories;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(WOKCommands.prototype, "color", {
         get: function () {
             return this._color;
@@ -252,9 +260,46 @@ var WOKCommands = /** @class */ (function (_super) {
         });
         return result;
     };
+    /**
+     * @deprecated Please use the setCategorySettings instead of this method.
+     */
     WOKCommands.prototype.setCategoryEmoji = function (category, emoji) {
-        this._categories.set(category, emoji || this.categories.get(category) || '');
+        console.warn("WOKCommands > The setCategoryEmoji method is deprecated, please use setCategorySettings");
+        this.setCategorySettings(category, emoji);
         return this;
+    };
+    WOKCommands.prototype.setCategorySettings = function (category, emoji) {
+        if (typeof category == 'string') {
+            if (!emoji) {
+                throw new Error("WOKCommands > An emoji is required for category \"" + category + "\"");
+            }
+            if (this.isEmojiUsed(emoji)) {
+                console.warn("WOKCommands > The emoji \"" + emoji + "\" for category \"" + category + "\" is already used.");
+            }
+            this._categories.set(category, emoji || this.categories.get(category) || '');
+        }
+        else {
+            for (var _i = 0, category_1 = category; _i < category_1.length; _i++) {
+                var cat = category_1[_i];
+                if (this.isEmojiUsed(cat.emoji)) {
+                    console.warn("WOKCommands > The emoji \"" + cat.emoji + "\" for category \"" + cat.name + "\" is already used.");
+                }
+                this._categories.set(cat.name, cat.emoji || this.categories.get(cat.name) || '');
+                if (cat.hidden) {
+                    this._hiddenCategories.push(cat.name);
+                }
+            }
+        }
+        return this;
+    };
+    WOKCommands.prototype.isEmojiUsed = function (emoji) {
+        var isUsed = false;
+        this._categories.forEach(function (value) {
+            if (value === emoji) {
+                isUsed = true;
+            }
+        });
+        return isUsed;
     };
     Object.defineProperty(WOKCommands.prototype, "commandHandler", {
         get: function () {
