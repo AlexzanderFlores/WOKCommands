@@ -16,10 +16,10 @@ const loadFeature = (
 class FeatureHandler {
   private _features: Map<String, String[]> = new Map() // <Feature name, Disabled GuildIDs>
 
-  constructor(client: Client, instance: WOKCommands, dir: string) {
+  constructor(client: Client, instance: WOKCommands, dir: string, useTypeScipt?: boolean) {
     if (dir) {
       if (fs.existsSync(dir)) {
-        const files = getAllFiles(dir)
+        const files = getAllFiles(dir, useTypeScript)
 
         const amount = files.length
         if (amount > 0) {
