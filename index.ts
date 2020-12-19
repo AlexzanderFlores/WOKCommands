@@ -29,7 +29,8 @@ class WOKCommands extends EventEmitter {
     client: Client,
     commandsDir?: string,
     featureDir?: string,
-    messagesPath?: string
+    messagesPath?: string,
+    showWarns?: boolean
   ) {
     super()
 
@@ -44,15 +45,19 @@ class WOKCommands extends EventEmitter {
       !partials.includes('MESSAGE') ||
       !partials.includes('REACTION')
     ) {
-      console.warn(
-        `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
-      )
+      if(showWarns) {
+        console.warn(
+          `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
+        )
+      }
     }
 
-    if (!commandsDir) {
-      console.warn(
-        'WOKCommands > No commands folder specified. Using "commands"'
-      )
+    if (showWarns) {
+      if (!commandsDir) {
+        console.warn(
+          'WOKCommands > No commands folder specified. Using "commands"'
+        )
+      }
     }
 
     // Get the directory path of the project using this package
@@ -99,9 +104,11 @@ class WOKCommands extends EventEmitter {
           this._prefixes[_id] = prefix
         }
       } else {
-        console.warn(
-          'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
-        )
+        if (showWarns) {
+          console.warn(
+            'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
+          )
+        }
 
         this.emit('databaseConnected', null, '')
       }
