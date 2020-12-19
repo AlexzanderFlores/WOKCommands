@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -62,10 +62,10 @@ var languages_1 = __importDefault(require("./models/languages"));
 var MessageHandler = /** @class */ (function () {
     function MessageHandler(instance, messagePath) {
         var _this = this;
-        if (messagePath === void 0) { messagePath = './messages.json'; }
         this._guildLanguages = new Map(); // <Guild ID, Language>
         this._languages = [];
         this._messages = {};
+        messagePath = messagePath || './messages.json';
         this._instance = instance;
         (function () { return __awaiter(_this, void 0, void 0, function () {
             var _a, _i, _b, messageId, _c, _d, language;

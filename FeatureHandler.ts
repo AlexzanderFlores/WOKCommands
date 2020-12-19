@@ -44,12 +44,12 @@ class FeatureHandler {
                 if (!displayName) missing.push('displayName')
                 if (!dbName) missing.push('dbName')
 
-                if (missing.length) {
+                if (missing.length && instance.showWarns) {
                   console.warn(
                     `WOKCommands > Feature "${fileName}" has a config file that doesn't contain the following properties: ${missing}`
                   )
                 }
-              } else {
+              } else if (instance.showWarns) {
                 console.warn(
                   `WOKCommands > Feature "${fileName}" does not export a config object.`
                 )

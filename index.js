@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -27,7 +27,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -79,6 +79,7 @@ var message_handler_1 = __importDefault(require("./message-handler"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
     function WOKCommands(client, commandsDir, featureDir, messagesPath, showWarns) {
+        if (showWarns === void 0) { showWarns = true; }
         var _this = _super.call(this) || this;
         _this._defaultPrefix = '!';
         _this._commandsDir = 'commands';
@@ -92,6 +93,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._color = '';
         _this._featureHandler = null;
         _this._tagPeople = true;
+        _this._showWarns = true;
         _this._botOwner = [];
         _this._defaultLanguage = 'english';
         if (!client) {
@@ -105,10 +107,8 @@ var WOKCommands = /** @class */ (function (_super) {
                 console.warn("WOKCommands > It is encouraged to use both \"MESSAGE\" and \"REACTION\" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials");
             }
         }
-        if (showWarns) {
-            if (!commandsDir) {
-                console.warn('WOKCommands > No commands folder specified. Using "commands"');
-            }
+        if (showWarns && !commandsDir) {
+            console.warn('WOKCommands > No commands folder specified. Using "commands"');
         }
         // Get the directory path of the project using this package
         // This way users don't need to use path.join(__dirname, 'dir')
@@ -124,13 +124,14 @@ var WOKCommands = /** @class */ (function (_super) {
                 }
             }
         }
+        _this._showWarns = showWarns;
         _this._commandsDir = commandsDir || _this._commandsDir;
         _this._featureDir = featureDir || _this._featureDir;
         _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir);
         if (_this._featureDir) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
-        _this._messageHandler = new message_handler_1.default(_this, messagesPath);
+        _this._messageHandler = new message_handler_1.default(_this, messagesPath || '');
         _this.setCategorySettings('Configuration', '⚙️');
         _this.setCategorySettings('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -326,6 +327,13 @@ var WOKCommands = /** @class */ (function (_super) {
     Object.defineProperty(WOKCommands.prototype, "tagPeople", {
         get: function () {
             return this._tagPeople;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(WOKCommands.prototype, "showWarns", {
+        get: function () {
+            return this._showWarns;
         },
         enumerable: false,
         configurable: true
