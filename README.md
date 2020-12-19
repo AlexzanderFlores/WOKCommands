@@ -8,7 +8,6 @@
 
 - [Installation](#installation)
 - [Setup](#setup)
-- [Setting a Custom Prefix](#setting-a-custom-prefix)
 - [Creating a Feature](#creating-a-feature)
 - [Configuring a Feature](#configuring-a-feature)
 - [Creating a Command](#creating-a-command)
@@ -80,36 +79,23 @@ const client = new DiscordJS.Client({
 })
 
 client.on('ready', () => {
+  const showStartupWarnings = true
+
+  // See "Language Support"
+  // An empty string = ignored
+  const messagesPath = ''
+
   // Initialize WOKCommands with specific folders and MongoDB
-  new WOKCommands(client, 'commands', 'features')
+  new WOKCommands(client, 'commands', 'features', messagesPath, showStartupWarnings)
     .setMongoPath(process.env.MONGO_URI)
+    // Set the default prefix for your bot
+    .setDefaultPrefix('!')
+    // Set the embed color for your bot. The default help menu will use this. This hex value can be a string too
+    .setColor(0xff0000)
 })
 
 client.login(process.env.TOKEN)
 ```
-
-# Setting a Custom Prefix
-
-You can easily set a custom command prefix for your bot using the following:
-
-```JS
-const DiscordJS = require('discord.js')
-const WOKCommands = require('wokcommands')
-require('dotenv').config()
-
-const client = new DiscordJS.Client()
-
-client.on('ready', () => {
-  // Initialize WOKCommands with specific folders and MongoDB
-  new WOKCommands(client, 'commands', 'features')
-    .setMongoPath(process.env.MONGO_URI)
-    .setDefaultPrefix('?')
-})
-
-client.login(process.env.TOKEN)
-```
-
-The default prefix is ! so this code snippet will make your bot's prefix ? instead.
 
 # Creating a Feature
 
@@ -384,7 +370,7 @@ module.exports = {
 
 # Custom Dynamic Help Menu
 
-The WOKCommands package ships with a dynamic help menu out of the box However each help menu is different and your bot might require specific needs. You can overwrite the default help command by creating your own:
+The WOKCommands package ships with a dynamic help menu out of the box, however each help menu is different and your bot might require specific needs. You can overwrite the default help command by creating your own:
 
 ```JS
 // Folder: "commands"

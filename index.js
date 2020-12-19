@@ -78,7 +78,8 @@ var prefixes_1 = __importDefault(require("./models/prefixes"));
 var message_handler_1 = __importDefault(require("./message-handler"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
-    function WOKCommands(client, commandsDir, featureDir, messagesPath) {
+    function WOKCommands(client, commandsDir, featureDir, messagesPath, showWarns) {
+        if (showWarns === void 0) { showWarns = true; }
         var _this = _super.call(this) || this;
         _this._defaultPrefix = '!';
         _this._commandsDir = 'commands';
@@ -92,6 +93,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._color = '';
         _this._featureHandler = null;
         _this._tagPeople = true;
+        _this._showWarns = true;
         _this._botOwner = [];
         _this._defaultLanguage = 'english';
         if (!client) {
@@ -101,9 +103,11 @@ var WOKCommands = /** @class */ (function (_super) {
         if (!partials ||
             !partials.includes('MESSAGE') ||
             !partials.includes('REACTION')) {
-            console.warn("WOKCommands > It is encouraged to use both \"MESSAGE\" and \"REACTION\" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials");
+            if (showWarns) {
+                console.warn("WOKCommands > It is encouraged to use both \"MESSAGE\" and \"REACTION\" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials");
+            }
         }
-        if (!commandsDir) {
+        if (showWarns && !commandsDir) {
             console.warn('WOKCommands > No commands folder specified. Using "commands"');
         }
         // Get the directory path of the project using this package
@@ -120,13 +124,14 @@ var WOKCommands = /** @class */ (function (_super) {
                 }
             }
         }
+        _this._showWarns = showWarns;
         _this._commandsDir = commandsDir || _this._commandsDir;
         _this._featureDir = featureDir || _this._featureDir;
         _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir);
         if (_this._featureDir) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
-        _this._messageHandler = new message_handler_1.default(_this, messagesPath);
+        _this._messageHandler = new message_handler_1.default(_this, messagesPath || '');
         _this.setCategorySettings('Configuration', '⚙️');
         _this.setCategorySettings('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -149,7 +154,9 @@ var WOKCommands = /** @class */ (function (_super) {
                         }
                         return [3 /*break*/, 4];
                     case 3:
-                        console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
+                        if (showWarns) {
+                            console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
+                        }
                         this.emit('databaseConnected', null, '');
                         _a.label = 4;
                     case 4: return [2 /*return*/];
@@ -320,6 +327,13 @@ var WOKCommands = /** @class */ (function (_super) {
     Object.defineProperty(WOKCommands.prototype, "tagPeople", {
         get: function () {
             return this._tagPeople;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(WOKCommands.prototype, "showWarns", {
+        get: function () {
+            return this._showWarns;
         },
         enumerable: false,
         configurable: true

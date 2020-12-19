@@ -22,6 +22,7 @@ class WOKCommands extends EventEmitter {
   private _commandHandler: CommandHandler
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
+  private _showWarns = true
   private _botOwner: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
@@ -30,7 +31,8 @@ class WOKCommands extends EventEmitter {
     client: Client,
     commandsDir?: string,
     featureDir?: string,
-    messagesPath?: string
+    messagesPath?: string,
+    showWarns = true
   ) {
     super()
 
@@ -45,12 +47,14 @@ class WOKCommands extends EventEmitter {
       !partials.includes('MESSAGE') ||
       !partials.includes('REACTION')
     ) {
-      console.warn(
-        `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
-      )
+      if (showWarns) {
+        console.warn(
+          `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
+        )
+      }
     }
 
-    if (!commandsDir) {
+    if (showWarns && !commandsDir) {
       console.warn(
         'WOKCommands > No commands folder specified. Using "commands"'
       )
@@ -73,6 +77,7 @@ class WOKCommands extends EventEmitter {
       }
     }
 
+    this._showWarns = showWarns
     this._commandsDir = commandsDir || this._commandsDir
     this._featureDir = featureDir || this._featureDir
 
@@ -81,7 +86,7 @@ class WOKCommands extends EventEmitter {
       this._featureHandler = new FeatureHandler(client, this, this._featureDir)
     }
 
-    this._messageHandler = new MessageHandler(this, messagesPath)
+    this._messageHandler = new MessageHandler(this, messagesPath || '')
 
     this.setCategorySettings('Configuration', '⚙️')
     this.setCategorySettings('Help', '❓')
@@ -100,9 +105,11 @@ class WOKCommands extends EventEmitter {
           this._prefixes[_id] = prefix
         }
       } else {
-        console.warn(
-          'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
-        )
+        if (showWarns) {
+          console.warn(
+            'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
+          )
+        }
 
         this.emit('databaseConnected', null, '')
       }
@@ -287,6 +294,10 @@ class WOKCommands extends EventEmitter {
 
   public get tagPeople(): boolean {
     return this._tagPeople
+  }
+
+  public get showWarns(): boolean {
+    return this._showWarns
   }
 
   public get botOwner(): string[] {

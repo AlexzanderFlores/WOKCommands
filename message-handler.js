@@ -62,10 +62,10 @@ var languages_1 = __importDefault(require("./models/languages"));
 var MessageHandler = /** @class */ (function () {
     function MessageHandler(instance, messagePath) {
         var _this = this;
-        if (messagePath === void 0) { messagePath = './messages.json'; }
         this._guildLanguages = new Map(); // <Guild ID, Language>
         this._languages = [];
         this._messages = {};
+        messagePath = messagePath || './messages.json';
         this._instance = instance;
         (function () { return __awaiter(_this, void 0, void 0, function () {
             var _a, _i, _b, messageId, _c, _d, language;

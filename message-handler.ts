@@ -12,7 +12,9 @@ export default class MessageHandler {
     }
   } = {}
 
-  constructor(instance: WOKCommands, messagePath = './messages.json') {
+  constructor(instance: WOKCommands, messagePath: string) {
+    messagePath = messagePath || './messages.json'
+
     this._instance = instance
     ;(async () => {
       this._messages = await import(messagePath)
