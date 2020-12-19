@@ -14,17 +14,17 @@ import cooldown from './models/cooldown'
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
 
-  constructor(instance: WOKCommands, client: Client, dir: string) {
+  constructor(instance: WOKCommands, client: Client, dir: string, useTypeScript?: boolean) {
     // Register built in commands
     for (const [file, fileName] of getAllFiles(
       path.join(__dirname, 'commands')
-    )) {
+    ), useTypeScript) {
       this.registerCommand(instance, client, file, fileName)
     }
 
     if (dir) {
       if (fs.existsSync(dir)) {
-        const files = getAllFiles(dir)
+        const files = getAllFiles(dir, useTypeScript)
 
         const amount = files.length
         if (amount > 0) {
