@@ -31,7 +31,8 @@ class WOKCommands extends EventEmitter {
     commandsDir?: string,
     featureDir?: string,
     messagesPath?: string,
-    showWarns?: boolean
+    showWarns?: boolean,
+    useTypeScript?: boolean,
   ) {
     super()
 
@@ -81,9 +82,9 @@ class WOKCommands extends EventEmitter {
     this._commandsDir = commandsDir || this._commandsDir
     this._featureDir = featureDir || this._featureDir
 
-    this._commandHandler = new CommandHandler(this, client, this._commandsDir)
+    this._commandHandler = new CommandHandler(this, client, this._commandsDir, useTypeScript)
     if (this._featureDir) {
-      this._featureHandler = new FeatureHandler(client, this, this._featureDir)
+      this._featureHandler = new FeatureHandler(client, this, this._featureDir, useTypeScript)
     }
 
     this._messageHandler = new MessageHandler(this, messagesPath)
