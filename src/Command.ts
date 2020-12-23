@@ -28,6 +28,7 @@ class Command {
   private _ownerOnly = false
   private _hidden = false
   private _guildOnly = false
+  private _testOnly = false
 
   constructor(
     instance: WOKCommands,
@@ -47,6 +48,7 @@ class Command {
       ownerOnly = false,
       hidden = false,
       guildOnly = false,
+      testOnly = false,
     }: ICommand
   ) {
     this.instance = instance
@@ -72,6 +74,7 @@ class Command {
     this._ownerOnly = ownerOnly
     this._hidden = hidden
     this._guildOnly = guildOnly
+    this._testOnly = testOnly
     this._callback = callback
 
     if (this.cooldown && this.globalCooldown) {
@@ -181,6 +184,10 @@ class Command {
 
   public get globalCooldown(): string {
     return this._globalCooldown
+  }
+
+  public get testOnly(): boolean {
+    return this._testOnly
   }
 
   public verifyCooldown(cooldown: string, type: string) {

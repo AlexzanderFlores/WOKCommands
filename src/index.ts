@@ -14,6 +14,7 @@ type Options = {
   messagesPath?: string
   showWarns?: boolean
   dbOptions?: {}
+  testServers?: string | string[]
 }
 
 class WOKCommands extends EventEmitter {
@@ -32,6 +33,7 @@ class WOKCommands extends EventEmitter {
   private _tagPeople = true
   private _showWarns = true
   private _botOwner: string[] = []
+  private _testServers: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
 
@@ -48,6 +50,7 @@ class WOKCommands extends EventEmitter {
       messagesPath = 'messages.json',
       showWarns = true,
       dbOptions,
+      testServers,
     } = options
 
     const { partials } = client.options
@@ -85,6 +88,14 @@ class WOKCommands extends EventEmitter {
           messagesPath = `${path}/${messagesPath}`
         }
       }
+    }
+
+    if (testServers) {
+      if (typeof testServers === 'string') {
+        testServers = [testServers]
+      }
+
+      this._testServers = testServers
     }
 
     this._showWarns = showWarns
@@ -320,6 +331,10 @@ class WOKCommands extends EventEmitter {
     }
     this._botOwner = botOwner
     return this
+  }
+
+  public get testServers(): string[] {
+    return this._testServers
   }
 
   public get defaultLanguage(): string {

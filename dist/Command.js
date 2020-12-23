@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var cooldown_1 = __importDefault(require("./models/cooldown"));
 var Command = /** @class */ (function () {
     function Command(instance, client, names, callback, _a) {
-        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, _b = _a.ownerOnly, ownerOnly = _b === void 0 ? false : _b, _c = _a.hidden, hidden = _c === void 0 ? false : _c, _d = _a.guildOnly, guildOnly = _d === void 0 ? false : _d;
+        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, _b = _a.ownerOnly, ownerOnly = _b === void 0 ? false : _b, _c = _a.hidden, hidden = _c === void 0 ? false : _c, _d = _a.guildOnly, guildOnly = _d === void 0 ? false : _d, _e = _a.testOnly, testOnly = _e === void 0 ? false : _e;
         this._names = [];
         this._category = '';
         this._minArgs = 0;
@@ -58,6 +58,7 @@ var Command = /** @class */ (function () {
         this._ownerOnly = false;
         this._hidden = false;
         this._guildOnly = false;
+        this._testOnly = false;
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -79,6 +80,7 @@ var Command = /** @class */ (function () {
         this._ownerOnly = ownerOnly;
         this._hidden = hidden;
         this._guildOnly = guildOnly;
+        this._testOnly = testOnly;
         this._callback = callback;
         if (this.cooldown && this.globalCooldown) {
             throw new Error("Command \"" + names[0] + "\" has both a global and per-user cooldown. Commands can only have up to one of these properties.");
@@ -198,6 +200,13 @@ var Command = /** @class */ (function () {
     Object.defineProperty(Command.prototype, "globalCooldown", {
         get: function () {
             return this._globalCooldown;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Command.prototype, "testOnly", {
+        get: function () {
+            return this._testOnly;
         },
         enumerable: false,
         configurable: true

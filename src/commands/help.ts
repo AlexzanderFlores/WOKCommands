@@ -39,9 +39,10 @@ const getFirstEmbed = (message: Message, instance: WOKCommands) => {
 
   // TODO: See if I can use the commandHandler.getCommandsByCategory method instead
   // possibly duplicate code
-  for (const { category } of commands) {
+  for (const { category, testOnly } of commands) {
     if (
       !category ||
+      (testOnly && guild && !instance.testServers.includes(guild.id)) ||
       (!isAdmin && instance.hiddenCategories.includes(category))
     ) {
       continue
@@ -144,6 +145,7 @@ module.exports = {
                 message,
                 instance
               )
+
               embed.setDescription(newEmbed.description)
               embed.setFooter('')
               message.edit(embed)

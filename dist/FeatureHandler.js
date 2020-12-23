@@ -59,9 +59,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var fs_1 = __importDefault(require("fs"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
-var loadFeature = function (func, client, instance, isEnabled) {
-    func(client, instance, isEnabled);
-};
 var FeatureHandler = /** @class */ (function () {
     function FeatureHandler(client, instance, dir) {
         var _this = this;
@@ -83,14 +80,18 @@ var FeatureHandler = /** @class */ (function () {
                                 case 0:
                                     waitingForDB = [];
                                     _loop_1 = function (file, fileName) {
-                                        var _a, func, config, displayName, dbName, missing, isEnabled;
+                                        var _a, func, config, testOnly, displayName, dbName, missing, isEnabled;
                                         return __generator(this, function (_b) {
                                             switch (_b.label) {
                                                 case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
                                                 case 1:
                                                     _a = _b.sent(), func = _a.default, config = _a.config;
+                                                    testOnly = false;
                                                     if (config) {
                                                         displayName = config.displayName, dbName = config.dbName;
+                                                        if (config.testOnly) {
+                                                            testOnly = true;
+                                                        }
                                                         missing = [];
                                                         if (!displayName)
                                                             missing.push('displayName');
@@ -105,6 +106,9 @@ var FeatureHandler = /** @class */ (function () {
                                                     }
                                                     if (typeof func === 'function') {
                                                         isEnabled = function (guildId) {
+                                                            if (testOnly && !instance.testServers.includes(guildId)) {
+                                                                return false;
+                                                            }
                                                             return _this.isEnabled(guildId, file);
                                                         };
                                                         if (config && config.loadDBFirst === true) {
@@ -116,7 +120,7 @@ var FeatureHandler = /** @class */ (function () {
                                                             });
                                                             return [2 /*return*/, "continue"];
                                                         }
-                                                        loadFeature(func, client, instance, isEnabled);
+                                                        func(client, instance, isEnabled);
                                                     }
                                                     return [2 /*return*/];
                                             }
@@ -139,7 +143,7 @@ var FeatureHandler = /** @class */ (function () {
                                         if (state === 'Connected') {
                                             for (var _i = 0, waitingForDB_1 = waitingForDB; _i < waitingForDB_1.length; _i++) {
                                                 var _a = waitingForDB_1[_i], func = _a.func, client_1 = _a.client, instance_1 = _a.instance, isEnabled = _a.isEnabled;
-                                                loadFeature(func, client_1, instance_1, isEnabled);
+                                                func(client_1, instance_1, isEnabled);
                                             }
                                         }
                                     });

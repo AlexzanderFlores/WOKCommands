@@ -95,7 +95,11 @@ var CommandHandler = /** @class */ (function () {
                                         }
                                     }
                                     var member = message.member, user = message.author;
-                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown_2 = command.cooldown, globalCooldown = command.globalCooldown;
+                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown_2 = command.cooldown, globalCooldown = command.globalCooldown, testOnly = command.testOnly;
+                                    if (testOnly &&
+                                        (!guild || !instance.testServers.includes(guild.id))) {
+                                        return;
+                                    }
                                     if (guild && member) {
                                         for (var _i = 0, requiredPermissions_1 = requiredPermissions; _i < requiredPermissions_1.length; _i++) {
                                             var perm = requiredPermissions_1[_i];
@@ -214,7 +218,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         var configuration = require(file);
-        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions;
+        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions, testOnly = configuration.testOnly;
         var callbackCounter = 0;
         if (callback)
             ++callbackCounter;
@@ -253,6 +257,9 @@ var CommandHandler = /** @class */ (function () {
         if (missing.length && instance.showWarns) {
             console.warn("WOKCommands > Command \"" + names[0] + "\" does not have the following properties: " + missing + ".");
         }
+        if (testOnly && !instance.testServers.length) {
+            console.warn("WOKCommands > Command \"" + names[0] + "\" has \"testOnly\" set to true, but no test servers are defined.");
+        }
         var hasCallback = callback || execute || run;
         if (hasCallback) {
             if (init) {
@@ -271,7 +278,7 @@ var CommandHandler = /** @class */ (function () {
             var results = [];
             var added = [];
             this._commands.forEach(function (_a) {
-                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? '' : _d, _e = _a.hidden, hidden = _e === void 0 ? false : _e;
+                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? '' : _d, _e = _a.hidden, hidden = _e === void 0 ? false : _e, _f = _a.testOnly, testOnly = _f === void 0 ? false : _f;
                 if (!added.includes(names[0])) {
                     results.push({
                         names: __spreadArrays(names),
@@ -279,6 +286,7 @@ var CommandHandler = /** @class */ (function () {
                         description: description,
                         syntax: expectedArgs,
                         hidden: hidden,
+                        testOnly: testOnly,
                     });
                     added.push(names[0]);
                 }

@@ -14,4 +14,5 @@ export default interface ICommand {
   ownerOnly?: boolean
   hidden?: boolean
   guildOnly?: boolean
+  testOnly?: boolean
 }

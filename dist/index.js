@@ -94,11 +94,12 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._tagPeople = true;
         _this._showWarns = true;
         _this._botOwner = [];
+        _this._testServers = [];
         _this._defaultLanguage = 'english';
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, _c = options.messagesPath, messagesPath = _c === void 0 ? 'messages.json' : _c, _d = options.showWarns, showWarns = _d === void 0 ? true : _d, dbOptions = options.dbOptions;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, _c = options.messagesPath, messagesPath = _c === void 0 ? 'messages.json' : _c, _d = options.showWarns, showWarns = _d === void 0 ? true : _d, dbOptions = options.dbOptions, testServers = options.testServers;
         var partials = client.options.partials;
         if (!partials ||
             !partials.includes('MESSAGE') ||
@@ -123,6 +124,12 @@ var WOKCommands = /** @class */ (function (_super) {
                     messagesPath = path + "/" + messagesPath;
                 }
             }
+        }
+        if (testServers) {
+            if (typeof testServers === 'string') {
+                testServers = [testServers];
+            }
+            _this._testServers = testServers;
         }
         _this._showWarns = showWarns;
         _this._commandsDir = commandsDir || _this._commandsDir;
@@ -352,6 +359,13 @@ var WOKCommands = /** @class */ (function (_super) {
         this._botOwner = botOwner;
         return this;
     };
+    Object.defineProperty(WOKCommands.prototype, "testServers", {
+        get: function () {
+            return this._testServers;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(WOKCommands.prototype, "defaultLanguage", {
         get: function () {
             return this._defaultLanguage;

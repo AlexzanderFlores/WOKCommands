@@ -28,6 +28,7 @@
   - [Loading message text](##-loading-message-text)
   - [Global Syntax Errors](##global-syntax-errors)
 - [Events](#events)
+- [Test Servers](#test-servers)
 - [Support & Feature Requests](#support--feature-requests)
 
 # Installation
@@ -673,6 +674,74 @@ client.on('ready', () => {
 })
 
 client.login(process.env.TOKEN)
+```
+
+# Test Servers
+
+You might not want a command or feature to work while it is still in development. You can specify a test server to prevent in-development code from working.
+
+First you must specify test servers like so:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client({
+  partials: ['MESSAGE', 'REACTION'],
+})
+
+client.on('ready', () => {
+  // Initialize WOKCommands
+  new WOKCommands(client, {
+    // Can be a single string as well
+    testServers: ['747587598712569913'],
+  })
+})
+
+client.login(process.env.TOKEN)
+```
+
+After that you can specify some features and commands as "testOnly" like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  testOnly: true, // Will now only work on test servers
+  callback: ({ message }) => {
+    message.reply('pong')
+  }
+}
+```
+
+```JS
+// File name: "message-logger.js"
+// Folder "./features"
+
+module.exports = (client, instance, isEnabled) => {
+  // Listen for messages
+  client.on('message', (message) => {
+    // Access the guild, required to see if this is enabled
+    const { guild } = message
+
+    // If the guild exists and we are enabled within this guild
+    // Remove the guild checek if you want this to be enabled in DMs
+    if (guild && isEnabled(guild.id)) {
+      // If this is enabled then log the content to the console
+      console.log(message.content)
+    }
+  })
+}
+
+module.exports.config = {
+  displayName: 'Test',
+  dbName: 'TEST',
+  loadDBFirst: true,
+  testOnly: true, // Will now only work on test servers
+}
+
 ```
 
 # Support & Feature Requests

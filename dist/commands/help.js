@@ -59,8 +59,9 @@ var getFirstEmbed = function (message, instance) {
     // TODO: See if I can use the commandHandler.getCommandsByCategory method instead
     // possibly duplicate code
     for (var _i = 0, commands_1 = commands; _i < commands_1.length; _i++) {
-        var category = commands_1[_i].category;
+        var _a = commands_1[_i], category = _a.category, testOnly = _a.testOnly;
         if (!category ||
+            (testOnly && guild && !instance.testServers.includes(guild.id)) ||
             (!isAdmin && instance.hiddenCategories.includes(category))) {
             continue;
         }
