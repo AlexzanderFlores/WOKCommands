@@ -5,7 +5,8 @@ import path from 'path'
 
 import Command from './Command'
 import getAllFiles from './get-all-files'
-import ICommand from './interfaces/ICommand'
+// import ICommand from './interfaces/ICommand'
+import ICmdConfig from './interfaces/ICommand'
 import disabledCommands from './models/disabled-commands'
 import requiredRoles from './models/required-roles'
 import permissions from './permissions'
@@ -311,8 +312,8 @@ class CommandHandler {
     }
   }
 
-  public get commands(): ICommand[] {
-    const results: ICommand[] = []
+  public get commands(): ICmdConfig[] {
+    const results: ICmdConfig[] = []
     const added: string[] = []
 
     this._commands.forEach(
@@ -343,8 +344,8 @@ class CommandHandler {
   public getCommandsByCategory(
     category: string,
     visibleOnly?: boolean
-  ): ICommand[] {
-    const results: ICommand[] = []
+  ): ICmdConfig[] {
+    const results: ICmdConfig[] = []
 
     for (const command of this.commands) {
       if (visibleOnly && command.hidden) {

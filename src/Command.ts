@@ -1,7 +1,7 @@
 import { Client, Message } from 'discord.js'
 import WOKCommands from '.'
 
-import ICmdConfig from './interfaces/ICmdConfig'
+import ICmdConfig from './interfaces/ICommand'
 import cooldownSchema from './models/cooldown'
 
 class Command {
@@ -44,9 +44,9 @@ class Command {
       requiredPermissions,
       cooldown,
       globalCooldown,
-      ownerOnly,
-      hidden,
-      guildOnly,
+      ownerOnly = false,
+      hidden = false,
+      guildOnly = false,
     }: ICmdConfig
   ) {
     this.instance = instance

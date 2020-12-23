@@ -1,5 +1,5 @@
-import { Client, Guild, Message, MessageEmbed } from 'discord.js'
-import WOKCommands from '../'
+import { Client, Message, MessageEmbed } from 'discord.js'
+import WOKCommands from '..'
 
 const pageLimit = 3
 
@@ -220,8 +220,10 @@ module.exports = {
               let { description, hidden, category, names, syntax } = command
 
               if (!hidden && category === category) {
-                // TODO: Should I check if this is a string?
-                names = [...names]
+                if (typeof names === 'string') {
+                  // @ts-ignore
+                  names = [...names]
+                }
                 const mainName = names.shift()
 
                 desc += `\n\n#${++counter}) **${mainName}**${
@@ -269,6 +271,20 @@ module.exports = {
     prefix: string,
     instance: WOKCommands
   ) => {
+    const guild = message.guild
+
+    if (guild && !guild.me?.hasPermission('SEND_MESSAGES')) {
+      console.warn(
+        `WOKCommands > Could not send message due to no permissions in channel for ${guild.name}`
+      )
+      return
+    }
+
+    if (guild && !guild.me?.hasPermission('ADD_REACTIONS')) {
+      message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'))
+      return
+    }
+
     const { embed, reactions } = getFirstEmbed(message, instance)
 
     message.channel
