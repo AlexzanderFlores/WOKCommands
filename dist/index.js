@@ -98,7 +98,7 @@ var WOKCommands = /** @class */ (function (_super) {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, _c = options.messagesPath, messagesPath = _c === void 0 ? 'messages.json' : _c, _d = options.showWarns, showWarns = _d === void 0 ? true : _d;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, _c = options.messagesPath, messagesPath = _c === void 0 ? 'messages.json' : _c, _d = options.showWarns, showWarns = _d === void 0 ? true : _d, dbOptions = options.dbOptions;
         var partials = client.options.partials;
         if (!partials ||
             !partials.includes('MESSAGE') ||
@@ -140,7 +140,7 @@ var WOKCommands = /** @class */ (function (_super) {
                 switch (_a.label) {
                     case 0:
                         if (!this._mongo) return [3 /*break*/, 3];
-                        return [4 /*yield*/, mongo_1.default(this._mongo, this)];
+                        return [4 /*yield*/, mongo_1.default(this._mongo, this, dbOptions)];
                     case 1:
                         _a.sent();
                         this._mongoConnection = mongo_1.getMongoConnection();

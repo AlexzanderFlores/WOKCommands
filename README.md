@@ -85,12 +85,22 @@ client.on('ready', () => {
   // An empty string = ignored
   const messagesPath = ''
 
+  // Used to configure the database connection.
+  // These are the default options but you can overwrite them
+  const dbOptions = {
+    keepAlive: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  },
+
   // Initialize WOKCommands with specific folders and MongoDB
   new WOKCommands(client, {
     commandsDir: 'commands',
     featureDir: 'features',
     messagesPath,
-    showWarns: showStartupWarnings
+    showWarns: showStartupWarnings,
+    dbOptions
   })
     .setMongoPath(process.env.MONGO_URI)
     // Set the default prefix for your bot

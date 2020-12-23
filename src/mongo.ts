@@ -10,12 +10,17 @@ const results: {
   3: 'Disconnecting',
 }
 
-const mongo = async (mongoPath: string, instance: WOKCommands) => {
+const mongo = async (
+  mongoPath: string,
+  instance: WOKCommands,
+  dbOptions = {}
+) => {
   await mongoose.connect(mongoPath, {
     keepAlive: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
+    ...dbOptions,
   })
 
   const { connection } = mongoose

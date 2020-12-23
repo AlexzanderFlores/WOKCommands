@@ -13,6 +13,7 @@ type Options = {
   featureDir?: string
   messagesPath?: string
   showWarns?: boolean
+  dbOptions?: {}
 }
 
 class WOKCommands extends EventEmitter {
@@ -46,6 +47,7 @@ class WOKCommands extends EventEmitter {
       featureDir = '',
       messagesPath = 'messages.json',
       showWarns = true,
+      dbOptions,
     } = options
 
     const { partials } = client.options
@@ -101,7 +103,7 @@ class WOKCommands extends EventEmitter {
 
     setTimeout(async () => {
       if (this._mongo) {
-        await mongo(this._mongo, this)
+        await mongo(this._mongo, this, dbOptions)
 
         this._mongoConnection = getMongoConnection()
 
