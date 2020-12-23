@@ -1,6 +1,6 @@
 import fs, { Dirent } from 'fs'
 
-const getAllFiles = (dir: string) => {
+const getAllFiles = (dir: string, useTypeScript?: boolean) => {
   const files: Dirent[] = fs.readdirSync(dir, {
     withFileTypes: true,
   })
@@ -9,7 +9,7 @@ const getAllFiles = (dir: string) => {
   for (const file of files) {
     if (file.isDirectory()) {
       jsFiles = [...jsFiles, ...getAllFiles(`${dir}/${file.name}`)]
-    } else if (file.name.endsWith('.js')) {
+    } else if (file.name.endsWith(useTypeScript ? '.ts' : '.js')) {
       let fileName: string | string[] = file.name.replace(/\\/g, '/').split('/')
       fileName = fileName[fileName.length - 1]
       fileName = fileName.split('.')[0].toLowerCase()
