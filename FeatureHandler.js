@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -96,11 +96,11 @@ var FeatureHandler = /** @class */ (function () {
                                                             missing.push('displayName');
                                                         if (!dbName)
                                                             missing.push('dbName');
-                                                        if (missing.length) {
+                                                        if (missing.length && instance.showWarns) {
                                                             console.warn("WOKCommands > Feature \"" + fileName + "\" has a config file that doesn't contain the following properties: " + missing);
                                                         }
                                                     }
-                                                    else {
+                                                    else if (instance.showWarns) {
                                                         console.warn("WOKCommands > Feature \"" + fileName + "\" does not export a config object.");
                                                     }
                                                     if (typeof func === 'function') {

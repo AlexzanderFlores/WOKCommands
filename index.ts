@@ -22,6 +22,7 @@ class WOKCommands extends EventEmitter {
   private _commandHandler: CommandHandler
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
+  private _showWarns = true
   private _botOwner: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
@@ -47,19 +48,17 @@ class WOKCommands extends EventEmitter {
       !partials.includes('MESSAGE') ||
       !partials.includes('REACTION')
     ) {
-      if(showWarns) {
+      if (showWarns) {
         console.warn(
           `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
         )
       }
     }
 
-    if (showWarns) {
-      if (!commandsDir) {
-        console.warn(
-          'WOKCommands > No commands folder specified. Using "commands"'
-        )
-      }
+    if (showWarns && !commandsDir) {
+      console.warn(
+        'WOKCommands > No commands folder specified. Using "commands"'
+      )
     }
 
     // Get the directory path of the project using this package
@@ -79,6 +78,7 @@ class WOKCommands extends EventEmitter {
       }
     }
 
+    this._showWarns = showWarns
     this._commandsDir = commandsDir || this._commandsDir
     this._featureDir = featureDir || this._featureDir
 
@@ -87,7 +87,7 @@ class WOKCommands extends EventEmitter {
       this._featureHandler = new FeatureHandler(client, this, this._featureDir, useTypeScript)
     }
 
-    this._messageHandler = new MessageHandler(this, messagesPath)
+    this._messageHandler = new MessageHandler(this, messagesPath || '')
 
     this.setCategorySettings('Configuration', '⚙️')
     this.setCategorySettings('Help', '❓')
@@ -295,6 +295,10 @@ class WOKCommands extends EventEmitter {
 
   public get tagPeople(): boolean {
     return this._tagPeople
+  }
+
+  public get showWarns(): boolean {
+    return this._showWarns
   }
 
   public get botOwner(): string[] {

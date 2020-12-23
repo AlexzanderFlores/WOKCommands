@@ -283,7 +283,7 @@ class CommandHandler {
       missing.push('Description')
     }
 
-    if (missing.length) {
+    if (missing.length && instance.showWarns) {
       console.warn(
         `WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`
       )
