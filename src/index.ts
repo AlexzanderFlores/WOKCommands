@@ -8,6 +8,13 @@ import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
 
+type Options = {
+  commandsDir?: string
+  featureDir?: string
+  messagesPath?: string
+  showWarns?: boolean
+}
+
 class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
@@ -27,18 +34,19 @@ class WOKCommands extends EventEmitter {
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
 
-  constructor(
-    client: Client,
-    commandsDir?: string,
-    featureDir?: string,
-    messagesPath?: string,
-    showWarns = true
-  ) {
+  constructor(client: Client, options: Options) {
     super()
 
     if (!client) {
       throw new Error('No Discord JS Client provided as first argument!')
     }
+
+    let {
+      commandsDir = '',
+      featureDir = '',
+      messagesPath = 'messages.json',
+      showWarns = true,
+    } = options
 
     const { partials } = client.options
 

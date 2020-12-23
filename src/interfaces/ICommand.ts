@@ -1,4 +1,4 @@
-export default interface ICmdConfig {
+export default interface ICommand {
   names: string[] | string
   category: string
   minArgs?: number

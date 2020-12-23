@@ -65,7 +65,7 @@ client.on('ready', () => {
 client.login(process.env.TOKEN)
 ```
 
-You might want to specify your commands and features folder, as well as your MongoDB connection path.
+You might want to specify your commands and features folder, as well as other options. The constructor can take in an `options` argument where it looks for this information.
 
 This next example assumes you are using a local `commands` folder for your command files, a local `features` folder for event listener files, and that your MongoDB connection path is located within your `.env` file as `MONGO_URI`.
 
@@ -86,7 +86,12 @@ client.on('ready', () => {
   const messagesPath = ''
 
   // Initialize WOKCommands with specific folders and MongoDB
-  new WOKCommands(client, 'commands', 'features', messagesPath, showStartupWarnings)
+  new WOKCommands(client, {
+    commandsDir: 'commands',
+    featureDir: 'features',
+    messagesPath,
+    showWarns: showStartupWarnings
+  })
     .setMongoPath(process.env.MONGO_URI)
     // Set the default prefix for your bot
     .setDefaultPrefix('!')
@@ -231,7 +236,10 @@ const client = new DiscordJS.Client()
 
 client.on('ready', () => {
   // Initialize WOKCommands with specific folders and MongoDB
-  new WOKCommands(client, 'commands', 'features')
+  new WOKCommands(client, {
+    commandsDir: 'commands',
+    featureDir: 'features'
+  })
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
     // Set the category emoji by using it's settings:
@@ -345,7 +353,10 @@ const client = new DiscordJS.Client({
 })
 
 client.on('ready', () => {
-  new WOKCommands(client, 'commands', 'features')
+  new WOKCommands(client, , {
+    commandsDir: 'commands',
+    featureDir: 'features'
+  })
     // Use your own ID of course
     // If you have only 1 ID you can pass in a string instead of an array
     .setBotOwner(['251120969320497153', 'another id', 'another id'])
@@ -523,7 +534,11 @@ You can find the default `messages.json` here: https://github.com/AlexzanderFlor
 
 ```JS
 // Assumes messages.json is in the same directory as this code's file
-new WOKCommands(client, 'commands', 'features', 'messages.json')
+new WOKCommands(client, , {
+    commandsDir: 'commands',
+    featureDir: 'features',
+    messagesPath: 'messages.json'
+  })
 ```
 
 ## Loading message text
@@ -627,7 +642,10 @@ require('dotenv').config()
 const client = new DiscordJS.Client()
 
 client.on('ready', () => {
-  const wok = new WOKCommands(client, 'commands', 'features')
+  const wok = new WOKCommands(client, , {
+    commandsDir: 'commands',
+    featureDir: 'features'
+  })
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
 

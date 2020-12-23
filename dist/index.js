@@ -78,8 +78,7 @@ var prefixes_1 = __importDefault(require("./models/prefixes"));
 var message_handler_1 = __importDefault(require("./message-handler"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
-    function WOKCommands(client, commandsDir, featureDir, messagesPath, showWarns) {
-        if (showWarns === void 0) { showWarns = true; }
+    function WOKCommands(client, options) {
         var _this = _super.call(this) || this;
         _this._defaultPrefix = '!';
         _this._commandsDir = 'commands';
@@ -99,6 +98,7 @@ var WOKCommands = /** @class */ (function (_super) {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, _c = options.messagesPath, messagesPath = _c === void 0 ? 'messages.json' : _c, _d = options.showWarns, showWarns = _d === void 0 ? true : _d;
         var partials = client.options.partials;
         if (!partials ||
             !partials.includes('MESSAGE') ||
