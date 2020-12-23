@@ -109,7 +109,14 @@ var Command = /** @class */ (function () {
             message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
             return;
         }
-        this._callback(message, args, args.join(' '), this.client, this.instance.getPrefix(message.guild), this.instance);
+        this._callback({
+            message: message,
+            args: args,
+            text: args.join(' '),
+            client: this.client,
+            prefix: this.instance.getPrefix(message.guild),
+            instance: this.instance,
+        });
     };
     Object.defineProperty(Command.prototype, "names", {
         get: function () {

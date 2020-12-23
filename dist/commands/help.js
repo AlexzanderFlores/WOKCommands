@@ -211,8 +211,9 @@ module.exports = {
             });
         }); });
     },
-    callback: function (message, args, text, client, prefix, instance) {
+    callback: function (options) {
         var _a, _b;
+        var message = options.message, instance = options.instance;
         var guild = message.guild;
         if (guild && !((_a = guild.me) === null || _a === void 0 ? void 0 : _a.hasPermission('SEND_MESSAGES'))) {
             console.warn("WOKCommands > Could not send message due to no permissions in channel for " + guild.name);

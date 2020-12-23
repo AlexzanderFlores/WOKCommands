@@ -1,6 +1,5 @@
-import { Client, Message } from 'discord.js'
-import WOKCommands from '..'
 import disabledCommands from '../models/disabled-commands'
+import ICommandArguments from '../interfaces/ICommandArguments'
 
 export = {
   minArgs: 2,
@@ -10,14 +9,9 @@ export = {
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Enables or disables a command for this guild',
   category: 'Configuration',
-  callback: async (
-    message: Message,
-    args: string[],
-    text: string,
-    client: Client,
-    prefix: string,
-    instance: WOKCommands
-  ) => {
+  callback: async (options: ICommandArguments) => {
+    const { message, args, instance } = options
+
     const { guild } = message
     const newState = args.shift()?.toLowerCase()
     const name = (args.shift() || '').toLowerCase()

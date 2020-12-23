@@ -47,11 +47,12 @@ module.exports = {
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Displays or sets the language for this Discord server',
     category: 'Configuration',
-    callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var guild, messageHandler, lang;
+    callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
+        var message, text, instance, guild, messageHandler, lang;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    message = options.message, text = options.text, instance = options.instance;
                     guild = message.guild;
                     if (!guild) {
                         return [2 /*return*/];

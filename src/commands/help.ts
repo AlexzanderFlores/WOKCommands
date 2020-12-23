@@ -1,5 +1,6 @@
 import { Client, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '..'
+import ICommandArguments from '../interfaces/ICommandArguments'
 
 const pageLimit = 3
 
@@ -263,14 +264,9 @@ module.exports = {
       }
     })
   },
-  callback: (
-    message: Message,
-    args: string[],
-    text: string,
-    client: Client,
-    prefix: string,
-    instance: WOKCommands
-  ) => {
+  callback: (options: ICommandArguments) => {
+    const { message, instance } = options
+
     const guild = message.guild
 
     if (guild && !guild.me?.hasPermission('SEND_MESSAGES')) {

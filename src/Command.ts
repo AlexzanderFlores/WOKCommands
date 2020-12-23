@@ -125,14 +125,14 @@ class Command {
       return
     }
 
-    this._callback(
+    this._callback({
       message,
       args,
-      args.join(' '),
-      this.client,
-      this.instance.getPrefix(message.guild),
-      this.instance
-    )
+      text: args.join(' '),
+      client: this.client,
+      prefix: this.instance.getPrefix(message.guild),
+      instance: this.instance,
+    })
   }
 
   public get names(): string[] {

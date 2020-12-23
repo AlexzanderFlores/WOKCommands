@@ -47,12 +47,13 @@ module.exports = {
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Enables or disables a command for this guild',
     category: 'Configuration',
-    callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var guild, newState, name, command, mainCommand, isDisabled;
+    callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
+        var message, args, instance, guild, newState, name, command, mainCommand, isDisabled;
         var _a;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
+                    message = options.message, args = options.args, instance = options.instance;
                     guild = message.guild;
                     newState = (_a = args.shift()) === null || _a === void 0 ? void 0 : _a.toLowerCase();
                     name = (args.shift() || '').toLowerCase();

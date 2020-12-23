@@ -48,11 +48,12 @@ module.exports = {
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Specifies what role each command requires.',
     category: 'Configuration',
-    callback: function (message, args, text, prefix, client, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var name, roleId, guild, command;
+    callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
+        var message, args, instance, name, roleId, guild, command;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    message = options.message, args = options.args, instance = options.instance;
                     name = (args.shift() || '').toLowerCase();
                     roleId = message.mentions.roles.first() || (args.shift() || '').toLowerCase();
                     if (typeof roleId !== 'string') {

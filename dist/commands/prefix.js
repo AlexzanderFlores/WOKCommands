@@ -46,11 +46,12 @@ module.exports = {
     requiredPermissions: ['ADMINISTRATOR'],
     description: 'Displays or sets the prefix for the current guild',
     category: 'Configuration',
-    callback: function (message, args, text, client, prefix, instance) { return __awaiter(void 0, void 0, void 0, function () {
-        var guild, id;
+    callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
+        var message, args, text, prefix, instance, guild, id;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    message = options.message, args = options.args, text = options.text, prefix = options.prefix, instance = options.instance;
                     guild = message.guild;
                     if (!(args.length === 0)) return [3 /*break*/, 1];
                     message.reply(instance.messageHandler.get(guild, 'CURRENT_PREFIX', {

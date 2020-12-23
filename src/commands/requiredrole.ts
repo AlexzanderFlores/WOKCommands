@@ -1,5 +1,4 @@
-import { Client, Message } from 'discord.js'
-import WOKCommands from '..'
+import ICommandArguments from '../interfaces/ICommandArguments'
 import requiredRoleSchema from '../models/required-roles'
 
 export = {
@@ -11,14 +10,9 @@ export = {
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Specifies what role each command requires.',
   category: 'Configuration',
-  callback: async (
-    message: Message,
-    args: string[],
-    text: string,
-    prefix: string,
-    client: Client,
-    instance: WOKCommands
-  ) => {
+  callback: async (options: ICommandArguments) => {
+    const { message, args, instance } = options
+
     const name = (args.shift() || '').toLowerCase()
     let roleId =
       message.mentions.roles.first() || (args.shift() || '').toLowerCase()

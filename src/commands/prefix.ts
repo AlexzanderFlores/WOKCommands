@@ -1,5 +1,4 @@
-import { Client, Message } from 'discord.js'
-import WOKCommands from '..'
+import ICommandArguments from '../interfaces/ICommandArguments'
 import prefixes from '../models/prefixes'
 
 export = {
@@ -9,14 +8,9 @@ export = {
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the prefix for the current guild',
   category: 'Configuration',
-  callback: async (
-    message: Message,
-    args: string[],
-    text: string,
-    client: Client,
-    prefix: string,
-    instance: WOKCommands
-  ) => {
+  callback: async (options: ICommandArguments) => {
+    const { message, args, text, prefix, instance } = options
+
     const { guild } = message
 
     if (args.length === 0) {

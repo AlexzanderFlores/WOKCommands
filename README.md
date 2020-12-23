@@ -151,7 +151,7 @@ module.exports.config = {
 
 # Creating a Command
 
-Creating a command is simple using WOKCommands. The end goal of this package is to support as many command formats as possible. If your commands aren't immediately supported by WOKCommands then please read "Support & Feature Requests"
+Creating a command is simple using WOKCommands:
 
 Here's an example of a basic ping command:
 
@@ -161,7 +161,7 @@ Here's an example of a basic ping command:
 
 module.exports = {
   aliases: ['p'], // Optional
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -179,7 +179,7 @@ module.exports = {
   name: 'ping', // Optional
   commands: ['runping'], // Optional
   aliases: ['p'], // Optional
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -187,7 +187,7 @@ module.exports = {
 
 This will make `!ping`, `!runping`, and `!p` execute the command. There are various popular command formats. This approach of multiple options is meant to help support them out of the box without many changes on your part.
 
-The `callback` function can also be named `run` or `execute`. This function can accept the following parameters:
+The `callback` function can also be named `run` or `execute`. This function has one object parameter with the following properties:
 
 1. `message`: The standard Message object
 2. `args`: An array of all arguments provided with the command
@@ -203,11 +203,13 @@ Example:
 // Folder "./commands"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     message.reply('pong')
   }
 }
 ```
+
+These properties are inside of an object so you can access any of them individually. For example if you need the `instance` then you won't need to access all previous parameters before accessing instance.
 
 # Command Categories
 
@@ -219,7 +221,7 @@ You can also specify an optional command category for each command:
 
 module.exports = {
   category: 'Fun',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -283,7 +285,7 @@ module.exports = {
   init: (client, instance) => {
     console.log('ran only one time when the bot starts up')
   },
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -305,7 +307,7 @@ module.exports = {
   minArgs: 0,
   maxArgs: 0,
   syntaxError: 'Incorrect syntax! Use `{PREFIX}ping`',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -321,7 +323,7 @@ module.exports = {
   minArgs: 1,
   maxArgs: -1, // -1 means no limit
   syntaxError: "Incorrect syntax! Use `{PREFIX}ping <Target user's @>`",
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -373,7 +375,7 @@ After that you can specify a command to only work for owners like so:
 
 module.exports = {
   ownerOnly: true,
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   },
 }
@@ -388,7 +390,7 @@ The WOKCommands package ships with a dynamic help menu out of the box, however e
 // File: "./help.js"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     instance.commandHandler.commands.forEach((command) => {
       console.log(command)
     })
@@ -419,7 +421,7 @@ Sometimes you will want to require a Discord permission node before a user can r
 module.exports = {
   maxArgs: 0,
   requiredPermissions: ['ADMINISTRATOR'],
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('hello')
   },
 }
@@ -451,7 +453,7 @@ WOKCommands makes it easy to provide per-user cooldowns. These will only affect 
 
 module.exports = {
   cooldown: '60s',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -480,7 +482,7 @@ Some use cases might require a global cooldown over all users for a specific ser
 
 module.exports = {
   globalCooldown: '10m',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -560,7 +562,7 @@ You should not load text from your `messages.json` file directly, instead there 
 // Folder "./commands"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     const { guild } = message
     message.reply(instance.messageHandler.get(guild, 'EXAMPLE'))
   },
@@ -588,7 +590,7 @@ You can then dynamically insert values like so:
 // Folder "./commands"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     const { guild } = message
     message.reply(instance.messageHandler.get(guild, 'EXAMPLE', {
       TEST: 'hello world'
@@ -622,7 +624,7 @@ module.exports = {
   minArgs: 1,
   maxArgs: -1, // -1 means no limit
   expectedArgs: "<Target user's @>",
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
