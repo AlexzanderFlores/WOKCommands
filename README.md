@@ -16,6 +16,7 @@
 - [Argument Rules](#argument-rules)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
 - [Bot Owner Only Commands](#bot-owner-only-commands)
+- [Guild Only Commands](#guild-only-commands)
 - [Custom Dynamic Help Menu](#custom-dynamic-help-menu)
 - [Enable or Disable a Command](#enable-or-disable-a-command)
 - [Required Permissions](#required-permissions)
@@ -47,7 +48,7 @@ npm install github:AlexzanderFlores/WOKCommands#dev
 
 # Setup
 
-After you have installed WOKCommands there is a simple setup process:
+After you have installed WOKCommands there is a simple setup process. You have the ability to pass in an options object to customize WOKCommands:
 
 ```JS
 const DiscordJS = require('discord.js')
@@ -59,30 +60,7 @@ const client = new DiscordJS.Client({
 })
 
 client.on('ready', () => {
-  // Initialize WOKCommands
-  new WOKCommands(client)
-})
-
-client.login(process.env.TOKEN)
-```
-
-You might want to specify your commands and features folder, as well as other options. The constructor can take in an `options` argument where it looks for this information.
-
-This next example assumes you are using a local `commands` folder for your command files, a local `features` folder for event listener files, and that your MongoDB connection path is located within your `.env` file as `MONGO_URI`.
-
-```JS
-const DiscordJS = require('discord.js')
-const WOKCommands = require('wokcommands')
-require('dotenv').config()
-
-const client = new DiscordJS.Client({
-  partials: ['MESSAGE', 'REACTION'],
-})
-
-client.on('ready', () => {
-  const showStartupWarnings = true
-
-  // See "Language Support"
+  // See the "Language Support" section of this documentation
   // An empty string = ignored
   const messagesPath = ''
 
@@ -100,11 +78,12 @@ client.on('ready', () => {
     commandsDir: 'commands',
     featureDir: 'features',
     messagesPath,
-    showWarns: showStartupWarnings,
+    showWarns: true, // Show start up warnings
     dbOptions
   })
+    // Set your MongoDB connection path
     .setMongoPath(process.env.MONGO_URI)
-    // Set the default prefix for your bot
+    // Set the default prefix for your bot, it is ! by default
     .setDefaultPrefix('!')
     // Set the embed color for your bot. The default help menu will use this. This hex value can be a string too
     .setColor(0xff0000)
@@ -150,7 +129,7 @@ module.exports = (client, instance) => {
 module.exports.config = {
   displayName: 'Test', // Can be changed any time
   dbName: 'TEST', // Should be unique and NEVER be changed once set
-  loadDBFirst: true,
+  loadDBFirst: true, // Wait for the database connection to be present
 }
 ```
 
@@ -386,6 +365,22 @@ After that you can specify a command to only work for owners like so:
 
 module.exports = {
   ownerOnly: true,
+  callback: ({ message }) => {
+    message.reply('pong')
+  },
+}
+```
+
+# Guild Only Commands
+
+Often times you will want to make a command only work within guilds and not within direct messages. You can easily do this by specifying "guildOnly" like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  guildOnly: true,
   callback: ({ message }) => {
     message.reply('pong')
   },
