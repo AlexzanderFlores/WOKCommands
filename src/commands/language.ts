@@ -1,5 +1,4 @@
-import { Client, Message } from 'discord.js'
-import WOKCommands from '..'
+import ICommandArguments from '../interfaces/ICommandArguments'
 import languageSchema from '../models/languages'
 
 export = {
@@ -10,14 +9,9 @@ export = {
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the language for this Discord server',
   category: 'Configuration',
-  callback: async (
-    message: Message,
-    args: string[],
-    text: string,
-    client: Client,
-    prefix: string,
-    instance: WOKCommands
-  ) => {
+  callback: async (options: ICommandArguments) => {
+    const { message, text, instance } = options
+
     const { guild } = message
     if (!guild) {
       return

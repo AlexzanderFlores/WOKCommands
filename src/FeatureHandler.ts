@@ -4,15 +4,6 @@ import WOKCommands from '.'
 
 import getAllFiles from './get-all-files'
 
-const loadFeature = (
-  func: Function,
-  client: Client,
-  instance: WOKCommands,
-  isEnabled: Function
-) => {
-  func(client, instance, isEnabled)
-}
-
 class FeatureHandler {
   private _features: Map<String, String[]> = new Map() // <Feature name, Disabled GuildIDs>
 
@@ -36,9 +27,13 @@ class FeatureHandler {
 
             for (const [file, fileName] of files) {
               const { default: func, config } = await import(file)
+              let testOnly = false
 
               if (config) {
                 const { displayName, dbName } = config
+                if (config.testOnly) {
+                  testOnly = true
+                }
 
                 const missing = []
                 if (!displayName) missing.push('displayName')
@@ -57,6 +52,10 @@ class FeatureHandler {
 
               if (typeof func === 'function') {
                 const isEnabled = (guildId: string) => {
+                  if (testOnly && !instance.testServers.includes(guildId)) {
+                    return false
+                  }
+
                   return this.isEnabled(guildId, file)
                 }
 
@@ -70,7 +69,7 @@ class FeatureHandler {
                   continue
                 }
 
-                loadFeature(func, client, instance, isEnabled)
+                func(client, instance, isEnabled)
               }
             }
 
@@ -82,7 +81,7 @@ class FeatureHandler {
                   instance,
                   isEnabled,
                 } of waitingForDB) {
-                  loadFeature(func, client, instance, isEnabled)
+                  func(client, instance, isEnabled)
                 }
               }
             })

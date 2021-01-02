@@ -1,5 +1,6 @@
-import { Client, Guild, Message, MessageEmbed } from 'discord.js'
-import WOKCommands from '../'
+import { Client, Message, MessageEmbed } from 'discord.js'
+import WOKCommands from '..'
+import ICommandArguments from '../interfaces/ICommandArguments'
 
 const pageLimit = 3
 
@@ -38,9 +39,10 @@ const getFirstEmbed = (message: Message, instance: WOKCommands) => {
 
   // TODO: See if I can use the commandHandler.getCommandsByCategory method instead
   // possibly duplicate code
-  for (const { category } of commands) {
+  for (const { category, testOnly } of commands) {
     if (
       !category ||
+      (testOnly && guild && !instance.testServers.includes(guild.id)) ||
       (!isAdmin && instance.hiddenCategories.includes(category))
     ) {
       continue
@@ -143,6 +145,7 @@ module.exports = {
                 message,
                 instance
               )
+
               embed.setDescription(newEmbed.description)
               embed.setFooter('')
               message.edit(embed)
@@ -220,8 +223,10 @@ module.exports = {
               let { description, hidden, category, names, syntax } = command
 
               if (!hidden && category === category) {
-                // TODO: Should I check if this is a string?
-                names = [...names]
+                if (typeof names === 'string') {
+                  // @ts-ignore
+                  names = [...names]
+                }
                 const mainName = names.shift()
 
                 desc += `\n\n#${++counter}) **${mainName}**${
@@ -261,14 +266,23 @@ module.exports = {
       }
     })
   },
-  callback: (
-    message: Message,
-    args: string[],
-    text: string,
-    client: Client,
-    prefix: string,
-    instance: WOKCommands
-  ) => {
+  callback: (options: ICommandArguments) => {
+    const { message, instance } = options
+
+    const guild = message.guild
+
+    if (guild && !guild.me?.hasPermission('SEND_MESSAGES')) {
+      console.warn(
+        `WOKCommands > Could not send message due to no permissions in channel for ${guild.name}`
+      )
+      return
+    }
+
+    if (guild && !guild.me?.hasPermission('ADD_REACTIONS')) {
+      message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'))
+      return
+    }
+
     const { embed, reactions } = getFirstEmbed(message, instance)
 
     message.channel

@@ -68,6 +68,7 @@ class CommandHandler {
                   }
 
                   const { member, author: user } = message
+
                   const {
                     minArgs,
                     maxArgs,
@@ -75,7 +76,16 @@ class CommandHandler {
                     requiredPermissions = [],
                     cooldown,
                     globalCooldown,
+                    testOnly,
                   } = command
+
+                  if (
+                    testOnly &&
+                    (!guild || !instance.testServers.includes(guild.id))
+                  ) {
+                    return
+                  }
+
                   if (guild && member) {
                     for (const perm of requiredPermissions) {
                       // @ts-ignore
@@ -232,6 +242,7 @@ class CommandHandler {
       run,
       description,
       requiredPermissions,
+      testOnly,
     } = configuration
 
     let callbackCounter = 0
@@ -289,6 +300,12 @@ class CommandHandler {
       )
     }
 
+    if (testOnly && !instance.testServers.length) {
+      console.warn(
+        `WOKCommands > Command "${names[0]}" has "testOnly" set to true, but no test servers are defined.`
+      )
+    }
+
     const hasCallback = callback || execute || run
 
     if (hasCallback) {
@@ -322,6 +339,7 @@ class CommandHandler {
         description = '',
         expectedArgs = '',
         hidden = false,
+        testOnly = false,
       }) => {
         if (!added.includes(names[0])) {
           results.push({
@@ -330,6 +348,7 @@ class CommandHandler {
             description,
             syntax: expectedArgs,
             hidden,
+            testOnly,
           })
 
           added.push(names[0])

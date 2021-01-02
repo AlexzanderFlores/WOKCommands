@@ -1,7 +1,7 @@
 import { Client, Message } from 'discord.js'
 import WOKCommands from '.'
 
-import ICmdConfig from './interfaces/ICmdConfig'
+import ICommand from './interfaces/ICommand'
 import cooldownSchema from './models/cooldown'
 
 class Command {
@@ -28,6 +28,7 @@ class Command {
   private _ownerOnly = false
   private _hidden = false
   private _guildOnly = false
+  private _testOnly = false
 
   constructor(
     instance: WOKCommands,
@@ -44,10 +45,11 @@ class Command {
       requiredPermissions,
       cooldown,
       globalCooldown,
-      ownerOnly,
-      hidden,
-      guildOnly,
-    }: ICmdConfig
+      ownerOnly = false,
+      hidden = false,
+      guildOnly = false,
+      testOnly = false,
+    }: ICommand
   ) {
     this.instance = instance
     this.client = client
@@ -72,6 +74,7 @@ class Command {
     this._ownerOnly = ownerOnly
     this._hidden = hidden
     this._guildOnly = guildOnly
+    this._testOnly = testOnly
     this._callback = callback
 
     if (this.cooldown && this.globalCooldown) {
@@ -125,14 +128,14 @@ class Command {
       return
     }
 
-    this._callback(
+    this._callback({
       message,
       args,
-      args.join(' '),
-      this.client,
-      this.instance.getPrefix(message.guild),
-      this.instance
-    )
+      text: args.join(' '),
+      client: this.client,
+      prefix: this.instance.getPrefix(message.guild),
+      instance: this.instance,
+    })
   }
 
   public get names(): string[] {
@@ -181,6 +184,10 @@ class Command {
 
   public get globalCooldown(): string {
     return this._globalCooldown
+  }
+
+  public get testOnly(): boolean {
+    return this._testOnly
   }
 
   public verifyCooldown(cooldown: string, type: string) {

@@ -8,6 +8,15 @@ import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
 
+type Options = {
+  commandsDir?: string
+  featureDir?: string
+  messagesPath?: string
+  showWarns?: boolean
+  dbOptions?: {}
+  testServers?: string | string[]
+}
+
 class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
@@ -24,21 +33,25 @@ class WOKCommands extends EventEmitter {
   private _tagPeople = true
   private _showWarns = true
   private _botOwner: string[] = []
+  private _testServers: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
 
-  constructor(
-    client: Client,
-    commandsDir?: string,
-    featureDir?: string,
-    messagesPath?: string,
-    showWarns = true
-  ) {
+  constructor(client: Client, options: Options) {
     super()
 
     if (!client) {
       throw new Error('No Discord JS Client provided as first argument!')
     }
+
+    let {
+      commandsDir = '',
+      featureDir = '',
+      messagesPath = 'messages.json',
+      showWarns = true,
+      dbOptions,
+      testServers,
+    } = options
 
     const { partials } = client.options
 
@@ -77,6 +90,14 @@ class WOKCommands extends EventEmitter {
       }
     }
 
+    if (testServers) {
+      if (typeof testServers === 'string') {
+        testServers = [testServers]
+      }
+
+      this._testServers = testServers
+    }
+
     this._showWarns = showWarns
     this._commandsDir = commandsDir || this._commandsDir
     this._featureDir = featureDir || this._featureDir
@@ -93,7 +114,7 @@ class WOKCommands extends EventEmitter {
 
     setTimeout(async () => {
       if (this._mongo) {
-        await mongo(this._mongo, this)
+        await mongo(this._mongo, this, dbOptions)
 
         this._mongoConnection = getMongoConnection()
 
@@ -310,6 +331,10 @@ class WOKCommands extends EventEmitter {
     }
     this._botOwner = botOwner
     return this
+  }
+
+  public get testServers(): string[] {
+    return this._testServers
   }
 
   public get defaultLanguage(): string {

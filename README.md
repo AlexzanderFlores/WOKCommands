@@ -16,6 +16,7 @@
 - [Argument Rules](#argument-rules)
 - [Per-server Command Prefixes](#per-server-command-prefixes)
 - [Bot Owner Only Commands](#bot-owner-only-commands)
+- [Guild Only Commands](#guild-only-commands)
 - [Custom Dynamic Help Menu](#custom-dynamic-help-menu)
 - [Enable or Disable a Command](#enable-or-disable-a-command)
 - [Required Permissions](#required-permissions)
@@ -28,6 +29,7 @@
   - [Loading message text](##-loading-message-text)
   - [Global Syntax Errors](##global-syntax-errors)
 - [Events](#events)
+- [Test Servers](#test-servers)
 - [Support & Feature Requests](#support--feature-requests)
 
 # Installation
@@ -46,7 +48,7 @@ npm install github:AlexzanderFlores/WOKCommands#dev
 
 # Setup
 
-After you have installed WOKCommands there is a simple setup process:
+After you have installed WOKCommands there is a simple setup process. You have the ability to pass in an options object to customize WOKCommands:
 
 ```JS
 const DiscordJS = require('discord.js')
@@ -58,37 +60,30 @@ const client = new DiscordJS.Client({
 })
 
 client.on('ready', () => {
-  // Initialize WOKCommands
-  new WOKCommands(client)
-})
-
-client.login(process.env.TOKEN)
-```
-
-You might want to specify your commands and features folder, as well as your MongoDB connection path.
-
-This next example assumes you are using a local `commands` folder for your command files, a local `features` folder for event listener files, and that your MongoDB connection path is located within your `.env` file as `MONGO_URI`.
-
-```JS
-const DiscordJS = require('discord.js')
-const WOKCommands = require('wokcommands')
-require('dotenv').config()
-
-const client = new DiscordJS.Client({
-  partials: ['MESSAGE', 'REACTION'],
-})
-
-client.on('ready', () => {
-  const showStartupWarnings = true
-
-  // See "Language Support"
+  // See the "Language Support" section of this documentation
   // An empty string = ignored
   const messagesPath = ''
 
+  // Used to configure the database connection.
+  // These are the default options but you can overwrite them
+  const dbOptions = {
+    keepAlive: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  },
+
   // Initialize WOKCommands with specific folders and MongoDB
-  new WOKCommands(client, 'commands', 'features', messagesPath, showStartupWarnings)
+  new WOKCommands(client, {
+    commandsDir: 'commands',
+    featureDir: 'features',
+    messagesPath,
+    showWarns: true, // Show start up warnings
+    dbOptions
+  })
+    // Set your MongoDB connection path
     .setMongoPath(process.env.MONGO_URI)
-    // Set the default prefix for your bot
+    // Set the default prefix for your bot, it is ! by default
     .setDefaultPrefix('!')
     // Set the embed color for your bot. The default help menu will use this. This hex value can be a string too
     .setColor(0xff0000)
@@ -134,7 +129,7 @@ module.exports = (client, instance) => {
 module.exports.config = {
   displayName: 'Test', // Can be changed any time
   dbName: 'TEST', // Should be unique and NEVER be changed once set
-  loadDBFirst: true,
+  loadDBFirst: true, // Wait for the database connection to be present
 }
 ```
 
@@ -146,7 +141,7 @@ module.exports.config = {
 
 # Creating a Command
 
-Creating a command is simple using WOKCommands. The end goal of this package is to support as many command formats as possible. If your commands aren't immediately supported by WOKCommands then please read "Support & Feature Requests"
+Creating a command is simple using WOKCommands:
 
 Here's an example of a basic ping command:
 
@@ -156,7 +151,7 @@ Here's an example of a basic ping command:
 
 module.exports = {
   aliases: ['p'], // Optional
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -174,7 +169,7 @@ module.exports = {
   name: 'ping', // Optional
   commands: ['runping'], // Optional
   aliases: ['p'], // Optional
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -182,7 +177,7 @@ module.exports = {
 
 This will make `!ping`, `!runping`, and `!p` execute the command. There are various popular command formats. This approach of multiple options is meant to help support them out of the box without many changes on your part.
 
-The `callback` function can also be named `run` or `execute`. This function can accept the following parameters:
+The `callback` function can also be named `run` or `execute`. This function has one object parameter with the following properties:
 
 1. `message`: The standard Message object
 2. `args`: An array of all arguments provided with the command
@@ -198,11 +193,13 @@ Example:
 // Folder "./commands"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     message.reply('pong')
   }
 }
 ```
+
+These properties are inside of an object so you can access any of them individually. For example if you need the `instance` then you won't need to access all previous parameters before accessing instance.
 
 # Command Categories
 
@@ -214,7 +211,7 @@ You can also specify an optional command category for each command:
 
 module.exports = {
   category: 'Fun',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -231,7 +228,10 @@ const client = new DiscordJS.Client()
 
 client.on('ready', () => {
   // Initialize WOKCommands with specific folders and MongoDB
-  new WOKCommands(client, 'commands', 'features')
+  new WOKCommands(client, {
+    commandsDir: 'commands',
+    featureDir: 'features'
+  })
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
     // Set the category emoji by using it's settings:
@@ -275,7 +275,7 @@ module.exports = {
   init: (client, instance) => {
     console.log('ran only one time when the bot starts up')
   },
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -297,7 +297,7 @@ module.exports = {
   minArgs: 0,
   maxArgs: 0,
   syntaxError: 'Incorrect syntax! Use `{PREFIX}ping`',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -313,7 +313,7 @@ module.exports = {
   minArgs: 1,
   maxArgs: -1, // -1 means no limit
   syntaxError: "Incorrect syntax! Use `{PREFIX}ping <Target user's @>`",
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -345,7 +345,10 @@ const client = new DiscordJS.Client({
 })
 
 client.on('ready', () => {
-  new WOKCommands(client, 'commands', 'features')
+  new WOKCommands(client, , {
+    commandsDir: 'commands',
+    featureDir: 'features'
+  })
     // Use your own ID of course
     // If you have only 1 ID you can pass in a string instead of an array
     .setBotOwner(['251120969320497153', 'another id', 'another id'])
@@ -362,7 +365,23 @@ After that you can specify a command to only work for owners like so:
 
 module.exports = {
   ownerOnly: true,
-  callback: (message) => {
+  callback: ({ message }) => {
+    message.reply('pong')
+  },
+}
+```
+
+# Guild Only Commands
+
+Often times you will want to make a command only work within guilds and not within direct messages. You can easily do this by specifying "guildOnly" like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  guildOnly: true,
+  callback: ({ message }) => {
     message.reply('pong')
   },
 }
@@ -377,7 +396,7 @@ The WOKCommands package ships with a dynamic help menu out of the box, however e
 // File: "./help.js"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     instance.commandHandler.commands.forEach((command) => {
       console.log(command)
     })
@@ -408,7 +427,7 @@ Sometimes you will want to require a Discord permission node before a user can r
 module.exports = {
   maxArgs: 0,
   requiredPermissions: ['ADMINISTRATOR'],
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('hello')
   },
 }
@@ -440,7 +459,7 @@ WOKCommands makes it easy to provide per-user cooldowns. These will only affect 
 
 module.exports = {
   cooldown: '60s',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -469,7 +488,7 @@ Some use cases might require a global cooldown over all users for a specific ser
 
 module.exports = {
   globalCooldown: '10m',
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -523,7 +542,11 @@ You can find the default `messages.json` here: https://github.com/AlexzanderFlor
 
 ```JS
 // Assumes messages.json is in the same directory as this code's file
-new WOKCommands(client, 'commands', 'features', 'messages.json')
+new WOKCommands(client, , {
+    commandsDir: 'commands',
+    featureDir: 'features',
+    messagesPath: 'messages.json'
+  })
 ```
 
 ## Loading message text
@@ -545,7 +568,7 @@ You should not load text from your `messages.json` file directly, instead there 
 // Folder "./commands"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     const { guild } = message
     message.reply(instance.messageHandler.get(guild, 'EXAMPLE'))
   },
@@ -573,7 +596,7 @@ You can then dynamically insert values like so:
 // Folder "./commands"
 
 module.exports = {
-  callback: (message, args, text, client, prefix, instance) => {
+  callback: ({ message, args, text, client, prefix, instance }) => {
     const { guild } = message
     message.reply(instance.messageHandler.get(guild, 'EXAMPLE', {
       TEST: 'hello world'
@@ -607,7 +630,7 @@ module.exports = {
   minArgs: 1,
   maxArgs: -1, // -1 means no limit
   expectedArgs: "<Target user's @>",
-  callback: (message) => {
+  callback: ({ message }) => {
     message.reply('pong')
   }
 }
@@ -627,7 +650,10 @@ require('dotenv').config()
 const client = new DiscordJS.Client()
 
 client.on('ready', () => {
-  const wok = new WOKCommands(client, 'commands', 'features')
+  const wok = new WOKCommands(client, , {
+    commandsDir: 'commands',
+    featureDir: 'features'
+  })
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
 
@@ -643,6 +669,74 @@ client.on('ready', () => {
 })
 
 client.login(process.env.TOKEN)
+```
+
+# Test Servers
+
+You might not want a command or feature to work while it is still in development. You can specify a test server to prevent in-development code from working.
+
+First you must specify test servers like so:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client({
+  partials: ['MESSAGE', 'REACTION'],
+})
+
+client.on('ready', () => {
+  // Initialize WOKCommands
+  new WOKCommands(client, {
+    // Can be a single string as well
+    testServers: ['747587598712569913'],
+  })
+})
+
+client.login(process.env.TOKEN)
+```
+
+After that you can specify some features and commands as "testOnly" like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  testOnly: true, // Will now only work on test servers
+  callback: ({ message }) => {
+    message.reply('pong')
+  }
+}
+```
+
+```JS
+// File name: "message-logger.js"
+// Folder "./features"
+
+module.exports = (client, instance, isEnabled) => {
+  // Listen for messages
+  client.on('message', (message) => {
+    // Access the guild, required to see if this is enabled
+    const { guild } = message
+
+    // If the guild exists and we are enabled within this guild
+    // Remove the guild checek if you want this to be enabled in DMs
+    if (guild && isEnabled(guild.id)) {
+      // If this is enabled then log the content to the console
+      console.log(message.content)
+    }
+  })
+}
+
+module.exports.config = {
+  displayName: 'Test',
+  dbName: 'TEST',
+  loadDBFirst: true,
+  testOnly: true, // Will now only work on test servers
+}
+
 ```
 
 # Support & Feature Requests

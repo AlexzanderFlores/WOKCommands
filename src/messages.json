@@ -107,7 +107,7 @@
   "SYNTAX_ERROR": {
     "english": "Incorrect usage! Please use \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
     "spanish": "¡Uso incorrecto! Utilice \"{PREFIX} {COMMAND} {ARGUMENTS}\"",
-      "portuguese": "Uso incorreto! Utilize \"{PREFIX} {COMMAND} {ARGUMENTS}\""
+    "portuguese": "Uso incorreto! Utilize \"{PREFIX} {COMMAND} {ARGUMENTS}\""
   },
   "NO_DATABASE_FOUND": {
     "english": "No database connection found!",
@@ -116,7 +116,13 @@
   },
   "GUILD_ONLY_COMMAND": {
     "english": "This command can only be used within a server.",
-    "spanish": "Este comando solo se puede utilizar dentro de un servidor."
+    "spanish": "Este comando solo se puede utilizar dentro de un servidor.",
+    "portuguese": "Este comando só pode ser usado em um servidor."
+  },
+  "NO_REACT_PERMS": {
+    "english": "This bot needs the \"Add Reactions\" permission to use the help menu.",
+    "spanish": "Este bot precisa da permissão \"Adicionar reações\" para usar o menu de ajuda.",
+    "portuguese": "Este bot precisa da permissão \"Adicionar reações\" para usar o menu de ajuda."
   },
   "HELP_MENU": {
     "TITLE": {
