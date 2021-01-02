@@ -538,7 +538,7 @@ Embed:
 }
 ```
 
-You can find the default `messages.json` here: https://github.com/AlexzanderFlores/WOKCommands/blob/main/messages.json. You will also need to define where your `messages.json` file lives in the WOKCommands constructor like so:
+You can find the default `messages.json` here: https://github.com/AlexzanderFlores/WOKCommands/blob/main/src/messages.json. You will also need to define where your `messages.json` file lives in the WOKCommands constructor like so:
 
 ```JS
 // Assumes messages.json is in the same directory as this code's file
