@@ -59,28 +59,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var languages_1 = __importDefault(require("./models/languages"));
+var messages_json_1 = __importDefault(require("./messages.json"));
 var MessageHandler = /** @class */ (function () {
     function MessageHandler(instance, messagePath) {
         var _this = this;
         this._guildLanguages = new Map(); // <Guild ID, Language>
         this._languages = [];
         this._messages = {};
-        messagePath = messagePath || './messages.json';
         this._instance = instance;
         (function () { return __awaiter(_this, void 0, void 0, function () {
-            var _a, _i, _b, messageId, _c, _d, language;
+            var _a, _b, _i, _c, messageId, _d, _e, language;
             var _this = this;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+            return __generator(this, function (_f) {
+                switch (_f.label) {
                     case 0:
                         _a = this;
+                        if (!messagePath) return [3 /*break*/, 2];
                         return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(messagePath)); })];
                     case 1:
-                        _a._messages = _e.sent();
-                        for (_i = 0, _b = Object.keys(this._messages); _i < _b.length; _i++) {
-                            messageId = _b[_i];
-                            for (_c = 0, _d = Object.keys(this._messages[messageId]); _c < _d.length; _c++) {
-                                language = _d[_c];
+                        _b = _f.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        _b = messages_json_1.default;
+                        _f.label = 3;
+                    case 3:
+                        _a._messages = _b;
+                        for (_i = 0, _c = Object.keys(this._messages); _i < _c.length; _i++) {
+                            messageId = _c[_i];
+                            for (_d = 0, _e = Object.keys(this._messages[messageId]); _d < _e.length; _d++) {
+                                language = _e[_d];
                                 this._languages.push(language.toLowerCase());
                             }
                         }

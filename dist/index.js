@@ -99,7 +99,7 @@ var WOKCommands = /** @class */ (function (_super) {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, _c = options.messagesPath, messagesPath = _c === void 0 ? 'messages.json' : _c, _d = options.showWarns, showWarns = _d === void 0 ? true : _d, dbOptions = options.dbOptions, testServers = options.testServers;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, messagesPath = options.messagesPath, _c = options.showWarns, showWarns = _c === void 0 ? true : _c, dbOptions = options.dbOptions, testServers = options.testServers;
         var partials = client.options.partials;
         if (!partials ||
             !partials.includes('MESSAGE') ||

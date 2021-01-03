@@ -47,7 +47,7 @@ class WOKCommands extends EventEmitter {
     let {
       commandsDir = '',
       featureDir = '',
-      messagesPath = 'messages.json',
+      messagesPath,
       showWarns = true,
       dbOptions,
       testServers,
