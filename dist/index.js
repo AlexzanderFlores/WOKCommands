@@ -99,7 +99,7 @@ var WOKCommands = /** @class */ (function (_super) {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, messagesPath = options.messagesPath, _c = options.showWarns, showWarns = _c === void 0 ? true : _c, dbOptions = options.dbOptions, testServers = options.testServers;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, messagesPath = options.messagesPath, _c = options.showWarns, showWarns = _c === void 0 ? true : _c, dbOptions = options.dbOptions, testServers = options.testServers, _d = options.disabledDefaultCommands, disabledDefaultCommands = _d === void 0 ? [] : _d;
         var partials = client.options.partials;
         if (!partials ||
             !partials.includes('MESSAGE') ||
@@ -134,7 +134,10 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._showWarns = showWarns;
         _this._commandsDir = commandsDir || _this._commandsDir;
         _this._featureDir = featureDir || _this._featureDir;
-        _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir);
+        if (typeof disabledDefaultCommands === 'string') {
+            disabledDefaultCommands = [disabledDefaultCommands];
+        }
+        _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir, disabledDefaultCommands);
         if (_this._featureDir) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }

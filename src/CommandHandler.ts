@@ -14,11 +14,20 @@ import cooldown from './models/cooldown'
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
 
-  constructor(instance: WOKCommands, client: Client, dir: string) {
+  constructor(
+    instance: WOKCommands,
+    client: Client,
+    dir: string,
+    disabledDefaultCommands: string[]
+  ) {
     // Register built in commands
     for (const [file, fileName] of getAllFiles(
       path.join(__dirname, 'commands')
     )) {
+      if (disabledDefaultCommands.includes(fileName)) {
+        continue
+      }
+
       this.registerCommand(instance, client, file, fileName)
     }
 

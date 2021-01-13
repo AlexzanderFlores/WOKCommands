@@ -73,13 +73,24 @@ client.on('ready', () => {
     useFindAndModify: false,
   }
 
+  // If you want to disable built in commands you can add them to this array. Simply uncomment the strings to disable that command.
+
+  const disabledDefaultCommands = [
+    // 'help',
+    // 'command',
+    // 'language',
+    // 'prefix',
+    // 'requiredrole'
+  ]
+
   // Initialize WOKCommands with specific folders and MongoDB
   new WOKCommands(client, {
     commandsDir: 'commands',
     featureDir: 'features',
     messagesPath,
     showWarns: true, // Show start up warnings
-    dbOptions
+    dbOptions,
+    disabledDefaultCommands
   })
     // Set your MongoDB connection path
     .setMongoPath(process.env.MONGO_URI)

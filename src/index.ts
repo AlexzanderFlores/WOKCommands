@@ -15,6 +15,7 @@ type Options = {
   showWarns?: boolean
   dbOptions?: {}
   testServers?: string | string[]
+  disabledDefaultCommands: string | string[]
 }
 
 class WOKCommands extends EventEmitter {
@@ -51,6 +52,7 @@ class WOKCommands extends EventEmitter {
       showWarns = true,
       dbOptions,
       testServers,
+      disabledDefaultCommands = [],
     } = options
 
     const { partials } = client.options
@@ -102,7 +104,16 @@ class WOKCommands extends EventEmitter {
     this._commandsDir = commandsDir || this._commandsDir
     this._featureDir = featureDir || this._featureDir
 
-    this._commandHandler = new CommandHandler(this, client, this._commandsDir)
+    if (typeof disabledDefaultCommands === 'string') {
+      disabledDefaultCommands = [disabledDefaultCommands]
+    }
+
+    this._commandHandler = new CommandHandler(
+      this,
+      client,
+      this._commandsDir,
+      disabledDefaultCommands
+    )
     if (this._featureDir) {
       this._featureHandler = new FeatureHandler(client, this, this._featureDir)
     }

@@ -54,12 +54,15 @@ var required_roles_1 = __importDefault(require("./models/required-roles"));
 var permissions_1 = __importDefault(require("./permissions"));
 var cooldown_1 = __importDefault(require("./models/cooldown"));
 var CommandHandler = /** @class */ (function () {
-    function CommandHandler(instance, client, dir) {
+    function CommandHandler(instance, client, dir, disabledDefaultCommands) {
         var _this = this;
         this._commands = new Map();
         // Register built in commands
         for (var _i = 0, _a = get_all_files_1.default(path_1.default.join(__dirname, 'commands')); _i < _a.length; _i++) {
             var _b = _a[_i], file = _b[0], fileName = _b[1];
+            if (disabledDefaultCommands.includes(fileName)) {
+                continue;
+            }
             this.registerCommand(instance, client, file, fileName);
         }
         if (dir) {
