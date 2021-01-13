@@ -71,7 +71,7 @@ client.on('ready', () => {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
-  },
+  }
 
   // Initialize WOKCommands with specific folders and MongoDB
   new WOKCommands(client, {

@@ -1,6 +1,7 @@
 import languageSchema from './models/languages'
 import { Guild } from 'discord.js'
 import WOKCommands from '.'
+import defualtMessages from './messages.json'
 
 export default class MessageHandler {
   private _instance: WOKCommands
@@ -13,11 +14,9 @@ export default class MessageHandler {
   } = {}
 
   constructor(instance: WOKCommands, messagePath: string) {
-    messagePath = messagePath || './messages.json'
-
     this._instance = instance
     ;(async () => {
-      this._messages = await import(messagePath)
+      this._messages = messagePath ? await import(messagePath) : defualtMessages
 
       for (const messageId of Object.keys(this._messages)) {
         for (const language of Object.keys(this._messages[messageId])) {
