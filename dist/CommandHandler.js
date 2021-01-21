@@ -51,8 +51,8 @@ var Command_1 = __importDefault(require("./Command"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
 var disabled_commands_1 = __importDefault(require("./models/disabled-commands"));
 var required_roles_1 = __importDefault(require("./models/required-roles"));
-var permissions_1 = __importDefault(require("./permissions"));
 var cooldown_1 = __importDefault(require("./models/cooldown"));
+var permissions_1 = require("./permissions");
 var CommandHandler = /** @class */ (function () {
     function CommandHandler(instance, client, dir, disabledDefaultCommands) {
         var _this = this;
@@ -98,14 +98,14 @@ var CommandHandler = /** @class */ (function () {
                                         }
                                     }
                                     var member = message.member, user = message.author;
-                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, _a = command.requiredPermissions, requiredPermissions = _a === void 0 ? [] : _a, cooldown_2 = command.cooldown, globalCooldown = command.globalCooldown, testOnly = command.testOnly;
+                                    var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, requiredPermissions = command.requiredPermissions, cooldown_2 = command.cooldown, globalCooldown = command.globalCooldown, testOnly = command.testOnly;
                                     if (testOnly &&
                                         (!guild || !instance.testServers.includes(guild.id))) {
                                         return;
                                     }
                                     if (guild && member) {
-                                        for (var _i = 0, requiredPermissions_1 = requiredPermissions; _i < requiredPermissions_1.length; _i++) {
-                                            var perm = requiredPermissions_1[_i];
+                                        for (var _i = 0, _a = requiredPermissions || []; _i < _a.length; _i++) {
+                                            var perm = _a[_i];
                                             // @ts-ignore
                                             if (!member.hasPermission(perm)) {
                                                 message.reply(instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
@@ -221,7 +221,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         var configuration = require(file);
-        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions, testOnly = configuration.testOnly;
+        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly;
         var callbackCounter = 0;
         if (callback)
             ++callbackCounter;
@@ -242,11 +242,11 @@ var CommandHandler = /** @class */ (function () {
         if (name && !names.includes(name.toLowerCase())) {
             names.unshift(name.toLowerCase());
         }
-        if (requiredPermissions) {
-            for (var _i = 0, requiredPermissions_2 = requiredPermissions; _i < requiredPermissions_2.length; _i++) {
-                var perm = requiredPermissions_2[_i];
-                if (!permissions_1.default.includes(perm)) {
-                    throw new Error("Command located at \"" + file + "\" has an invalid permission node: \"" + perm + "\". Permissions must be all upper case and be one of the following: \"" + __spreadArrays(permissions_1.default).join('", "') + "\"");
+        if (requiredPermissions || permissions) {
+            for (var _i = 0, _b = requiredPermissions || permissions; _i < _b.length; _i++) {
+                var perm = _b[_i];
+                if (!permissions_1.permissionList.includes(perm)) {
+                    throw new Error("Command located at \"" + file + "\" has an invalid permission node: \"" + perm + "\". Permissions must be all upper case and be one of the following: \"" + __spreadArrays(permissions_1.permissionList).join('", "') + "\"");
                 }
             }
         }
@@ -269,8 +269,8 @@ var CommandHandler = /** @class */ (function () {
                 init(client, instance);
             }
             var command = new Command_1.default(instance, client, names, hasCallback, configuration);
-            for (var _b = 0, names_1 = names; _b < names_1.length; _b++) {
-                var name_3 = names_1[_b];
+            for (var _c = 0, names_1 = names; _c < names_1.length; _c++) {
+                var name_3 = names_1[_c];
                 // Ensure the alias is lower case because we read as lower case later on
                 this._commands.set(name_3.toLowerCase(), command);
             }

@@ -23,6 +23,7 @@ const getFirstEmbed = (message: Message, instance: WOKCommands) => {
     .setDescription(
       messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY')
     )
+    .setFooter(`ID #${message.author.id}`)
 
   if (instance.color) {
     embed.setColor(instance.color)
@@ -131,6 +132,15 @@ module.exports = {
             ? instance.displayName + ' '
             : ''
 
+          if (embed.footer) {
+            const { text } = embed.footer
+            const id = text?.split('#')[1]
+            if (id !== user.id) {
+              reaction.users.remove(user.id)
+              return
+            }
+          }
+
           if (
             embed.title ===
             `${displayName}${instance.messageHandler.getEmbed(
@@ -147,7 +157,6 @@ module.exports = {
               )
 
               embed.setDescription(newEmbed.description)
-              embed.setFooter('')
               message.edit(embed)
               message.reactions.removeAll()
               addReactions(message, reactions)
@@ -251,8 +260,9 @@ module.exports = {
               }
             }
 
+            desc += `\n\nPage ${page} / ${maxPages}.`
+
             embed.setDescription(desc)
-            embed.setFooter(`Page ${page} / ${maxPages}.`)
             message.edit(embed)
 
             message.reactions.removeAll()

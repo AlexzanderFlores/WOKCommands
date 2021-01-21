@@ -8,8 +8,8 @@ import getAllFiles from './get-all-files'
 import ICommand from './interfaces/ICommand'
 import disabledCommands from './models/disabled-commands'
 import requiredRoles from './models/required-roles'
-import permissions from './permissions'
 import cooldown from './models/cooldown'
+import { permissionList } from './permissions'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
@@ -82,7 +82,7 @@ class CommandHandler {
                     minArgs,
                     maxArgs,
                     expectedArgs,
-                    requiredPermissions = [],
+                    requiredPermissions,
                     cooldown,
                     globalCooldown,
                     testOnly,
@@ -96,7 +96,7 @@ class CommandHandler {
                   }
 
                   if (guild && member) {
-                    for (const perm of requiredPermissions) {
+                    for (const perm of requiredPermissions || []) {
                       // @ts-ignore
                       if (!member.hasPermission(perm)) {
                         message.reply(
@@ -251,6 +251,7 @@ class CommandHandler {
       run,
       description,
       requiredPermissions,
+      permissions,
       testOnly,
     } = configuration
 
@@ -281,12 +282,12 @@ class CommandHandler {
       names.unshift(name.toLowerCase())
     }
 
-    if (requiredPermissions) {
-      for (const perm of requiredPermissions) {
-        if (!permissions.includes(perm)) {
+    if (requiredPermissions || permissions) {
+      for (const perm of requiredPermissions || permissions) {
+        if (!permissionList.includes(perm)) {
           throw new Error(
             `Command located at "${file}" has an invalid permission node: "${perm}". Permissions must be all upper case and be one of the following: "${[
-              ...permissions,
+              ...permissionList,
             ].join('", "')}"`
           )
         }

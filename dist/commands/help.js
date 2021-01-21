@@ -50,7 +50,8 @@ var getFirstEmbed = function (message, instance) {
     var commands = instance.commandHandler.commands, messageHandler = instance.messageHandler;
     var embed = new discord_js_1.MessageEmbed()
         .setTitle(instance.displayName + " " + messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE'))
-        .setDescription(messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY'));
+        .setDescription(messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY'))
+        .setFooter("ID #" + message.author.id);
     if (instance.color) {
         embed.setColor(instance.color);
     }
@@ -114,7 +115,7 @@ module.exports = {
     category: 'Help',
     init: function (client, instance) {
         client.on('messageReactionAdd', function (reaction, user) { return __awaiter(void 0, void 0, void 0, function () {
-            var message, embeds, guild, embed, displayName, emoji, _a, newEmbed, reactions, category, commandsString, split, cmdStr, commands, hasMultiplePages, desc, page, maxPages, start, a, counter, command, description, hidden, category_1, names, syntax, mainName;
+            var message, embeds, guild, embed, displayName, text, id, emoji, _a, newEmbed, reactions, category, commandsString, split, cmdStr, commands, hasMultiplePages, desc, page, maxPages, start, a, counter, command, description, hidden, category_1, names, syntax, mainName;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -132,13 +133,20 @@ module.exports = {
                                 displayName = instance.displayName
                                     ? instance.displayName + ' '
                                     : '';
+                                if (embed.footer) {
+                                    text = embed.footer.text;
+                                    id = text === null || text === void 0 ? void 0 : text.split('#')[1];
+                                    if (id !== user.id) {
+                                        reaction.users.remove(user.id);
+                                        return [2 /*return*/];
+                                    }
+                                }
                                 if (embed.title ===
                                     "" + displayName + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE')) {
                                     emoji = reaction.emoji.name;
                                     if (emoji === '🚪') {
                                         _a = getFirstEmbed(message, instance), newEmbed = _a.embed, reactions = _a.reactions;
                                         embed.setDescription(newEmbed.description);
-                                        embed.setFooter('');
                                         message.edit(embed);
                                         message.reactions.removeAll();
                                         addReactions(message, reactions);
@@ -195,8 +203,8 @@ module.exports = {
                                             desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'SYNTAX') + ": \"" + instance.getPrefix(guild) + mainName + (syntax ? ' ' : '') + syntax + "\"";
                                         }
                                     }
+                                    desc += "\n\nPage " + page + " / " + maxPages + ".";
                                     embed.setDescription(desc);
-                                    embed.setFooter("Page " + page + " / " + maxPages + ".");
                                     message.edit(embed);
                                     message.reactions.removeAll();
                                     if (hasMultiplePages) {

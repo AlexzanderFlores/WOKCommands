@@ -437,7 +437,7 @@ Sometimes you will want to require a Discord permission node before a user can r
 
 module.exports = {
   maxArgs: 0,
-  requiredPermissions: ['ADMINISTRATOR'],
+  permissions: ['ADMINISTRATOR'],
   callback: ({ message }) => {
     message.reply('hello')
   },
