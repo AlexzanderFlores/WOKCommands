@@ -199,8 +199,12 @@ module.exports = {
             }
 
             let page = 1
-            if (embed && embed.footer && embed.footer.text) {
-              page = parseInt(embed.footer.text.split(' ')[1])
+            if (embed && embed.description) {
+              const split = embed.description.split('\n')
+              const lastLine = split[split.length - 1]
+              if (lastLine.startsWith('Page ')) {
+                page = parseInt(lastLine.split(' ')[1])
+              }
             }
 
             const maxPages = Math.ceil(commands.length / pageLimit)

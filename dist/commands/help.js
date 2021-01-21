@@ -115,7 +115,7 @@ module.exports = {
     category: 'Help',
     init: function (client, instance) {
         client.on('messageReactionAdd', function (reaction, user) { return __awaiter(void 0, void 0, void 0, function () {
-            var message, embeds, guild, embed, displayName, text, id, emoji, _a, newEmbed, reactions, category, commandsString, split, cmdStr, commands, hasMultiplePages, desc, page, maxPages, start, a, counter, command, description, hidden, category_1, names, syntax, mainName;
+            var message, embeds, guild, embed, displayName, text, id, emoji, _a, newEmbed, reactions, category, commandsString, split, cmdStr, commands, hasMultiplePages, desc, page, split, lastLine, maxPages, start, a, counter, command, description, hidden, category_1, names, syntax, mainName;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
@@ -168,8 +168,12 @@ module.exports = {
                                         desc += "\n\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'DESCRIPTION_SECOND_LINE');
                                     }
                                     page = 1;
-                                    if (embed && embed.footer && embed.footer.text) {
-                                        page = parseInt(embed.footer.text.split(' ')[1]);
+                                    if (embed && embed.description) {
+                                        split = embed.description.split('\n');
+                                        lastLine = split[split.length - 1];
+                                        if (lastLine.startsWith('Page ')) {
+                                            page = parseInt(lastLine.split(' ')[1]);
+                                        }
                                     }
                                     maxPages = Math.ceil(commands.length / pageLimit);
                                     if (emoji === '⬅') {
