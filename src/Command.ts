@@ -105,7 +105,7 @@ class Command {
 
     if (this._maxArgs !== -1 && this._maxArgs < this._minArgs) {
       throw new Error(
-        `Command "${names[0]}" has a maximum argument count less than it's minimum argument count!`
+        `Command "${names[0]}" has a maximum argument count less than its minimum argument count!`
       )
     }
   }

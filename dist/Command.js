@@ -98,7 +98,7 @@ var Command = /** @class */ (function () {
             throw new Error("Command \"" + names[0] + "\" has a maximum argument count less than -1!");
         }
         if (this._maxArgs !== -1 && this._maxArgs < this._minArgs) {
-            throw new Error("Command \"" + names[0] + "\" has a maximum argument count less than it's minimum argument count!");
+            throw new Error("Command \"" + names[0] + "\" has a maximum argument count less than its minimum argument count!");
         }
     }
     Command.prototype.execute = function (message, args) {

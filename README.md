@@ -234,7 +234,7 @@ client.on('ready', () => {
   })
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
-    // Set the category emoji by using it's settings:
+    // Set the category emoji by using its settings:
     .setCategorySettings([
       {
         name: 'Fun',
@@ -329,7 +329,7 @@ Allowing server owners to configure your bot's prefix will help prevent prefix c
 
 `!prefix [NEW PREFIX]`
 
-The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as it's command prefix.
+The `NEW PREFIX` argument is optional, and omitting it will simply display the current prefix. By default WOKCommands uses "!" as its command prefix.
 
 # Bot Owner Only Commands
 

@@ -62,7 +62,7 @@ class WOKCommands extends EventEmitter {
     ) {
       if (showWarns) {
         console.warn(
-          `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
+          `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to its help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
         )
       }
     }
