@@ -320,6 +320,9 @@ var CommandHandler = /** @class */ (function () {
         if (typeof names === 'string') {
             names = [names];
         }
+        if (typeof name !== 'string') {
+            throw new Error("Command located at \"" + file + "\" does not have a string as a name.");
+        }
         if (name && !names.includes(name.toLowerCase())) {
             names.unshift(name.toLowerCase());
         }
