@@ -1,7 +1,9 @@
 import languageSchema from './models/languages'
 import { Guild } from 'discord.js'
 import WOKCommands from '.'
+
 import defualtMessages from './messages.json'
+import Events from './enums/Events'
 
 export default class MessageHandler {
   private _instance: WOKCommands
@@ -24,7 +26,7 @@ export default class MessageHandler {
         }
       }
 
-      instance.on('databaseConnected', async (connection, state) => {
+      instance.on(Events.DATABASE_CONNECTED, async (connection, state) => {
         if (state !== 'Connected') {
           return
         }

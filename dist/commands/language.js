@@ -39,6 +39,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 var languages_1 = __importDefault(require("../models/languages"));
+var Events_1 = __importDefault(require("../enums/Events"));
 module.exports = {
     aliases: ['lang'],
     maxArgs: 1,
@@ -73,7 +74,7 @@ module.exports = {
                         message.reply(messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
                             LANGUAGE: lang,
                         }));
-                        instance.emit('languageNotSupported', message, lang);
+                        instance.emit(Events_1.default.LANGUAGE_NOT_SUPPORTED, message, lang);
                         return [2 /*return*/];
                     }
                     instance.messageHandler.setLanguage(guild, lang);

@@ -76,6 +76,7 @@ var FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 var mongo_1 = __importStar(require("./mongo"));
 var prefixes_1 = __importDefault(require("./models/prefixes"));
 var message_handler_1 = __importDefault(require("./message-handler"));
+var Events_1 = __importDefault(require("./enums/Events"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
     function WOKCommands(client, options) {
@@ -167,7 +168,7 @@ var WOKCommands = /** @class */ (function (_super) {
                         if (showWarns) {
                             console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
                         }
-                        this.emit('databaseConnected', null, '');
+                        this.emit(Events_1.default.DATABASE_CONNECTED, null, '');
                         _a.label = 4;
                     case 4: return [2 /*return*/];
                 }

@@ -110,6 +110,13 @@ const addReactions = (message: Message, reactions: string[]) => {
   }
 }
 
+const canRemoveReaction = (message: Message) => {
+  return (
+    message.channel.type !== 'dm' &&
+    message.member?.hasPermission('MANAGE_MESSAGES')
+  )
+}
+
 module.exports = {
   aliases: 'commands',
   maxArgs: 1,
@@ -136,7 +143,9 @@ module.exports = {
             const { text } = embed.footer
             const id = text?.split('#')[1]
             if (id !== user.id) {
-              reaction.users.remove(user.id)
+              if (canRemoveReaction(message)) {
+                reaction.users.remove(user.id)
+              }
               return
             }
           }
@@ -158,7 +167,9 @@ module.exports = {
 
               embed.setDescription(newEmbed.description)
               message.edit(embed)
-              message.reactions.removeAll()
+              if (canRemoveReaction(message)) {
+                message.reactions.removeAll()
+              }
               addReactions(message, reactions)
               return
             }
@@ -211,14 +222,18 @@ module.exports = {
 
             if (emoji === '⬅') {
               if (page <= 1) {
-                reaction.users.remove(user.id)
+                if (canRemoveReaction(message)) {
+                  reaction.users.remove(user.id)
+                }
                 return
               }
 
               --page
             } else if (emoji === '➡') {
               if (page >= maxPages) {
-                reaction.users.remove(user.id)
+                if (canRemoveReaction(message)) {
+                  reaction.users.remove(user.id)
+                }
                 return
               }
 
@@ -269,7 +284,9 @@ module.exports = {
             embed.setDescription(desc)
             message.edit(embed)
 
-            message.reactions.removeAll()
+            if (canRemoveReaction(message)) {
+              message.reactions.removeAll()
+            }
             if (hasMultiplePages) {
               message.react('⬅')
               message.react('➡')

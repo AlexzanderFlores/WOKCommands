@@ -11,6 +11,7 @@
 - [Creating a Feature](#creating-a-feature)
 - [Configuring a Feature](#configuring-a-feature)
 - [Creating a Command](#creating-a-command)
+- [Handling Command Errors](#handling-command-errors)
 - [Command Categories](#command-categories)
 - [Command Initialization Method](#command-initialization-method)
 - [Argument Rules](#argument-rules)
@@ -211,6 +212,47 @@ module.exports = {
 ```
 
 These properties are inside of an object so you can access any of them individually. For example if you need the `instance` then you won't need to access all previous parameters before accessing instance.
+
+# Handling Command Errors
+
+WOKCommands sends an error message by default, however you might want to customize this more and perhaps send an embed instead of a normal message. You can listen to command errors to achieve this.
+
+Here is a list of all command errors you can listen for:
+
+```
+EXCEPTION
+COOLDOWN
+INVALID ARGUMENTS
+MISSING PERMISSIONS
+MISSING ROLES
+COMMAND DISABLED
+```
+
+Each one will provide various pieces of information depending on what the error is. For example "MISSING ROLES" will provide a list of missing roles. "INVALID ARGUMENTS" will provide the arguments the user used in the command.
+
+To listen to command errors you can pass an "error" function in your comamnd object like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+const { MessageEmbed } = require('discord.js')
+
+module.exports = {
+  callback: ({ message }) => {
+    message.reply('pong')
+  },
+  error: ({ error, command, message, info }) => {
+    if (error === 'COMMAND DISABLED') {
+      const embed = new MessageEmbed()
+        .setTitle('Command disabled')
+        .setColor(0xff0000)
+
+      message.reply(embed)
+    }
+  },
+}
+```
 
 # Command Categories
 
@@ -676,6 +718,12 @@ client.on('ready', () => {
   // Ran when a server owner attempts to set a language that you have not supported yet
   wok.on('languageNotSupported', (message, lang) => {
     console.log('Attempted to set language to', lang)
+  })
+
+  // Ran when an exception occurs within a command
+  wok.on('commandException', (command, message, error) => {
+    console.log(`An exception occured when using command "${command.names[0]}"! The error is:`)
+    console.error(error)
   })
 })
 

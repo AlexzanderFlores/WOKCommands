@@ -1,5 +1,6 @@
 import ICommandArguments from '../interfaces/ICommandArguments'
 import languageSchema from '../models/languages'
+import Events from '../enums/Events'
 
 export = {
   aliases: ['lang'],
@@ -42,7 +43,7 @@ export = {
         })
       )
 
-      instance.emit('languageNotSupported', message, lang)
+      instance.emit(Events.LANGUAGE_NOT_SUPPORTED, message, lang)
 
       return
     }

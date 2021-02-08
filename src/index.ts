@@ -7,6 +7,7 @@ import FeatureHandler from './FeatureHandler'
 import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
+import Events from './enums/Events'
 
 type Options = {
   commandsDir?: string
@@ -143,7 +144,7 @@ class WOKCommands extends EventEmitter {
           )
         }
 
-        this.emit('databaseConnected', null, '')
+        this.emit(Events.DATABASE_CONNECTED, null, '')
       }
     }, 500)
   }

@@ -10,6 +10,8 @@ import disabledCommands from './models/disabled-commands'
 import requiredRoles from './models/required-roles'
 import cooldown from './models/cooldown'
 import { permissionList } from './permissions'
+import CommandErrors from './enums/CommandErrors'
+import Events from './enums/Events'
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map()
@@ -32,195 +34,265 @@ class CommandHandler {
     }
 
     if (dir) {
-      if (fs.existsSync(dir)) {
-        const files = getAllFiles(dir)
-
-        const amount = files.length
-        if (amount > 0) {
-          console.log(
-            `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
-          )
-
-          for (const [file, fileName] of files) {
-            this.registerCommand(instance, client, file, fileName)
-          }
-
-          client.on('message', (message) => {
-            const guild: Guild | null = message.guild
-            let content: string = message.content
-            const prefix = instance.getPrefix(guild)
-
-            if (content.startsWith(prefix)) {
-              // Remove the prefix
-              content = content.substring(prefix.length)
-
-              const args = content.split(/ /g)
-
-              // Remove the "command", leaving just the arguments
-              const firstElement = args.shift()
-
-              if (firstElement) {
-                // Ensure the user input is lower case because it is stored as lower case in the map
-                const name = firstElement.toLowerCase()
-
-                const command = this._commands.get(name)
-                if (command) {
-                  if (guild) {
-                    const isDisabled = command.isDisabled(guild.id)
-
-                    if (isDisabled) {
-                      message.reply(
-                        instance.messageHandler.get(guild, 'DISABLED_COMMAND')
-                      )
-                      return
-                    }
-                  }
-
-                  const { member, author: user } = message
-
-                  const {
-                    minArgs,
-                    maxArgs,
-                    expectedArgs,
-                    requiredPermissions,
-                    cooldown,
-                    globalCooldown,
-                    testOnly,
-                  } = command
-
-                  if (
-                    testOnly &&
-                    (!guild || !instance.testServers.includes(guild.id))
-                  ) {
-                    return
-                  }
-
-                  if (guild && member) {
-                    for (const perm of requiredPermissions || []) {
-                      // @ts-ignore
-                      if (!member.hasPermission(perm)) {
-                        message.reply(
-                          instance.messageHandler.get(
-                            guild,
-                            'MISSING_PERMISSION',
-                            {
-                              PERM: perm,
-                            }
-                          )
-                        )
-                        return
-                      }
-                    }
-
-                    const roles = command.getRequiredRoles(guild.id)
-
-                    if (roles && roles.length) {
-                      let hasRole = false
-
-                      for (const role of roles) {
-                        if (member.roles.cache.has(role)) {
-                          hasRole = true
-                          break
-                        }
-                      }
-
-                      if (!hasRole) {
-                        message.reply(
-                          instance.messageHandler.get(guild, 'MISSING_ROLES')
-                        )
-                        return
-                      }
-                    }
-                  }
-
-                  // Are the proper number of arguments provided?
-                  if (
-                    (minArgs !== undefined && args.length < minArgs) ||
-                    (maxArgs !== undefined &&
-                      maxArgs !== -1 &&
-                      args.length > maxArgs)
-                  ) {
-                    const syntaxError = command.syntaxError || {}
-                    const { messageHandler } = instance
-
-                    let error =
-                      syntaxError[messageHandler.getLanguage(guild)] ||
-                      instance.messageHandler.get(guild, 'SYNTAX_ERROR')
-
-                    // Replace {PREFIX} with the actual prefix
-                    if (error) {
-                      error = error.replace(/{PREFIX}/g, prefix)
-                    }
-
-                    // Replace {COMMAND} with the name of the command that was ran
-                    error = error.replace(/{COMMAND}/g, name)
-
-                    // Replace {ARGUMENTS} with the expectedArgs property from the command
-                    // If one was not provided then replace {ARGUMENTS} with an empty string
-                    error = error.replace(
-                      / {ARGUMENTS}/g,
-                      expectedArgs ? ` ${expectedArgs}` : ''
-                    )
-
-                    // Reply with the local or global syntax error
-                    message.reply(error)
-                    return
-                  }
-
-                  // Check for cooldowns
-                  if ((cooldown || globalCooldown) && user) {
-                    const guildId = guild ? guild.id : 'dm'
-
-                    const timeLeft = command.getCooldownSeconds(
-                      guildId,
-                      user.id
-                    )
-                    if (timeLeft) {
-                      message.reply(
-                        instance.messageHandler.get(guild, 'COOLDOWN', {
-                          COOLDOWN: timeLeft,
-                        })
-                      )
-                      return
-                    }
-
-                    command.setCooldown(guildId, user.id)
-                  }
-
-                  command.execute(message, args)
-                }
-              }
-            }
-          })
-
-          // If we cannot connect to a database then ensure all cooldowns are less than 5m
-          instance.on('databaseConnected', (connection, state) => {
-            this._commands.forEach(async (command) => {
-              const connected = state === 'Connected'
-              command.verifyDatabaseCooldowns(connected)
-
-              // Load previously used cooldowns
-              if (connected) {
-                await this.fetchDisabledCommands()
-                await this.fetchRequiredRoles()
-
-                const results = await cooldown.find({
-                  name: command.names[0],
-                  type: command.globalCooldown ? 'global' : 'per-user',
-                })
-
-                // @ts-ignore
-                for (const { _id, cooldown } of results) {
-                  const [name, guildId, userId] = _id.split('-')
-                  command.setCooldown(guildId, userId, cooldown)
-                }
-              }
-            })
-          })
-        }
-      } else {
+      if (!fs.existsSync(dir)) {
         throw new Error(`Commands directory "${dir}" doesn't exist!`)
       }
+
+      const files = getAllFiles(dir)
+
+      const amount = files.length
+      if (amount <= 0) {
+        return
+      }
+
+      console.log(
+        `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
+      )
+
+      for (const [file, fileName] of files) {
+        this.registerCommand(instance, client, file, fileName)
+      }
+
+      client.on('message', (message) => {
+        const guild: Guild | null = message.guild
+        let content: string = message.content
+        const prefix = instance.getPrefix(guild)
+
+        if (!content.startsWith(prefix)) {
+          return
+        }
+
+        // Remove the prefix
+        content = content.substring(prefix.length)
+
+        const args = content.split(/ /g)
+
+        // Remove the "command", leaving just the arguments
+        const firstElement = args.shift()
+        if (!firstElement) {
+          return
+        }
+
+        // Ensure the user input is lower case because it is stored as lower case in the map
+        const name = firstElement.toLowerCase()
+
+        const command = this._commands.get(name)
+        if (!command) {
+          return
+        }
+
+        const { error } = command
+
+        if (guild) {
+          const isDisabled = command.isDisabled(guild.id)
+
+          if (isDisabled) {
+            if (error) {
+              error({
+                error: CommandErrors.COMMAND_DISABLED,
+                command,
+                message,
+              })
+            } else {
+              message.reply(
+                instance.messageHandler.get(guild, 'DISABLED_COMMAND')
+              )
+            }
+            return
+          }
+        }
+
+        const { member, author: user } = message
+
+        const {
+          minArgs,
+          maxArgs,
+          expectedArgs,
+          requiredPermissions,
+          cooldown,
+          globalCooldown,
+          testOnly,
+        } = command
+
+        if (testOnly && (!guild || !instance.testServers.includes(guild.id))) {
+          return
+        }
+
+        if (guild && member) {
+          for (const perm of requiredPermissions || []) {
+            // @ts-ignore
+            if (!member.hasPermission(perm)) {
+              if (error) {
+                error({
+                  error: CommandErrors.MISSING_PERMISSIONS,
+                  command,
+                  message,
+                })
+              } else {
+                message.reply(
+                  instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
+                    PERM: perm,
+                  })
+                )
+              }
+              return
+            }
+          }
+
+          const roles = command.getRequiredRoles(guild.id)
+
+          if (roles && roles.length) {
+            const missingRoles = []
+
+            for (const role of roles) {
+              if (member.roles.cache.has(role)) {
+                missingRoles.push(role)
+                break
+              }
+            }
+
+            if (missingRoles.length) {
+              if (error) {
+                error({
+                  error: CommandErrors.MISSING_ROLES,
+                  command,
+                  message,
+                  info: {
+                    missingRoles,
+                  },
+                })
+              } else {
+                message.reply(
+                  instance.messageHandler.get(guild, 'MISSING_ROLES')
+                )
+              }
+              return
+            }
+          }
+        }
+
+        // Are the proper number of arguments provided?
+        if (
+          (minArgs !== undefined && args.length < minArgs) ||
+          (maxArgs !== undefined && maxArgs !== -1 && args.length > maxArgs)
+        ) {
+          const syntaxError = command.syntaxError || {}
+          const { messageHandler } = instance
+
+          let errorMsg =
+            syntaxError[messageHandler.getLanguage(guild)] ||
+            instance.messageHandler.get(guild, 'SYNTAX_ERROR')
+
+          // Replace {PREFIX} with the actual prefix
+          if (errorMsg) {
+            errorMsg = errorMsg.replace(/{PREFIX}/g, prefix)
+          }
+
+          // Replace {COMMAND} with the name of the command that was ran
+          errorMsg = errorMsg.replace(/{COMMAND}/g, name)
+
+          // Replace {ARGUMENTS} with the expectedArgs property from the command
+          // If one was not provided then replace {ARGUMENTS} with an empty string
+          errorMsg = errorMsg.replace(
+            / {ARGUMENTS}/g,
+            expectedArgs ? ` ${expectedArgs}` : ''
+          )
+
+          if (error) {
+            error({
+              error: CommandErrors.INVALID_ARGUMENTS,
+              command,
+              message,
+              info: {
+                minArgs,
+                maxArgs,
+                length: args.length,
+                errorMsg,
+              },
+            })
+          } else {
+            // Reply with the local or global syntax error
+            message.reply(errorMsg)
+          }
+          return
+        }
+
+        // Check for cooldowns
+        if ((cooldown || globalCooldown) && user) {
+          const guildId = guild ? guild.id : 'dm'
+
+          const timeLeft = command.getCooldownSeconds(guildId, user.id)
+          if (timeLeft) {
+            if (error) {
+              error({
+                error: CommandErrors.COOLDOWN,
+                command,
+                message,
+                info: {
+                  timeLeft,
+                },
+              })
+            } else {
+              message.reply(
+                instance.messageHandler.get(guild, 'COOLDOWN', {
+                  COOLDOWN: timeLeft,
+                })
+              )
+            }
+            return
+          }
+
+          command.setCooldown(guildId, user.id)
+        }
+
+        try {
+          command.execute(message, args)
+        } catch (e) {
+          if (error) {
+            error({
+              error: CommandErrors.EXCEPTION,
+              command,
+              message,
+              info: {
+                error: e,
+              },
+            })
+          } else {
+            message.reply(instance.messageHandler.get(guild, 'EXCEPTION'))
+            console.error(e)
+          }
+
+          instance.emit(Events.COMMAND_EXCEPTION, command, message, e)
+        }
+      })
+
+      // If we cannot connect to a database then ensure all cooldowns are less than 5m
+      instance.on(Events.DATABASE_CONNECTED, (connection, state) => {
+        this._commands.forEach(async (command) => {
+          const connected = state === 'Connected'
+          command.verifyDatabaseCooldowns(connected)
+
+          if (!connected) {
+            return
+          }
+
+          // Load previously used cooldowns
+
+          await this.fetchDisabledCommands()
+          await this.fetchRequiredRoles()
+
+          const results = await cooldown.find({
+            name: command.names[0],
+            type: command.globalCooldown ? 'global' : 'per-user',
+          })
+
+          // @ts-ignore
+          for (const { _id, cooldown } of results) {
+            const [name, guildId, userId] = _id.split('-')
+            command.setCooldown(guildId, userId, cooldown)
+          }
+        })
+      })
     }
 
     const decrementCountdown = () => {
@@ -249,6 +321,7 @@ class CommandHandler {
       callback,
       execute,
       run,
+      error,
       description,
       requiredPermissions,
       permissions,
@@ -328,6 +401,7 @@ class CommandHandler {
         client,
         names,
         hasCallback,
+        error,
         configuration
       )
 

@@ -35,3 +35,9 @@
 [ ] MySQL support
 
 [X] Language and message customization
+
+[ ] Allow people to easily access mongo models
+
+[ ] Add TypeScript support
+
+[ ] Refactor code to prevent large functions

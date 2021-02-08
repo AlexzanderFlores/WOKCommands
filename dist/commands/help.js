@@ -107,6 +107,10 @@ var addReactions = function (message, reactions) {
         addReactions(message, reactions);
     }
 };
+var canRemoveReaction = function (message) {
+    var _a;
+    return (message.channel.type !== 'dm' && ((_a = message.member) === null || _a === void 0 ? void 0 : _a.hasPermission('MANAGE_MESSAGES')));
+};
 module.exports = {
     aliases: 'commands',
     maxArgs: 1,
@@ -137,7 +141,9 @@ module.exports = {
                                     text = embed.footer.text;
                                     id = text === null || text === void 0 ? void 0 : text.split('#')[1];
                                     if (id !== user.id) {
-                                        reaction.users.remove(user.id);
+                                        if (canRemoveReaction(message)) {
+                                            reaction.users.remove(user.id);
+                                        }
                                         return [2 /*return*/];
                                     }
                                 }
@@ -148,7 +154,9 @@ module.exports = {
                                         _a = getFirstEmbed(message, instance), newEmbed = _a.embed, reactions = _a.reactions;
                                         embed.setDescription(newEmbed.description);
                                         message.edit(embed);
-                                        message.reactions.removeAll();
+                                        if (canRemoveReaction(message)) {
+                                            message.reactions.removeAll();
+                                        }
                                         addReactions(message, reactions);
                                         return [2 /*return*/];
                                     }
@@ -178,14 +186,18 @@ module.exports = {
                                     maxPages = Math.ceil(commands.length / pageLimit);
                                     if (emoji === '⬅') {
                                         if (page <= 1) {
-                                            reaction.users.remove(user.id);
+                                            if (canRemoveReaction(message)) {
+                                                reaction.users.remove(user.id);
+                                            }
                                             return [2 /*return*/];
                                         }
                                         --page;
                                     }
                                     else if (emoji === '➡') {
                                         if (page >= maxPages) {
-                                            reaction.users.remove(user.id);
+                                            if (canRemoveReaction(message)) {
+                                                reaction.users.remove(user.id);
+                                            }
                                             return [2 /*return*/];
                                         }
                                         ++page;
@@ -210,7 +222,9 @@ module.exports = {
                                     desc += "\n\nPage " + page + " / " + maxPages + ".";
                                     embed.setDescription(desc);
                                     message.edit(embed);
-                                    message.reactions.removeAll();
+                                    if (canRemoveReaction(message)) {
+                                        message.reactions.removeAll();
+                                    }
                                     if (hasMultiplePages) {
                                         message.react('⬅');
                                         message.react('➡');

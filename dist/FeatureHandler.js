@@ -58,6 +58,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 var fs_1 = __importDefault(require("fs"));
+var Events_1 = __importDefault(require("./enums/Events"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
 var FeatureHandler = /** @class */ (function () {
     function FeatureHandler(client, instance, dir) {
@@ -139,7 +140,7 @@ var FeatureHandler = /** @class */ (function () {
                                     _i++;
                                     return [3 /*break*/, 1];
                                 case 4:
-                                    instance.on('databaseConnected', function (connection, state) {
+                                    instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) {
                                         if (state === 'Connected') {
                                             for (var _i = 0, waitingForDB_1 = waitingForDB; _i < waitingForDB_1.length; _i++) {
                                                 var _a = waitingForDB_1[_i], func = _a.func, client_1 = _a.client, instance_1 = _a.instance, isEnabled = _a.isEnabled;

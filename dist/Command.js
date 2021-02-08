@@ -40,7 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var cooldown_1 = __importDefault(require("./models/cooldown"));
 var Command = /** @class */ (function () {
-    function Command(instance, client, names, callback, _a) {
+    function Command(instance, client, names, callback, error, _a) {
         var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, permissions = _a.permissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, _b = _a.ownerOnly, ownerOnly = _b === void 0 ? false : _b, _c = _a.hidden, hidden = _c === void 0 ? false : _c, _d = _a.guildOnly, guildOnly = _d === void 0 ? false : _d, _e = _a.testOnly, testOnly = _e === void 0 ? false : _e;
         this._names = [];
         this._category = '';
@@ -48,6 +48,7 @@ var Command = /** @class */ (function () {
         this._maxArgs = -1;
         this._requiredRoles = new Map(); // <GuildID, RoleIDs[]>
         this._callback = function () { };
+        this._error = null;
         this._disabled = [];
         this._cooldownDuration = 0;
         this._cooldownChar = '';
@@ -81,6 +82,7 @@ var Command = /** @class */ (function () {
         this._guildOnly = guildOnly;
         this._testOnly = testOnly;
         this._callback = callback;
+        this._error = error;
         if (this.cooldown && this.globalCooldown) {
             throw new Error("Command \"" + names[0] + "\" has both a global and per-user cooldown. Commands can only have up to one of these properties.");
         }
@@ -430,6 +432,13 @@ var Command = /** @class */ (function () {
     Command.prototype.isDisabled = function (guildId) {
         return this._disabled.includes(guildId);
     };
+    Object.defineProperty(Command.prototype, "error", {
+        get: function () {
+            return this._error;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return Command;
 }());
 module.exports = Command;

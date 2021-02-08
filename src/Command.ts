@@ -18,6 +18,7 @@ class Command {
   private _requiredPermissions?: permissions | undefined
   private _requiredRoles?: Map<String, string[]> = new Map() // <GuildID, RoleIDs[]>
   private _callback: Function = () => {}
+  private _error: Function | null = null
   private _disabled: string[] = []
   private _cooldownDuration = 0
   private _cooldownChar = ''
@@ -36,6 +37,7 @@ class Command {
     client: Client,
     names: string[],
     callback: Function,
+    error: Function,
     {
       category,
       minArgs,
@@ -78,6 +80,7 @@ class Command {
     this._guildOnly = guildOnly
     this._testOnly = testOnly
     this._callback = callback
+    this._error = error
 
     if (this.cooldown && this.globalCooldown) {
       throw new Error(
@@ -454,6 +457,10 @@ class Command {
 
   public isDisabled(guildId: string) {
     return this._disabled.includes(guildId)
+  }
+
+  public get error(): Function | null {
+    return this._error
   }
 }
 
