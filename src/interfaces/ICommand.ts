@@ -16,11 +16,11 @@ interface BaseCommand {
 }
 
 interface BaseCommandWithCooldown extends BaseCommand {
-  cooldown?: number
+  cooldown?: string
 }
 
 interface BaseCommandWithCooldown extends BaseCommand {
-  globalCooldown?: number
+  globalCooldown?: string
 }
 
 type ICommand = BaseCommandWithCooldown | BaseCommandWithGlobalCooldown
