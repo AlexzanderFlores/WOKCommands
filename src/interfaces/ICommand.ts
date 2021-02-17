@@ -1,4 +1,4 @@
-export default interface ICommand {
+interface BaseCommand {
   names: string[] | string
   category: string
   minArgs?: number
@@ -9,10 +9,20 @@ export default interface ICommand {
   syntax?: string
   requiredPermissions?: string[]
   callback?: Function
-  cooldown?: string
-  globalCooldown?: string
   ownerOnly?: boolean
   hidden?: boolean
   guildOnly?: boolean
   testOnly?: boolean
 }
+
+interface BaseCommandWithCooldown extends BaseCommand {
+  cooldown?: number
+}
+
+interface BaseCommandWithCooldown extends BaseCommand {
+  globalCooldown?: number
+}
+
+type ICommand = BaseCommandWithCooldown | BaseCommandWithGlobalCooldown
+
+export default ICommand 
