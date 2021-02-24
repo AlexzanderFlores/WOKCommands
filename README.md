@@ -304,6 +304,22 @@ client.on('ready', () => {
         // You can also hide a category from the help menu
         // Admins bypass this
         hidden: true
+      },
+      {
+        // You can use custom emojis by specifying the ID
+        // NOTE: Your bot MUST be in the same server as the emoji
+        name: 'Example',
+        // :typescript: emoji ID from the WOK server
+        emoji: '814238393747243009',
+        customEmoji: true
+      },
+      {
+        // You can also specify the full name of the emoji without the boolean
+        // WOKCommands will detect that this is custom and get the ID
+        // NOTE: Your bot MUST be in the same server as the emoji
+        name: 'Example',
+        // :typescript: emoji String from the WOK server
+        emoji: '<:typescript:791512440021975062>'
       }
     ])
 })

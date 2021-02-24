@@ -41,3 +41,5 @@
 [ ] Add TypeScript support
 
 [ ] Refactor code to prevent large functions
+
+[ ] Ability to select a default language from any of the supported languages in messages.json

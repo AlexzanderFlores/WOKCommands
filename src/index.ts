@@ -1,4 +1,4 @@
-import { Client, Guild } from 'discord.js'
+import { Client, Guild, GuildEmoji } from 'discord.js'
 import { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
 
@@ -20,6 +20,7 @@ type Options = {
 }
 
 class WOKCommands extends EventEmitter {
+  private _client!: Client
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
   private _featureDir = ''
@@ -27,7 +28,7 @@ class WOKCommands extends EventEmitter {
   private _mongoConnection: Connection | null = null
   private _displayName = ''
   private _prefixes: { [name: string]: string } = {}
-  private _categories: Map<String, String> = new Map() // <Category Name, Emoji Icon>
+  private _categories: Map<String, String | GuildEmoji> = new Map() // <Category Name, Emoji Icon>
   private _hiddenCategories: string[] = []
   private _color = ''
   private _commandHandler: CommandHandler
@@ -45,6 +46,8 @@ class WOKCommands extends EventEmitter {
     if (!client) {
       throw new Error('No Discord JS Client provided as first argument!')
     }
+
+    this._client = client
 
     let {
       commandsDir = '',
@@ -201,7 +204,7 @@ class WOKCommands extends EventEmitter {
     return this
   }
 
-  public get categories(): Map<String, String> {
+  public get categories(): Map<String, String | GuildEmoji> {
     return this._categories
   }
 
@@ -219,8 +222,13 @@ class WOKCommands extends EventEmitter {
   }
 
   public getEmoji(category: string): string {
-    // @ts-ignore
-    return this._categories.get(category) || ''
+    const emoji = this._categories.get(category) || ''
+    if (typeof emoji === 'object') {
+      // @ts-ignore
+      return `<:${emoji.name}:${emoji.id}>`
+    }
+
+    return emoji
   }
 
   public getCategory(emoji: string): string {
@@ -274,20 +282,27 @@ class WOKCommands extends EventEmitter {
         emoji || this.categories.get(category) || ''
       )
     } else {
-      for (const cat of category) {
-        if (this.isEmojiUsed(cat.emoji)) {
+      for (let { emoji, name, hidden, customEmoji } of category) {
+        if (emoji.startsWith('<:') && emoji.endsWith('>')) {
+          customEmoji = true
+          emoji = emoji.split(':')[2]
+          emoji = emoji.substring(0, emoji.length - 1)
+        }
+
+        if (customEmoji) {
+          emoji = this._client.emojis.cache.get(emoji)
+        }
+
+        if (this.isEmojiUsed(emoji)) {
           console.warn(
-            `WOKCommands > The emoji "${cat.emoji}" for category "${cat.name}" is already used.`
+            `WOKCommands > The emoji "${emoji}" for category "${name}" is already used.`
           )
         }
 
-        this._categories.set(
-          cat.name,
-          cat.emoji || this.categories.get(cat.name) || ''
-        )
+        this._categories.set(name, emoji || this.categories.get(name) || '')
 
-        if (cat.hidden) {
-          this._hiddenCategories.push(cat.name)
+        if (hidden) {
+          this._hiddenCategories.push(name)
         }
       }
     }
