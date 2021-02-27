@@ -230,7 +230,11 @@ class CommandHandler {
     file: string,
     fileName: string
   ) {
-    const configuration = require(file)
+    let configuration = require(file)
+    
+    // person is using 'export default' so we import the default instead
+    if (configuration.default && Object.keys(configuration).length === 1) configuration = configuration.default
+    
     const {
       name = fileName,
       category,
