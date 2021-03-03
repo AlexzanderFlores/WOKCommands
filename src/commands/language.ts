@@ -1,58 +1,59 @@
-import ICommandArguments from '../interfaces/ICommandArguments'
-import languageSchema from '../models/languages'
+import ICommandArguments from "../interfaces/ICommandArguments";
+import languageSchema from "../models/languages";
+import Events from "../enums/Events";
 
 export = {
-  aliases: ['lang'],
+  aliases: ["lang"],
   maxArgs: 1,
-  cooldown: '2s',
-  expectedArgs: '[Language]',
-  requiredPermissions: ['ADMINISTRATOR'],
-  description: 'Displays or sets the language for this Discord server',
-  category: 'Configuration',
+  cooldown: "2s",
+  expectedArgs: "[Language]",
+  requiredPermissions: ["ADMINISTRATOR"],
+  description: "Displays or sets the language for this Discord server",
+  category: "Configuration",
   callback: async (options: ICommandArguments) => {
-    const { message, text, instance } = options
+    const { message, text, instance } = options;
 
-    const { guild } = message
+    const { guild } = message;
     if (!guild) {
-      return
+      return;
     }
 
-    const { messageHandler } = instance
+    const { messageHandler } = instance;
 
     if (!instance.isDBConnected()) {
-      message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'))
-      return
+      message.reply(instance.messageHandler.get(guild, "NO_DATABASE_FOUND"));
+      return;
     }
 
-    const lang = text.toLowerCase()
+    const lang = text.toLowerCase();
 
     if (!lang) {
       message.reply(
-        instance.messageHandler.get(guild, 'CURRENT_LANGUAGE', {
+        instance.messageHandler.get(guild, "CURRENT_LANGUAGE", {
           LANGUAGE: instance.messageHandler.getLanguage(guild),
         })
-      )
-      return
+      );
+      return;
     }
 
     if (!messageHandler.languages().includes(lang)) {
       message.reply(
-        messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
+        messageHandler.get(guild, "LANGUAGE_NOT_SUPPORTED", {
           LANGUAGE: lang,
         })
-      )
+      );
 
-      instance.emit('languageNotSupported', message, lang)
+      instance.emit(Events.LANGUAGE_NOT_SUPPORTED, message, lang);
 
-      return
+      return;
     }
 
-    instance.messageHandler.setLanguage(guild, lang)
+    instance.messageHandler.setLanguage(guild, lang);
     message.reply(
-      instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
+      instance.messageHandler.get(guild, "NEW_LANGUAGE", {
         LANGUAGE: lang,
       })
-    )
+    );
 
     await languageSchema.findOneAndUpdate(
       {
@@ -65,6 +66,6 @@ export = {
       {
         upsert: true,
       }
-    )
+    );
   },
-}
+};

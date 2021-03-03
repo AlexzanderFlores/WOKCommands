@@ -1,5 +1,7 @@
 "use strict";
-module.exports = [
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.permissionList = void 0;
+var permissionList = [
     'CREATE_INSTANT_INVITE',
     'KICK_MEMBERS',
     'BAN_MEMBERS',
@@ -32,3 +34,4 @@ module.exports = [
     'MANAGE_WEBHOOKS',
     'MANAGE_EMOJIS',
 ];
+exports.permissionList = permissionList;

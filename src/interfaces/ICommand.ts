@@ -1,3 +1,5 @@
+import permissions from '../permissions'
+
 export default interface ICommand {
   names: string[] | string
   category: string
@@ -7,7 +9,8 @@ export default interface ICommand {
   expectedArgs?: string
   description?: string
   syntax?: string
-  requiredPermissions?: string[]
+  requiredPermissions?: permissions
+  permissions?: permissions
   callback?: Function
   cooldown?: string
   globalCooldown?: string

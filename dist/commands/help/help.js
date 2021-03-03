@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -38,61 +57,42 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var languages_1 = __importDefault(require("../models/languages"));
-var Events_1 = __importDefault(require("../enums/Events"));
+Object.defineProperty(exports, "__esModule", { value: true });
+var get_first_embed_1 = __importDefault(require("./get-first-embed"));
+var ReactionListener_1 = __importStar(require("./ReactionListener"));
 module.exports = {
-    aliases: ["lang"],
+    aliases: 'commands',
     maxArgs: 1,
-    cooldown: "2s",
-    expectedArgs: "[Language]",
-    requiredPermissions: ["ADMINISTRATOR"],
-    description: "Displays or sets the language for this Discord server",
-    category: "Configuration",
-    callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
-        var message, text, instance, guild, messageHandler, lang;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    message = options.message, text = options.text, instance = options.instance;
-                    guild = message.guild;
-                    if (!guild) {
-                        return [2 /*return*/];
-                    }
-                    messageHandler = instance.messageHandler;
-                    if (!instance.isDBConnected()) {
-                        message.reply(instance.messageHandler.get(guild, "NO_DATABASE_FOUND"));
-                        return [2 /*return*/];
-                    }
-                    lang = text.toLowerCase();
-                    if (!lang) {
-                        message.reply(instance.messageHandler.get(guild, "CURRENT_LANGUAGE", {
-                            LANGUAGE: instance.messageHandler.getLanguage(guild),
-                        }));
-                        return [2 /*return*/];
-                    }
-                    if (!messageHandler.languages().includes(lang)) {
-                        message.reply(messageHandler.get(guild, "LANGUAGE_NOT_SUPPORTED", {
-                            LANGUAGE: lang,
-                        }));
-                        instance.emit(Events_1.default.LANGUAGE_NOT_SUPPORTED, message, lang);
-                        return [2 /*return*/];
-                    }
-                    instance.messageHandler.setLanguage(guild, lang);
-                    message.reply(instance.messageHandler.get(guild, "NEW_LANGUAGE", {
-                        LANGUAGE: lang,
-                    }));
-                    return [4 /*yield*/, languages_1.default.findOneAndUpdate({
-                            _id: guild.id,
-                        }, {
-                            _id: guild.id,
-                            language: lang,
-                        }, {
-                            upsert: true,
-                        })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
+    expectedArgs: '[command]',
+    description: "Displays this bot's commands",
+    category: 'Help',
+    init: function (client, instance) {
+        client.on('messageReactionAdd', function (reaction, user) { return __awaiter(void 0, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                new ReactionListener_1.default(instance, reaction, user);
+                return [2 /*return*/];
+            });
+        }); });
+    },
+    callback: function (options) {
+        var _a, _b;
+        var message = options.message, instance = options.instance;
+        var guild = message.guild;
+        if (guild && !((_a = guild.me) === null || _a === void 0 ? void 0 : _a.hasPermission('SEND_MESSAGES'))) {
+            console.warn("WOKCommands > Could not send message due to no permissions in channel for " + guild.name);
+            return;
+        }
+        if (guild && !((_b = guild.me) === null || _b === void 0 ? void 0 : _b.hasPermission('ADD_REACTIONS'))) {
+            message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'));
+            return;
+        }
+        var _c = get_first_embed_1.default(message, instance), embed = _c.embed, reactions = _c.reactions;
+        message.channel
+            .send('', {
+            embed: embed,
+        })
+            .then(function (message) {
+            ReactionListener_1.addReactions(message, reactions);
         });
-    }); },
+    },
 };

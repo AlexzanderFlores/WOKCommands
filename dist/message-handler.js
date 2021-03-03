@@ -60,6 +60,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var languages_1 = __importDefault(require("./models/languages"));
 var messages_json_1 = __importDefault(require("./messages.json"));
+var Events_1 = __importDefault(require("./enums/Events"));
 var MessageHandler = /** @class */ (function () {
     function MessageHandler(instance, messagePath) {
         var _this = this;
@@ -91,7 +92,7 @@ var MessageHandler = /** @class */ (function () {
                                 this._languages.push(language.toLowerCase());
                             }
                         }
-                        instance.on('databaseConnected', function (connection, state) { return __awaiter(_this, void 0, void 0, function () {
+                        instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) { return __awaiter(_this, void 0, void 0, function () {
                             var results, _i, results_1, _a, guildId, language;
                             return __generator(this, function (_b) {
                                 switch (_b.label) {

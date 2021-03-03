@@ -76,6 +76,7 @@ var FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 var mongo_1 = __importStar(require("./mongo"));
 var prefixes_1 = __importDefault(require("./models/prefixes"));
 var message_handler_1 = __importDefault(require("./message-handler"));
+var Events_1 = __importDefault(require("./enums/Events"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
     function WOKCommands(client, options) {
@@ -99,7 +100,8 @@ var WOKCommands = /** @class */ (function (_super) {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, messagesPath = options.messagesPath, _c = options.showWarns, showWarns = _c === void 0 ? true : _c, dbOptions = options.dbOptions, testServers = options.testServers;
+        _this._client = client;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, messagesPath = options.messagesPath, _c = options.showWarns, showWarns = _c === void 0 ? true : _c, dbOptions = options.dbOptions, testServers = options.testServers, _d = options.disabledDefaultCommands, disabledDefaultCommands = _d === void 0 ? [] : _d;
         var partials = client.options.partials;
         if (!partials ||
             !partials.includes('MESSAGE') ||
@@ -134,7 +136,10 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._showWarns = showWarns;
         _this._commandsDir = commandsDir || _this._commandsDir;
         _this._featureDir = featureDir || _this._featureDir;
-        _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir);
+        if (typeof disabledDefaultCommands === 'string') {
+            disabledDefaultCommands = [disabledDefaultCommands];
+        }
+        _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir, disabledDefaultCommands);
         if (_this._featureDir) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
@@ -164,7 +169,7 @@ var WOKCommands = /** @class */ (function (_super) {
                         if (showWarns) {
                             console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
                         }
-                        this.emit('databaseConnected', null, '');
+                        this.emit(Events_1.default.DATABASE_CONNECTED, null, '');
                         _a.label = 4;
                     case 4: return [2 /*return*/];
                 }
@@ -254,8 +259,12 @@ var WOKCommands = /** @class */ (function (_super) {
         return this;
     };
     WOKCommands.prototype.getEmoji = function (category) {
-        // @ts-ignore
-        return this._categories.get(category) || '';
+        var emoji = this._categories.get(category) || '';
+        if (typeof emoji === 'object') {
+            // @ts-ignore
+            return "<:" + emoji.name + ":" + emoji.id + ">";
+        }
+        return emoji;
     };
     WOKCommands.prototype.getCategory = function (emoji) {
         var result = '';
@@ -288,13 +297,21 @@ var WOKCommands = /** @class */ (function (_super) {
         }
         else {
             for (var _i = 0, category_1 = category; _i < category_1.length; _i++) {
-                var cat = category_1[_i];
-                if (this.isEmojiUsed(cat.emoji)) {
-                    console.warn("WOKCommands > The emoji \"" + cat.emoji + "\" for category \"" + cat.name + "\" is already used.");
+                var _a = category_1[_i], emoji_1 = _a.emoji, name_1 = _a.name, hidden = _a.hidden, customEmoji = _a.customEmoji;
+                if (emoji_1.startsWith('<:') && emoji_1.endsWith('>')) {
+                    customEmoji = true;
+                    emoji_1 = emoji_1.split(':')[2];
+                    emoji_1 = emoji_1.substring(0, emoji_1.length - 1);
                 }
-                this._categories.set(cat.name, cat.emoji || this.categories.get(cat.name) || '');
-                if (cat.hidden) {
-                    this._hiddenCategories.push(cat.name);
+                if (customEmoji) {
+                    emoji_1 = this._client.emojis.cache.get(emoji_1);
+                }
+                if (this.isEmojiUsed(emoji_1)) {
+                    console.warn("WOKCommands > The emoji \"" + emoji_1 + "\" for category \"" + name_1 + "\" is already used.");
+                }
+                this._categories.set(name_1, emoji_1 || this.categories.get(name_1) || '');
+                if (hidden) {
+                    this._hiddenCategories.push(name_1);
                 }
             }
         }
