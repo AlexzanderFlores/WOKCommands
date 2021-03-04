@@ -235,7 +235,8 @@ class WOKCommands extends EventEmitter {
     let result = ''
 
     this._categories.forEach((value, key) => {
-      if (emoji === value) {
+      // == is intended here
+      if (emoji == value) {
         // @ts-ignore
         result = key
         return false

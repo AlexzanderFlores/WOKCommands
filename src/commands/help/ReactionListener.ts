@@ -30,7 +30,8 @@ class ReactionHandler {
   message: Message
   embed!: MessageEmbed
   guild: Guild | null = null
-  emoji: string = ''
+  emojiName = ''
+  emojiId = ''
   door = '🚪'
   pageLimit = 3
 
@@ -65,7 +66,8 @@ class ReactionHandler {
       return
     }
 
-    this.emoji = this.reaction.emoji.name
+    this.emojiName = this.reaction.emoji.name
+    this.emojiId = this.reaction.emoji.id || ''
     this.handleEmoji()
   }
 
@@ -147,7 +149,7 @@ class ReactionHandler {
    * @returns An object containing information regarding the commands
    */
   getCommands = () => {
-    let category = this.instance.getCategory(this.emoji)
+    let category = this.instance.getCategory(this.emojiId)
 
     const commandsString = this.instance.messageHandler.getEmbed(
       this.guild,
@@ -259,7 +261,7 @@ class ReactionHandler {
    * Handles the input from the emoji
    */
   handleEmoji = () => {
-    if (this.emoji === this.door) {
+    if (this.emojiName === this.door) {
       this.returnToMainMenu()
       return
     }
@@ -268,7 +270,7 @@ class ReactionHandler {
 
     let [page, maxPages] = this.getMaxPages(length)
 
-    if (this.emoji === '⬅') {
+    if (this.emojiName === '⬅') {
       if (page <= 1) {
         if (this.canBotRemoveReaction()) {
           this.reaction.users.remove(this.user.id)
@@ -277,7 +279,7 @@ class ReactionHandler {
       }
 
       --page
-    } else if (this.emoji === '➡') {
+    } else if (this.emojiName === '➡') {
       if (page >= maxPages) {
         if (this.canBotRemoveReaction()) {
           this.reaction.users.remove(this.user.id)

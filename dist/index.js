@@ -269,7 +269,8 @@ var WOKCommands = /** @class */ (function (_super) {
     WOKCommands.prototype.getCategory = function (emoji) {
         var result = '';
         this._categories.forEach(function (value, key) {
-            if (emoji === value) {
+            // == is intended here
+            if (emoji == value) {
                 // @ts-ignore
                 result = key;
                 return false;
