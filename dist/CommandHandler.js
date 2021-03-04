@@ -399,6 +399,9 @@ var CommandHandler = /** @class */ (function () {
     CommandHandler.prototype.getCommand = function (name) {
         return this._commands.get(name);
     };
+    CommandHandler.prototype.getICommand = function (name) {
+        return this.commands.find(function (command) { return command.names.includes(name); });
+    };
     CommandHandler.prototype.fetchDisabledCommands = function () {
         var _a;
         return __awaiter(this, void 0, void 0, function () {

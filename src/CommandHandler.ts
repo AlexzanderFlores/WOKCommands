@@ -472,6 +472,10 @@ class CommandHandler {
     return this._commands.get(name)
   }
 
+  public getICommand(name: string): ICommand | undefined {
+    return this.commands.find((command) => command.names.includes(name))
+  }
+
   public async fetchDisabledCommands() {
     const results: any[] = await disabledCommands.find({})
 

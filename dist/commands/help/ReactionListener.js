@@ -155,7 +155,7 @@ var ReactionHandler = /** @class */ (function () {
          * @returns An object containing information regarding the commands
          */
         this.getCommands = function () {
-            var category = _this.instance.getCategory(_this.emojiId);
+            var category = _this.instance.getCategory(_this.emojiId || _this.emojiName);
             var commandsString = _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'COMMANDS');
             if (_this.embed.description) {
                 var split = _this.embed.description.split('\n');
@@ -185,18 +185,13 @@ var ReactionHandler = /** @class */ (function () {
             var start = (page - 1) * _this.pageLimit;
             for (var a = start, counter = a; a < commands.length && a < start + _this.pageLimit; ++a) {
                 var command = commands[a];
-                var description = command.description, hidden = command.hidden, category_1 = command.category, names = command.names, syntax = command.syntax;
+                var hidden = command.hidden, category_1 = command.category, names = command.names;
                 if (!hidden && category_1 === category_1) {
                     if (typeof names === 'string') {
                         // @ts-ignore
                         names = __spreadArrays(names);
                     }
-                    var mainName = names.shift();
-                    desc += "\n\n#" + ++counter + ") **" + mainName + "**" + (description ? ' - ' : '') + description;
-                    if (names.length) {
-                        desc += "\n" + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'ALIASES') + ": \"" + names.join('", "') + "\"";
-                    }
-                    desc += "\n" + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'SYNTAX') + ": \"" + _this.instance.getPrefix(_this.guild) + mainName + (syntax ? ' ' : '') + syntax + "\"";
+                    desc += "\n\n#" + ++counter + ") " + ReactionHandler.getHelp(command, _this.instance, _this.guild);
                 }
             }
             desc += "\n\nPage " + page + " / " + maxPages + ".";
@@ -249,6 +244,16 @@ var ReactionHandler = /** @class */ (function () {
         this.message = reaction.message;
         this.init();
     }
+    ReactionHandler.getHelp = function (command, instance, guild) {
+        var description = command.description, syntax = command.syntax, names = command.names;
+        var mainName = typeof names === 'string' ? names : names.shift();
+        var desc = "**" + mainName + "**" + (description ? ' - ' : '') + description;
+        if (names.length && typeof names !== 'string') {
+            desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'ALIASES') + ": \"" + names.join('", "') + "\"";
+        }
+        desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'SYNTAX') + ": \"" + instance.getPrefix(guild) + mainName + (syntax ? ' ' : '') + (syntax || '') + "\"";
+        return desc;
+    };
     return ReactionHandler;
 }());
 exports.default = ReactionHandler;
