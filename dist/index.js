@@ -79,6 +79,7 @@ var message_handler_1 = __importDefault(require("./message-handler"));
 var Events_1 = __importDefault(require("./enums/Events"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
+    // private _slashCommand: SlashCommands
     function WOKCommands(client, options) {
         var _this = _super.call(this) || this;
         _this._defaultPrefix = '!';
@@ -144,6 +145,7 @@ var WOKCommands = /** @class */ (function (_super) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
         _this._messageHandler = new message_handler_1.default(_this, messagesPath || '');
+        // this._slashCommand = new SlashCommands(this._client)
         _this.setCategorySettings('Configuration', '⚙️');
         _this.setCategorySettings('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {

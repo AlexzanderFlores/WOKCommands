@@ -145,7 +145,7 @@ class CommandHandler {
             const missingRoles = []
 
             for (const role of roles) {
-              if (member.roles.cache.has(role)) {
+              if (!member.roles.cache.has(role)) {
                 missingRoles.push(role)
                 break
               }

@@ -8,6 +8,7 @@ import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
 import Events from './enums/Events'
+// import SlashCommands from './SlashCommands'
 
 type Options = {
   commandsDir?: string
@@ -39,6 +40,7 @@ class WOKCommands extends EventEmitter {
   private _testServers: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
+  // private _slashCommand: SlashCommands
 
   constructor(client: Client, options: Options) {
     super()
@@ -123,6 +125,8 @@ class WOKCommands extends EventEmitter {
     }
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')
+
+    // this._slashCommand = new SlashCommands(this._client)
 
     this.setCategorySettings('Configuration', '⚙️')
     this.setCategorySettings('Help', '❓')
@@ -377,6 +381,10 @@ class WOKCommands extends EventEmitter {
   public get messageHandler(): MessageHandler {
     return this._messageHandler
   }
+
+  // public get slashCommands(): SlashCommands {
+  //   return this._slashCommand
+  // }
 }
 
 export = WOKCommands

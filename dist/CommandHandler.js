@@ -149,7 +149,7 @@ var CommandHandler = /** @class */ (function () {
                         var missingRoles = [];
                         for (var _b = 0, roles_1 = roles; _b < roles_1.length; _b++) {
                             var role = roles_1[_b];
-                            if (member.roles.cache.has(role)) {
+                            if (!member.roles.cache.has(role)) {
                                 missingRoles.push(role);
                                 break;
                             }
