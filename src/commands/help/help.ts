@@ -1,8 +1,8 @@
 import { Client } from 'discord.js'
 import WOKCommands from '../..'
 import ICommandArguments from '../../interfaces/ICommandArguments'
-import getFirstEmbed from './get-first-embed'
-import ReactionListener, { addReactions } from './ReactionListener'
+import getFirstEmbed from './!get-first-embed'
+import ReactionListener, { addReactions } from './!ReactionListener'
 
 module.exports = {
   aliases: 'commands',
