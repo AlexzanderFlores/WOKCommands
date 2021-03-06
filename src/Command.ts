@@ -31,6 +31,7 @@ class Command {
   private _hidden = false
   private _guildOnly = false
   private _testOnly = false
+  private _slash: boolean | string = false
 
   constructor(
     instance: WOKCommands,
@@ -53,6 +54,7 @@ class Command {
       hidden = false,
       guildOnly = false,
       testOnly = false,
+      slash = false,
     }: ICommand
   ) {
     this.instance = instance
@@ -81,6 +83,7 @@ class Command {
     this._testOnly = testOnly
     this._callback = callback
     this._error = error
+    this._slash = slash
 
     if (this.cooldown && this.globalCooldown) {
       throw new Error(
@@ -141,6 +144,7 @@ class Command {
 
     this._callback({
       message,
+      channel: message.channel,
       args,
       text: args.join(' '),
       client: this.client,
@@ -461,6 +465,10 @@ class Command {
 
   public get error(): Function | null {
     return this._error
+  }
+
+  public get slash(): boolean | string {
+    return this._slash
   }
 }
 

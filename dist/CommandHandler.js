@@ -102,7 +102,10 @@ var CommandHandler = /** @class */ (function () {
                 if (!command) {
                     return;
                 }
-                var error = command.error;
+                var error = command.error, slash = command.slash;
+                if (slash === true) {
+                    return;
+                }
                 if (guild) {
                     var isDisabled = command.isDisabled(guild.id);
                     if (isDisabled) {
@@ -149,7 +152,7 @@ var CommandHandler = /** @class */ (function () {
                         var missingRoles = [];
                         for (var _b = 0, roles_1 = roles; _b < roles_1.length; _b++) {
                             var role = roles_1[_b];
-                            if (member.roles.cache.has(role)) {
+                            if (!member.roles.cache.has(role)) {
                                 missingRoles.push(role);
                                 break;
                             }
@@ -301,64 +304,118 @@ var CommandHandler = /** @class */ (function () {
         decrementCountdown();
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
-        var configuration = require(file);
-        var _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly;
-        var callbackCounter = 0;
-        if (callback)
-            ++callbackCounter;
-        if (execute)
-            ++callbackCounter;
-        if (run)
-            ++callbackCounter;
-        if (callbackCounter > 1) {
-            throw new Error('Commands can have "callback", "execute", or "run" functions, but not multiple.');
-        }
-        var names = commands || aliases || [];
-        if (!name && (!names || names.length === 0)) {
-            throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
-        }
-        if (typeof names === 'string') {
-            names = [names];
-        }
-        if (typeof name !== 'string') {
-            throw new Error("Command located at \"" + file + "\" does not have a string as a name.");
-        }
-        if (name && !names.includes(name.toLowerCase())) {
-            names.unshift(name.toLowerCase());
-        }
-        if (requiredPermissions || permissions) {
-            for (var _i = 0, _b = requiredPermissions || permissions; _i < _b.length; _i++) {
-                var perm = _b[_i];
-                if (!permissions_1.permissionList.includes(perm)) {
-                    throw new Error("Command located at \"" + file + "\" has an invalid permission node: \"" + perm + "\". Permissions must be all upper case and be one of the following: \"" + __spreadArrays(permissions_1.permissionList).join('", "') + "\"");
+        return __awaiter(this, void 0, void 0, function () {
+            var configuration, _a, name, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, callbackCounter, names, _i, _b, perm, missing, slashCommands, options, split, a, item, _c, _d, id, hasCallback, command, _e, names_1, name_2;
+            return __generator(this, function (_f) {
+                switch (_f.label) {
+                    case 0:
+                        configuration = require(file);
+                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs;
+                        callbackCounter = 0;
+                        if (callback)
+                            ++callbackCounter;
+                        if (execute)
+                            ++callbackCounter;
+                        if (run)
+                            ++callbackCounter;
+                        if (callbackCounter > 1) {
+                            throw new Error('Commands can have "callback", "execute", or "run" functions, but not multiple.');
+                        }
+                        names = commands || aliases || [];
+                        if (!name && (!names || names.length === 0)) {
+                            throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
+                        }
+                        if (typeof names === 'string') {
+                            names = [names];
+                        }
+                        if (typeof name !== 'string') {
+                            throw new Error("Command located at \"" + file + "\" does not have a string as a name.");
+                        }
+                        if (name && !names.includes(name.toLowerCase())) {
+                            names.unshift(name.toLowerCase());
+                        }
+                        if (requiredPermissions || permissions) {
+                            for (_i = 0, _b = requiredPermissions || permissions; _i < _b.length; _i++) {
+                                perm = _b[_i];
+                                if (!permissions_1.permissionList.includes(perm)) {
+                                    throw new Error("Command located at \"" + file + "\" has an invalid permission node: \"" + perm + "\". Permissions must be all upper case and be one of the following: \"" + __spreadArrays(permissions_1.permissionList).join('", "') + "\"");
+                                }
+                            }
+                        }
+                        missing = [];
+                        if (!category) {
+                            missing.push('Category');
+                        }
+                        if (!description) {
+                            missing.push('Description');
+                        }
+                        if (missing.length && instance.showWarns) {
+                            console.warn("WOKCommands > Command \"" + names[0] + "\" does not have the following properties: " + missing + ".");
+                        }
+                        if (testOnly && !instance.testServers.length) {
+                            console.warn("WOKCommands > Command \"" + names[0] + "\" has \"testOnly\" set to true, but no test servers are defined.");
+                        }
+                        if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
+                            throw new Error("WOKCommands > Command \"" + names[0] + "\" has a \"slash\" property that is not boolean \"true\" or string \"both\".");
+                        }
+                        if (!slash) return [3 /*break*/, 7];
+                        if (!description) {
+                            throw new Error("WOKCommands > A description is required for command \"" + names[0] + "\" because it is a slash command.");
+                        }
+                        if (minArgs !== undefined && !expectedArgs) {
+                            throw new Error("WOKCommands > Command \"" + names[0] + "\" has \"minArgs\" property defined without \"expectedArgs\" property as a slash command.");
+                        }
+                        slashCommands = instance.slashCommands;
+                        options = [];
+                        if (expectedArgs) {
+                            split = expectedArgs
+                                .substring(1, expectedArgs.length - 1)
+                                .split(/[>\]] [<\[]/);
+                            for (a = 0; a < split.length; ++a) {
+                                item = split[a];
+                                options.push({
+                                    name: item.replace(/ /g, '-'),
+                                    description: item,
+                                    type: 3,
+                                    required: a < minArgs,
+                                });
+                            }
+                        }
+                        if (!testOnly) return [3 /*break*/, 5];
+                        _c = 0, _d = instance.testServers;
+                        _f.label = 1;
+                    case 1:
+                        if (!(_c < _d.length)) return [3 /*break*/, 4];
+                        id = _d[_c];
+                        return [4 /*yield*/, slashCommands.create(names[0], description, options, id)];
+                    case 2:
+                        _f.sent();
+                        _f.label = 3;
+                    case 3:
+                        _c++;
+                        return [3 /*break*/, 1];
+                    case 4: return [3 /*break*/, 7];
+                    case 5: return [4 /*yield*/, slashCommands.create(names[0], description, options)];
+                    case 6:
+                        _f.sent();
+                        _f.label = 7;
+                    case 7:
+                        hasCallback = callback || execute || run;
+                        if (hasCallback) {
+                            if (init) {
+                                init(client, instance);
+                            }
+                            command = new Command_1.default(instance, client, names, hasCallback, error, configuration);
+                            for (_e = 0, names_1 = names; _e < names_1.length; _e++) {
+                                name_2 = names_1[_e];
+                                // Ensure the alias is lower case because we read as lower case later on
+                                this._commands.set(name_2.toLowerCase(), command);
+                            }
+                        }
+                        return [2 /*return*/];
                 }
-            }
-        }
-        var missing = [];
-        if (!category) {
-            missing.push('Category');
-        }
-        if (!description) {
-            missing.push('Description');
-        }
-        if (missing.length && instance.showWarns) {
-            console.warn("WOKCommands > Command \"" + names[0] + "\" does not have the following properties: " + missing + ".");
-        }
-        if (testOnly && !instance.testServers.length) {
-            console.warn("WOKCommands > Command \"" + names[0] + "\" has \"testOnly\" set to true, but no test servers are defined.");
-        }
-        var hasCallback = callback || execute || run;
-        if (hasCallback) {
-            if (init) {
-                init(client, instance);
-            }
-            var command = new Command_1.default(instance, client, names, hasCallback, error, configuration);
-            for (var _c = 0, names_1 = names; _c < names_1.length; _c++) {
-                var name_2 = names_1[_c];
-                // Ensure the alias is lower case because we read as lower case later on
-                this._commands.set(name_2.toLowerCase(), command);
-            }
-        }
+            });
+        });
     };
     Object.defineProperty(CommandHandler.prototype, "commands", {
         get: function () {
@@ -398,6 +455,9 @@ var CommandHandler = /** @class */ (function () {
     };
     CommandHandler.prototype.getCommand = function (name) {
         return this._commands.get(name);
+    };
+    CommandHandler.prototype.getICommand = function (name) {
+        return this.commands.find(function (command) { return command.names.includes(name); });
     };
     CommandHandler.prototype.fetchDisabledCommands = function () {
         var _a;

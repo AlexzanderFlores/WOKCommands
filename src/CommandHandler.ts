@@ -81,7 +81,11 @@ class CommandHandler {
           return
         }
 
-        const { error } = command
+        const { error, slash } = command
+
+        if (slash === true) {
+          return
+        }
 
         if (guild) {
           const isDisabled = command.isDisabled(guild.id)
@@ -145,7 +149,7 @@ class CommandHandler {
             const missingRoles = []
 
             for (const role of roles) {
-              if (member.roles.cache.has(role)) {
+              if (!member.roles.cache.has(role)) {
                 missingRoles.push(role)
                 break
               }
@@ -305,7 +309,7 @@ class CommandHandler {
     decrementCountdown()
   }
 
-  public registerCommand(
+  public async registerCommand(
     instance: WOKCommands,
     client: Client,
     file: string,
@@ -326,6 +330,9 @@ class CommandHandler {
       requiredPermissions,
       permissions,
       testOnly,
+      slash,
+      expectedArgs,
+      minArgs,
     } = configuration
 
     let callbackCounter = 0
@@ -393,6 +400,54 @@ class CommandHandler {
       console.warn(
         `WOKCommands > Command "${names[0]}" has "testOnly" set to true, but no test servers are defined.`
       )
+    }
+
+    if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
+      throw new Error(
+        `WOKCommands > Command "${names[0]}" has a "slash" property that is not boolean "true" or string "both".`
+      )
+    }
+
+    if (slash) {
+      if (!description) {
+        throw new Error(
+          `WOKCommands > A description is required for command "${names[0]}" because it is a slash command.`
+        )
+      }
+
+      if (minArgs !== undefined && !expectedArgs) {
+        throw new Error(
+          `WOKCommands > Command "${names[0]}" has "minArgs" property defined without "expectedArgs" property as a slash command.`
+        )
+      }
+
+      const slashCommands = instance.slashCommands
+      const options: object[] = []
+
+      if (expectedArgs) {
+        const split = expectedArgs
+          .substring(1, expectedArgs.length - 1)
+          .split(/[>\]] [<\[]/)
+
+        for (let a = 0; a < split.length; ++a) {
+          const item = split[a]
+
+          options.push({
+            name: item.replace(/ /g, '-'),
+            description: item,
+            type: 3,
+            required: a < minArgs,
+          })
+        }
+      }
+
+      if (testOnly) {
+        for (const id of instance.testServers) {
+          await slashCommands.create(names[0], description, options, id)
+        }
+      } else {
+        await slashCommands.create(names[0], description, options)
+      }
     }
 
     const hasCallback = callback || execute || run
@@ -470,6 +525,10 @@ class CommandHandler {
 
   public getCommand(name: string): Command | undefined {
     return this._commands.get(name)
+  }
+
+  public getICommand(name: string): ICommand | undefined {
+    return this.commands.find((command) => command.names.includes(name))
   }
 
   public async fetchDisabledCommands() {
