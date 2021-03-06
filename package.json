@@ -1,6 +1,6 @@
 {
   "name": "wokcommands",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "main": "dist/index.js",
   "scripts": {
     "compile": "tsc && node index.js",

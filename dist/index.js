@@ -77,9 +77,9 @@ var mongo_1 = __importStar(require("./mongo"));
 var prefixes_1 = __importDefault(require("./models/prefixes"));
 var message_handler_1 = __importDefault(require("./message-handler"));
 var Events_1 = __importDefault(require("./enums/Events"));
+var SlashCommands_1 = __importDefault(require("./SlashCommands"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
-    // private _slashCommand: SlashCommands
     function WOKCommands(client, options) {
         var _this = _super.call(this) || this;
         _this._defaultPrefix = '!';
@@ -140,12 +140,12 @@ var WOKCommands = /** @class */ (function (_super) {
         if (typeof disabledDefaultCommands === 'string') {
             disabledDefaultCommands = [disabledDefaultCommands];
         }
+        _this._slashCommand = new SlashCommands_1.default(_this);
         _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir, disabledDefaultCommands);
         if (_this._featureDir) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
         _this._messageHandler = new message_handler_1.default(_this, messagesPath || '');
-        // this._slashCommand = new SlashCommands(this._client)
         _this.setCategorySettings('Configuration', '⚙️');
         _this.setCategorySettings('Help', '❓');
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -197,6 +197,13 @@ var WOKCommands = /** @class */ (function (_super) {
         console.warn("WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead. See https://www.npmjs.com/package/wokcommands#language-support for more information");
         return this;
     };
+    Object.defineProperty(WOKCommands.prototype, "client", {
+        get: function () {
+            return this._client;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(WOKCommands.prototype, "displayName", {
         get: function () {
             return this._displayName;
@@ -400,6 +407,13 @@ var WOKCommands = /** @class */ (function (_super) {
     Object.defineProperty(WOKCommands.prototype, "messageHandler", {
         get: function () {
             return this._messageHandler;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(WOKCommands.prototype, "slashCommands", {
+        get: function () {
+            return this._slashCommand;
         },
         enumerable: false,
         configurable: true

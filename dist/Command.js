@@ -41,7 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var cooldown_1 = __importDefault(require("./models/cooldown"));
 var Command = /** @class */ (function () {
     function Command(instance, client, names, callback, error, _a) {
-        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, permissions = _a.permissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, _b = _a.ownerOnly, ownerOnly = _b === void 0 ? false : _b, _c = _a.hidden, hidden = _c === void 0 ? false : _c, _d = _a.guildOnly, guildOnly = _d === void 0 ? false : _d, _e = _a.testOnly, testOnly = _e === void 0 ? false : _e;
+        var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, permissions = _a.permissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, _b = _a.ownerOnly, ownerOnly = _b === void 0 ? false : _b, _c = _a.hidden, hidden = _c === void 0 ? false : _c, _d = _a.guildOnly, guildOnly = _d === void 0 ? false : _d, _e = _a.testOnly, testOnly = _e === void 0 ? false : _e, _f = _a.slash, slash = _f === void 0 ? false : _f;
         this._names = [];
         this._category = '';
         this._minArgs = 0;
@@ -59,6 +59,7 @@ var Command = /** @class */ (function () {
         this._hidden = false;
         this._guildOnly = false;
         this._testOnly = false;
+        this._slash = false;
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -83,6 +84,7 @@ var Command = /** @class */ (function () {
         this._testOnly = testOnly;
         this._callback = callback;
         this._error = error;
+        this._slash = slash;
         if (this.cooldown && this.globalCooldown) {
             throw new Error("Command \"" + names[0] + "\" has both a global and per-user cooldown. Commands can only have up to one of these properties.");
         }
@@ -117,6 +119,7 @@ var Command = /** @class */ (function () {
         }
         this._callback({
             message: message,
+            channel: message.channel,
             args: args,
             text: args.join(' '),
             client: this.client,
@@ -435,6 +438,13 @@ var Command = /** @class */ (function () {
     Object.defineProperty(Command.prototype, "error", {
         get: function () {
             return this._error;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Command.prototype, "slash", {
+        get: function () {
+            return this._slash;
         },
         enumerable: false,
         configurable: true

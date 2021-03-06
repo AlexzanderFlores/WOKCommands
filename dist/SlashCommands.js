@@ -48,8 +48,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var discord_js_1 = require("discord.js");
 var SlashCommands = /** @class */ (function () {
-    function SlashCommands(client) {
-        this._client = client;
+    function SlashCommands(instance, listen) {
+        var _this = this;
+        if (listen === void 0) { listen = true; }
+        this._instance = instance;
+        this._client = instance.client;
+        if (listen) {
+            // @ts-ignore
+            this._client.ws.on('INTERACTION_CREATE', function (interaction) { return __awaiter(_this, void 0, void 0, function () {
+                var member, data, guild_id, channel_id, name, options, command, args, guild, channel;
+                return __generator(this, function (_a) {
+                    member = interaction.member, data = interaction.data, guild_id = interaction.guild_id, channel_id = interaction.channel_id;
+                    name = data.name, options = data.options;
+                    command = name.toLowerCase();
+                    args = this.getArrayFromOptions(options);
+                    guild = this._client.guilds.cache.get(guild_id);
+                    channel = guild === null || guild === void 0 ? void 0 : guild.channels.cache.get(channel_id);
+                    this.invokeCommand(interaction, command, args, member, guild, channel);
+                    return [2 /*return*/];
+                });
+            }); });
+        }
     }
     SlashCommands.prototype.get = function (guildId) {
         return __awaiter(this, void 0, void 0, function () {
@@ -117,6 +136,17 @@ var SlashCommands = /** @class */ (function () {
         }
         return args;
     };
+    SlashCommands.prototype.getArrayFromOptions = function (options) {
+        var args = [];
+        if (!options) {
+            return args;
+        }
+        for (var _i = 0, options_2 = options; _i < options_2.length; _i++) {
+            var value = options_2[_i].value;
+            args.push(value);
+        }
+        return args;
+    };
     SlashCommands.prototype.createAPIMessage = function (interaction, content) {
         return __awaiter(this, void 0, void 0, function () {
             var _a, data, files;
@@ -130,6 +160,57 @@ var SlashCommands = /** @class */ (function () {
                     case 1:
                         _a = _b.sent(), data = _a.data, files = _a.files;
                         return [2 /*return*/, __assign(__assign({}, data), { files: files })];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.invokeCommand = function (interaction, commandName, options, member, guild, channel) {
+        return __awaiter(this, void 0, void 0, function () {
+            var command, result, data, embed;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        command = this._instance.commandHandler.getCommand(commandName);
+                        if (!command || !command.callback) {
+                            return [2 /*return*/, false];
+                        }
+                        return [4 /*yield*/, command.callback({
+                                member: member,
+                                guild: guild,
+                                channel: channel,
+                                args: options,
+                                // @ts-ignore
+                                text: options.join ? options.join(' ') : '',
+                                client: this._client,
+                                instance: this._instance,
+                            })];
+                    case 1:
+                        result = _a.sent();
+                        if (!result) {
+                            console.error("WOKCommands > Command \"" + commandName + "\" did not return any content from it's callback function. This is required as it is a slash command.");
+                            return [2 /*return*/, false];
+                        }
+                        data = {
+                            content: result,
+                        };
+                        if (!(typeof result === 'object')) return [3 /*break*/, 3];
+                        embed = new discord_js_1.MessageEmbed(result);
+                        return [4 /*yield*/, this.createAPIMessage(interaction, embed)];
+                    case 2:
+                        data = _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        // @ts-ignore
+                        this._client.api
+                            // @ts-ignore
+                            .interactions(interaction.id, interaction.token)
+                            .callback.post({
+                            data: {
+                                type: 4,
+                                data: data,
+                            },
+                        });
+                        return [2 /*return*/, true];
                 }
             });
         });

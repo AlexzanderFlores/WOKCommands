@@ -8,7 +8,7 @@ import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
 import Events from './enums/Events'
-// import SlashCommands from './SlashCommands'
+import SlashCommands from './SlashCommands'
 
 type Options = {
   commandsDir?: string
@@ -40,7 +40,7 @@ class WOKCommands extends EventEmitter {
   private _testServers: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
-  // private _slashCommand: SlashCommands
+  private _slashCommand: SlashCommands
 
   constructor(client: Client, options: Options) {
     super()
@@ -114,6 +114,8 @@ class WOKCommands extends EventEmitter {
       disabledDefaultCommands = [disabledDefaultCommands]
     }
 
+    this._slashCommand = new SlashCommands(this)
+
     this._commandHandler = new CommandHandler(
       this,
       client,
@@ -125,8 +127,6 @@ class WOKCommands extends EventEmitter {
     }
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')
-
-    // this._slashCommand = new SlashCommands(this._client)
 
     this.setCategorySettings('Configuration', '⚙️')
     this.setCategorySettings('Help', '❓')
@@ -173,6 +173,10 @@ class WOKCommands extends EventEmitter {
       `WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead. See https://www.npmjs.com/package/wokcommands#language-support for more information`
     )
     return this
+  }
+
+  public get client(): Client {
+    return this._client
   }
 
   public get displayName(): string {
@@ -382,9 +386,9 @@ class WOKCommands extends EventEmitter {
     return this._messageHandler
   }
 
-  // public get slashCommands(): SlashCommands {
-  //   return this._slashCommand
-  // }
+  public get slashCommands(): SlashCommands {
+    return this._slashCommand
+  }
 }
 
 export = WOKCommands
