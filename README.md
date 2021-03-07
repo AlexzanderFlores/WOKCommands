@@ -201,6 +201,7 @@ The `callback` function can also be named `run` or `execute`. This function has 
 5. `prefix`: The prefix for the server this command is being ran in, or "!" is one is not set. This is undefined if your command is a slash command.
 6. `instance`: The WOKCommands instance which will contain some helper methods
 7. `channel`: The channel where the message was sent
+8. `interaction`: The interaction for the slash command.
 
 Example:
 
