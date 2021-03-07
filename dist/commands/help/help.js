@@ -59,16 +59,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var discord_js_1 = require("discord.js");
-var get_first_embed_1 = __importDefault(require("./get-first-embed"));
-var ReactionListener_1 = __importStar(require("./ReactionListener"));
+var _get_first_embed_1 = __importDefault(require("./!get-first-embed"));
+var _ReactionListener_1 = __importStar(require("./!ReactionListener"));
 var sendHelpMenu = function (message, instance) {
-    var _a = get_first_embed_1.default(message, instance), embed = _a.embed, reactions = _a.reactions;
+    var _a = _get_first_embed_1.default(message, instance), embed = _a.embed, reactions = _a.reactions;
     message.channel
         .send('', {
         embed: embed,
     })
         .then(function (message) {
-        ReactionListener_1.addReactions(message, reactions);
+        _ReactionListener_1.addReactions(message, reactions);
     });
 };
 module.exports = {
@@ -80,7 +80,7 @@ module.exports = {
     init: function (client, instance) {
         client.on('messageReactionAdd', function (reaction, user) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                new ReactionListener_1.default(instance, reaction, user);
+                new _ReactionListener_1.default(instance, reaction, user);
                 return [2 /*return*/];
             });
         }); });
@@ -112,7 +112,7 @@ module.exports = {
             }));
             return;
         }
-        var description = ReactionListener_1.default.getHelp(command, instance, guild);
+        var description = _ReactionListener_1.default.getHelp(command, instance, guild);
         var embed = new discord_js_1.MessageEmbed()
             .setTitle(instance.displayName + " " + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE') + " - " + arg)
             .setDescription(description);

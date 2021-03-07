@@ -1,8 +1,8 @@
 import { Client, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '../..'
 import ICommandArguments from '../../interfaces/ICommandArguments'
-import getFirstEmbed from './get-first-embed'
-import ReactionListener, { addReactions } from './ReactionListener'
+import getFirstEmbed from './!get-first-embed'
+import ReactionListener, { addReactions } from './!ReactionListener'
 
 const sendHelpMenu = (message: Message, instance: WOKCommands) => {
   const { embed, reactions } = getFirstEmbed(message, instance)

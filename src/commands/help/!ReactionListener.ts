@@ -8,7 +8,7 @@ import {
 } from 'discord.js'
 import WOKCommands from '../..'
 import ICommand from '../../interfaces/ICommand'
-import getFirstEmbed from './get-first-embed'
+import getFirstEmbed from './!get-first-embed'
 
 const /**
    * Recursively adds reactions to the message
