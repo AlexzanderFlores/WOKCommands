@@ -124,6 +124,11 @@
     "spanish": "Este bot precisa da permissão \"Adicionar reações\" para usar o menu de ajuda.",
     "portuguese": "Este bot precisa da permissão \"Adicionar reações\" para usar o menu de ajuda."
   },
+  "EXCEPTION": {
+    "english": "An error occurred when running this command! This error has been reported to the developers.",
+    "spanish": "¡Se produjo un error al ejecutar este comando! Se ha informado de este error a los desarrolladores.",
+    "portuguese": "Ocorreu um erro ao executar este comando! Este erro foi relatado aos desenvolvedores."
+  },
   "HELP_MENU": {
     "TITLE": {
       "english": "Help Menu",

@@ -11,6 +11,7 @@
 - [Creating a Feature](#creating-a-feature)
 - [Configuring a Feature](#configuring-a-feature)
 - [Creating a Command](#creating-a-command)
+- [Handling Command Errors](#handling-command-errors)
 - [Command Categories](#command-categories)
 - [Command Initialization Method](#command-initialization-method)
 - [Argument Rules](#argument-rules)
@@ -71,7 +72,17 @@ client.on('ready', () => {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
-  },
+  }
+
+  // If you want to disable built in commands you can add them to this array. Simply uncomment the strings to disable that command.
+
+  const disabledDefaultCommands = [
+    // 'help',
+    // 'command',
+    // 'language',
+    // 'prefix',
+    // 'requiredrole'
+  ]
 
   // Initialize WOKCommands with specific folders and MongoDB
   new WOKCommands(client, {
@@ -79,7 +90,8 @@ client.on('ready', () => {
     featureDir: 'features',
     messagesPath,
     showWarns: true, // Show start up warnings
-    dbOptions
+    dbOptions,
+    disabledDefaultCommands
   })
     // Set your MongoDB connection path
     .setMongoPath(process.env.MONGO_URI)
@@ -201,6 +213,47 @@ module.exports = {
 
 These properties are inside of an object so you can access any of them individually. For example if you need the `instance` then you won't need to access all previous parameters before accessing instance.
 
+# Handling Command Errors
+
+WOKCommands sends an error message by default, however you might want to customize this more and perhaps send an embed instead of a normal message. You can listen to command errors to achieve this.
+
+Here is a list of all command errors you can listen for:
+
+```
+EXCEPTION
+COOLDOWN
+INVALID ARGUMENTS
+MISSING PERMISSIONS
+MISSING ROLES
+COMMAND DISABLED
+```
+
+Each one will provide various pieces of information depending on what the error is. For example "MISSING ROLES" will provide a list of missing roles. "INVALID ARGUMENTS" will provide the arguments the user used in the command.
+
+To listen to command errors you can pass an "error" function in your comamnd object like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+const { MessageEmbed } = require('discord.js')
+
+module.exports = {
+  callback: ({ message }) => {
+    message.reply('pong')
+  },
+  error: ({ error, command, message, info }) => {
+    if (error === 'COMMAND DISABLED') {
+      const embed = new MessageEmbed()
+        .setTitle('Command disabled')
+        .setColor(0xff0000)
+
+      message.reply(embed)
+    }
+  },
+}
+```
+
 # Command Categories
 
 You can also specify an optional command category for each command:
@@ -251,6 +304,22 @@ client.on('ready', () => {
         // You can also hide a category from the help menu
         // Admins bypass this
         hidden: true
+      },
+      {
+        // You can use custom emojis by specifying the ID
+        // NOTE: Your bot MUST be in the same server as the emoji
+        name: 'Example',
+        // :typescript: emoji ID from the WOK server
+        emoji: '814238393747243009',
+        customEmoji: true
+      },
+      {
+        // You can also specify the full name of the emoji without the boolean
+        // WOKCommands will detect that this is custom and get the ID
+        // NOTE: Your bot MUST be in the same server as the emoji
+        name: 'Example',
+        // :typescript: emoji String from the WOK server
+        emoji: '<:typescript:791512440021975062>'
       }
     ])
 })
@@ -426,7 +495,7 @@ Sometimes you will want to require a Discord permission node before a user can r
 
 module.exports = {
   maxArgs: 0,
-  requiredPermissions: ['ADMINISTRATOR'],
+  permissions: ['ADMINISTRATOR'],
   callback: ({ message }) => {
     message.reply('hello')
   },
@@ -538,7 +607,7 @@ Embed:
 }
 ```
 
-You can find the default `messages.json` here: https://github.com/AlexzanderFlores/WOKCommands/blob/main/messages.json. You will also need to define where your `messages.json` file lives in the WOKCommands constructor like so:
+You can find the default `messages.json` here: https://github.com/AlexzanderFlores/WOKCommands/blob/main/src/messages.json. You will also need to define where your `messages.json` file lives in the WOKCommands constructor like so:
 
 ```JS
 // Assumes messages.json is in the same directory as this code's file
@@ -665,6 +734,12 @@ client.on('ready', () => {
   // Ran when a server owner attempts to set a language that you have not supported yet
   wok.on('languageNotSupported', (message, lang) => {
     console.log('Attempted to set language to', lang)
+  })
+
+  // Ran when an exception occurs within a command
+  wok.on('commandException', (command, message, error) => {
+    console.log(`An exception occured when using command "${command.names[0]}"! The error is:`)
+    console.error(error)
   })
 })
 

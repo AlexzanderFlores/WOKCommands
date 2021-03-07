@@ -2,6 +2,9 @@ import languageSchema from './models/languages'
 import { Guild } from 'discord.js'
 import WOKCommands from '.'
 
+import defualtMessages from './messages.json'
+import Events from './enums/Events'
+
 export default class MessageHandler {
   private _instance: WOKCommands
   private _guildLanguages: Map<string, string> = new Map() // <Guild ID, Language>
@@ -13,11 +16,9 @@ export default class MessageHandler {
   } = {}
 
   constructor(instance: WOKCommands, messagePath: string) {
-    messagePath = messagePath || './messages.json'
-
     this._instance = instance
     ;(async () => {
-      this._messages = await import(messagePath)
+      this._messages = messagePath ? await import(messagePath) : defualtMessages
 
       for (const messageId of Object.keys(this._messages)) {
         for (const language of Object.keys(this._messages[messageId])) {
@@ -25,7 +26,7 @@ export default class MessageHandler {
         }
       }
 
-      instance.on('databaseConnected', async (connection, state) => {
+      instance.on(Events.DATABASE_CONNECTED, async (connection, state) => {
         if (state !== 'Connected') {
           return
         }

@@ -1,6 +1,8 @@
 import mongoose, { Connection } from 'mongoose'
 import WOKCommands from '.'
 
+import Events from './enums/Events'
+
 const results: {
   [name: number]: string
 } = {
@@ -25,7 +27,8 @@ const mongo = async (
 
   const { connection } = mongoose
   const state = results[connection.readyState] || 'Unknown'
-  instance.emit('databaseConnected', connection, state)
+  instance.emit(Events.DATABASE_CONNECTED, connection, state)
+  console.log('DB Connected')
 }
 
 export const getMongoConnection = (): Connection => {

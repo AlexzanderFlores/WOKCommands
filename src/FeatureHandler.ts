@@ -2,6 +2,7 @@ import { Client } from 'discord.js'
 import fs from 'fs'
 import WOKCommands from '.'
 
+import Events from './enums/Events'
 import getAllFiles from './get-all-files'
 
 class FeatureHandler {
@@ -73,7 +74,7 @@ class FeatureHandler {
               }
             }
 
-            instance.on('databaseConnected', (connection, state) => {
+            instance.on(Events.DATABASE_CONNECTED, (connection, state) => {
               if (state === 'Connected') {
                 for (const {
                   func,

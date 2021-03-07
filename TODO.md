@@ -35,3 +35,11 @@
 [ ] MySQL support
 
 [X] Language and message customization
+
+[ ] Allow people to easily access mongo models
+
+[ ] Add TypeScript support
+
+[ ] Refactor code to prevent large functions
+
+[ ] Ability to select a default language from any of the supported languages in messages.json

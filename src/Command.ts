@@ -1,6 +1,7 @@
 import { Client, Message } from 'discord.js'
 import WOKCommands from '.'
 
+import permissions from './permissions'
 import ICommand from './interfaces/ICommand'
 import cooldownSchema from './models/cooldown'
 
@@ -14,9 +15,10 @@ class Command {
   private _syntaxError?: { [key: string]: string }
   private _expectedArgs?: string
   private _description?: string
-  private _requiredPermissions?: string[] = []
+  private _requiredPermissions?: permissions | undefined
   private _requiredRoles?: Map<String, string[]> = new Map() // <GuildID, RoleIDs[]>
   private _callback: Function = () => {}
+  private _error: Function | null = null
   private _disabled: string[] = []
   private _cooldownDuration = 0
   private _cooldownChar = ''
@@ -35,6 +37,7 @@ class Command {
     client: Client,
     names: string[],
     callback: Function,
+    error: Function,
     {
       category,
       minArgs,
@@ -43,6 +46,7 @@ class Command {
       expectedArgs,
       description,
       requiredPermissions,
+      permissions,
       cooldown,
       globalCooldown,
       ownerOnly = false,
@@ -68,7 +72,7 @@ class Command {
     this._syntaxError = syntaxError
     this._expectedArgs = expectedArgs
     this._description = description
-    this._requiredPermissions = requiredPermissions
+    this._requiredPermissions = requiredPermissions || permissions
     this._cooldown = cooldown || ''
     this._globalCooldown = globalCooldown || ''
     this._ownerOnly = ownerOnly
@@ -76,10 +80,17 @@ class Command {
     this._guildOnly = guildOnly
     this._testOnly = testOnly
     this._callback = callback
+    this._error = error
 
     if (this.cooldown && this.globalCooldown) {
       throw new Error(
         `Command "${names[0]}" has both a global and per-user cooldown. Commands can only have up to one of these properties.`
+      )
+    }
+
+    if (requiredPermissions && permissions) {
+      throw new Error(
+        `Command "${names[0]}" has both requiredPermissions and permissions fields. These are interchangeable but only one should be provided.`
       )
     }
 
@@ -166,7 +177,7 @@ class Command {
     return this._description
   }
 
-  public get requiredPermissions(): string[] | undefined {
+  public get requiredPermissions(): permissions | undefined {
     return this._requiredPermissions
   }
 
@@ -446,6 +457,10 @@ class Command {
 
   public isDisabled(guildId: string) {
     return this._disabled.includes(guildId)
+  }
+
+  public get error(): Function | null {
+    return this._error
   }
 }
 
