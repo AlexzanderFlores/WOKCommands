@@ -47,7 +47,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addReactions = void 0;
-var get_first_embed_1 = __importDefault(require("./get-first-embed"));
+var _get_first_embed_1 = __importDefault(require("./!get-first-embed"));
 var /**
    * Recursively adds reactions to the message
    * @param message The message to react to
@@ -126,7 +126,7 @@ var ReactionHandler = /** @class */ (function () {
          * Invoked when the user returns to the main menu
          */
         this.returnToMainMenu = function () {
-            var _a = get_first_embed_1.default(_this.message, _this.instance), newEmbed = _a.embed, reactions = _a.reactions;
+            var _a = _get_first_embed_1.default(_this.message, _this.instance), newEmbed = _a.embed, reactions = _a.reactions;
             _this.embed.setDescription(newEmbed.description);
             _this.message.edit(_this.embed);
             if (_this.canBotRemoveReaction()) {
