@@ -142,6 +142,7 @@ class SlashCommands {
       text: options.join ? options.join(' ') : '',
       client: this._client,
       instance: this._instance,
+      interaction,
     })
 
     if (!result) {
