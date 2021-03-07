@@ -18,4 +18,5 @@ export default interface ICommand {
   hidden?: boolean
   guildOnly?: boolean
   testOnly?: boolean
+  slash?: boolean | 'both'
 }

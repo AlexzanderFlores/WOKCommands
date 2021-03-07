@@ -1,8 +1,20 @@
-import { Client } from 'discord.js'
+import { Client, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '../..'
 import ICommandArguments from '../../interfaces/ICommandArguments'
 import getFirstEmbed from './!get-first-embed'
 import ReactionListener, { addReactions } from './!ReactionListener'
+
+const sendHelpMenu = (message: Message, instance: WOKCommands) => {
+  const { embed, reactions } = getFirstEmbed(message, instance)
+
+  message.channel
+    .send('', {
+      embed,
+    })
+    .then((message) => {
+      addReactions(message, reactions)
+    })
+}
 
 module.exports = {
   aliases: 'commands',
@@ -16,7 +28,7 @@ module.exports = {
     })
   },
   callback: (options: ICommandArguments) => {
-    const { message, instance } = options
+    const { message, instance, args } = options
 
     const guild = message.guild
 
@@ -32,14 +44,41 @@ module.exports = {
       return
     }
 
-    const { embed, reactions } = getFirstEmbed(message, instance)
+    // Typical "!help" syntax for the menu
+    if (args.length === 0) {
+      sendHelpMenu(message, instance)
+      return
+    }
 
-    message.channel
-      .send('', {
-        embed,
-      })
-      .then((message) => {
-        addReactions(message, reactions)
-      })
+    // If the user is looking for info on a specific command
+    // Ex: "!help prefix"
+    const arg = args.shift()?.toLowerCase()!
+
+    const command = instance.commandHandler.getICommand(arg)
+    if (!command) {
+      message.reply(
+        instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+          COMMAND: arg,
+        })
+      )
+      return
+    }
+
+    const description = ReactionListener.getHelp(command, instance, guild)
+    const embed = new MessageEmbed()
+      .setTitle(
+        `${instance.displayName} ${instance.messageHandler.getEmbed(
+          guild,
+          'HELP_MENU',
+          'TITLE'
+        )} - ${arg}`
+      )
+      .setDescription(description)
+
+    if (instance.color) {
+      embed.setColor(instance.color)
+    }
+
+    message.channel.send('', { embed })
   },
 }

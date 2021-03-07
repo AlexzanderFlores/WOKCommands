@@ -7,6 +7,7 @@ import {
   User,
 } from 'discord.js'
 import WOKCommands from '../..'
+import ICommand from '../../interfaces/ICommand'
 import getFirstEmbed from './!get-first-embed'
 
 const /**
@@ -30,7 +31,8 @@ class ReactionHandler {
   message: Message
   embed!: MessageEmbed
   guild: Guild | null = null
-  emoji: string = ''
+  emojiName = ''
+  emojiId = ''
   door = '🚪'
   pageLimit = 3
 
@@ -65,7 +67,8 @@ class ReactionHandler {
       return
     }
 
-    this.emoji = this.reaction.emoji.name
+    this.emojiName = this.reaction.emoji.name
+    this.emojiId = this.reaction.emoji.id || ''
     this.handleEmoji()
   }
 
@@ -147,7 +150,7 @@ class ReactionHandler {
    * @returns An object containing information regarding the commands
    */
   getCommands = () => {
-    let category = this.instance.getCategory(this.emoji)
+    let category = this.instance.getCategory(this.emojiId || this.emojiName)
 
     const commandsString = this.instance.messageHandler.getEmbed(
       this.guild,
@@ -173,6 +176,35 @@ class ReactionHandler {
       commandsString,
       category,
     }
+  }
+
+  static getHelp = (
+    command: ICommand,
+    instance: WOKCommands,
+    guild: Guild | null
+  ) => {
+    const { description, syntax, names } = command
+    const mainName = typeof names === 'string' ? names : names.shift()
+
+    let desc = `**${mainName}**${description ? ' - ' : ''}${description}`
+
+    if (names.length && typeof names !== 'string') {
+      desc += `\n${instance.messageHandler.getEmbed(
+        guild,
+        'HELP_MENU',
+        'ALIASES'
+      )}: "${names.join('", "')}"`
+    }
+
+    desc += `\n${instance.messageHandler.getEmbed(
+      guild,
+      'HELP_MENU',
+      'SYNTAX'
+    )}: "${instance.getPrefix(guild)}${mainName}${syntax ? ' ' : ''}${
+      syntax || ''
+    }"`
+
+    return desc
   }
 
   /**
@@ -205,34 +237,20 @@ class ReactionHandler {
       ++a
     ) {
       const command = commands[a]
-      let { description, hidden, category, names, syntax } = command
+
+      let { hidden, category, names } = command
 
       if (!hidden && category === category) {
         if (typeof names === 'string') {
           // @ts-ignore
           names = [...names]
         }
-        const mainName = names.shift()
 
-        desc += `\n\n#${++counter}) **${mainName}**${
-          description ? ' - ' : ''
-        }${description}`
-
-        if (names.length) {
-          desc += `\n${this.instance.messageHandler.getEmbed(
-            this.guild,
-            'HELP_MENU',
-            'ALIASES'
-          )}: "${names.join('", "')}"`
-        }
-
-        desc += `\n${this.instance.messageHandler.getEmbed(
-          this.guild,
-          'HELP_MENU',
-          'SYNTAX'
-        )}: "${this.instance.getPrefix(this.guild)}${mainName}${
-          syntax ? ' ' : ''
-        }${syntax}"`
+        desc += `\n\n#${++counter}) ${ReactionHandler.getHelp(
+          command,
+          this.instance,
+          this.guild
+        )}`
       }
     }
 
@@ -259,7 +277,7 @@ class ReactionHandler {
    * Handles the input from the emoji
    */
   handleEmoji = () => {
-    if (this.emoji === this.door) {
+    if (this.emojiName === this.door) {
       this.returnToMainMenu()
       return
     }
@@ -268,7 +286,7 @@ class ReactionHandler {
 
     let [page, maxPages] = this.getMaxPages(length)
 
-    if (this.emoji === '⬅') {
+    if (this.emojiName === '⬅') {
       if (page <= 1) {
         if (this.canBotRemoveReaction()) {
           this.reaction.users.remove(this.user.id)
@@ -277,7 +295,7 @@ class ReactionHandler {
       }
 
       --page
-    } else if (this.emoji === '➡') {
+    } else if (this.emojiName === '➡') {
       if (page >= maxPages) {
         if (this.canBotRemoveReaction()) {
           this.reaction.users.remove(this.user.id)

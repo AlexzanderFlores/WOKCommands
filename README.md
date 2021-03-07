@@ -24,6 +24,9 @@
 - [Configurable Required Roles](#configurable-required-roles)
 - [Command Cooldowns](#command-cooldowns)
   - [Global Cooldowns](#global-cooldowns)
+- [Slash Commands](#slash-commands)
+  - [Slash Command Arguments](#slash-command-arguments)
+  - [Responding with Embeds](#responding-with-embeds)
 - [Language Support](#language-support)
   - [Language Configuration](##language-configuration)
   - [Storing custom messages and translations](##storing-custom-messages-and-translations)
@@ -191,12 +194,14 @@ This will make `!ping`, `!runping`, and `!p` execute the command. There are vari
 
 The `callback` function can also be named `run` or `execute`. This function has one object parameter with the following properties:
 
-1. `message`: The standard Message object
+1. `message`: The standard Message object. This is undefined if your command is a slash command.
 2. `args`: An array of all arguments provided with the command
 3. `text`: A string version of the args array
 4. `client`: The Discord.JS client for your bot
-5. `prefix`: The prefix for the server this command is being ran in, or "!" is one is not set
+5. `prefix`: The prefix for the server this command is being ran in, or "!" is one is not set. This is undefined if your command is a slash command.
 6. `instance`: The WOKCommands instance which will contain some helper methods
+7. `channel`: The channel where the message was sent
+8. `interaction`: The interaction for the slash command.
 
 Example:
 
@@ -205,7 +210,7 @@ Example:
 // Folder "./commands"
 
 module.exports = {
-  callback: ({ message, args, text, client, prefix, instance }) => {
+  callback: ({ message, args, text, client, prefix, instance, channel }) => {
     message.reply('pong')
   }
 }
@@ -567,6 +572,162 @@ The minimum duration is 1 minute for global cooldowns. For durations over 5 minu
 
 For more examples of the cooldown format please see the chart at [Command Cooldowns](#command-cooldowns).
 
+# Test Servers
+
+You might not want a command or feature to work while it is still in development. You can specify a test server to prevent in-development code from working.
+
+First you must specify test servers like so:
+
+```JS
+const DiscordJS = require('discord.js')
+const WOKCommands = require('wokcommands')
+require('dotenv').config()
+
+const client = new DiscordJS.Client({
+  partials: ['MESSAGE', 'REACTION'],
+})
+
+client.on('ready', () => {
+  // Initialize WOKCommands
+  new WOKCommands(client, {
+    // Can be a single string as well
+    testServers: ['747587598712569913'],
+  })
+})
+
+client.login(process.env.TOKEN)
+```
+
+After that you can specify some features and commands as "testOnly" like so:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  testOnly: true, // Will now only work on test servers
+  callback: ({ message }) => {
+    message.reply('pong')
+  }
+}
+```
+
+```JS
+// File name: "message-logger.js"
+// Folder "./features"
+
+module.exports = (client, instance, isEnabled) => {
+  // Listen for messages
+  client.on('message', (message) => {
+    // Access the guild, required to see if this is enabled
+    const { guild } = message
+
+    // If the guild exists and we are enabled within this guild
+    // Remove the guild checek if you want this to be enabled in DMs
+    if (guild && isEnabled(guild.id)) {
+      // If this is enabled then log the content to the console
+      console.log(message.content)
+    }
+  })
+}
+
+module.exports.config = {
+  displayName: 'Test',
+  dbName: 'TEST',
+  loadDBFirst: true,
+  testOnly: true, // Will now only work on test servers
+}
+
+```
+
+# Slash Commands
+
+Slash commands are a new system for commands within Discord bots. WOKCommands aims to help developers implement slash commands in the easiest way possible. You can view the official documentation for slash commands [here](https://discord.com/developers/docs/interactions/slash-commands).
+
+Here is a basic ping pong slash command example:
+
+```JS
+// File name: "ping.js"
+// Folder "./commands"
+
+module.exports = {
+  slash: true,
+  testOnly: true, // Ensure you have test servers setup, see the above section
+  description: 'A simple ping pong command', // Required for slash commands
+  callback: ({}) => {
+    // The content to reply with must be returned from the callback function
+    // This is required for slash commands exclusively
+    return 'pong'
+  }
+}
+```
+
+When running `/ping` it will send "pong" in the same channel.
+
+The "testOnly" property is important when testing. Guild based slash commands will register instantly, where global slash commands may take up to an hour to be visible in servers who use your bot. To specify the test guild IDs please check the [Test Servers](#test-servers) documentation.
+
+All of the normal WOKCommands callback arguments are available aside from `message` and `prefix`. A full list can be found [here](#creating-a-command).
+
+## Slash Command Arguments
+
+Slash commands handle arguments differently, hover WOKCommands will allow you specify your slash command arguments in the same way as normal commands. Here is an example of a "name and age" command:
+
+```JS
+// File name: "nameage.js"
+// Folder "./commands"
+
+module.exports = {
+  slash: true,
+  testOnly: true, // Ensure you have test servers setup, see the above section
+  description: 'Displays your name and age', // Required for slash commands
+  minArgs: 2,
+  expectedArgs: '<Name> <Age>',
+  callback: ({ args }) => {
+    // Destructure the name and age from the args array
+    const [name, age] = args
+
+    // The content to reply with must be returned from the callback function
+    // This is required for slash commands exclusively
+    return `Hello my name is ${name} and I am ${age} years old.`
+  }
+}
+```
+
+If you were to run `/nameage Alex 27` you would then see the text "Hello my name is Alex and I am 27 years old." as a reply. The `minArgs` property will let WOKCommands know how many arguments are required. In this case it is all of them, however if it was `1` then the "Age" argument would be optional.
+
+## Responding with Embeds
+
+If you have worked with embeds and slash commands directly then you know there is extra work that goes into it. WOKCommands makes this very easy and does the heavy lifting for you. If we wanted the previous example to return with an embed then we can just simply return an embed like so:
+
+```JS
+// File name: "nameage.js"
+// Folder "./commands"
+
+const { MessageEmbed } = require('discord.js')
+
+module.exports = {
+  slash: true,
+  testOnly: true, // Ensure you have test servers setup, see the above section
+  description: 'Displays your name and age', // Required for slash commands
+  minArgs: 2,
+  expectedArgs: '<Name> <Age>',
+  callback: ({ args }) => {
+    // Destructure the name and age from the args array
+    const [name, age] = args
+
+    // Create the embed
+    const embed = new MessageEmbed()
+      .setTitle('Example Embed')
+      .addField('Name', name)
+      .addField('Age', age)
+
+    // The content to reply with must be returned from the callback function
+    // This is required for slash commands exclusively
+    return embed
+  },
+}
+```
+
 # Language Support
 
 ## Language Configuration
@@ -744,74 +905,6 @@ client.on('ready', () => {
 })
 
 client.login(process.env.TOKEN)
-```
-
-# Test Servers
-
-You might not want a command or feature to work while it is still in development. You can specify a test server to prevent in-development code from working.
-
-First you must specify test servers like so:
-
-```JS
-const DiscordJS = require('discord.js')
-const WOKCommands = require('wokcommands')
-require('dotenv').config()
-
-const client = new DiscordJS.Client({
-  partials: ['MESSAGE', 'REACTION'],
-})
-
-client.on('ready', () => {
-  // Initialize WOKCommands
-  new WOKCommands(client, {
-    // Can be a single string as well
-    testServers: ['747587598712569913'],
-  })
-})
-
-client.login(process.env.TOKEN)
-```
-
-After that you can specify some features and commands as "testOnly" like so:
-
-```JS
-// File name: "ping.js"
-// Folder "./commands"
-
-module.exports = {
-  testOnly: true, // Will now only work on test servers
-  callback: ({ message }) => {
-    message.reply('pong')
-  }
-}
-```
-
-```JS
-// File name: "message-logger.js"
-// Folder "./features"
-
-module.exports = (client, instance, isEnabled) => {
-  // Listen for messages
-  client.on('message', (message) => {
-    // Access the guild, required to see if this is enabled
-    const { guild } = message
-
-    // If the guild exists and we are enabled within this guild
-    // Remove the guild checek if you want this to be enabled in DMs
-    if (guild && isEnabled(guild.id)) {
-      // If this is enabled then log the content to the console
-      console.log(message.content)
-    }
-  })
-}
-
-module.exports.config = {
-  displayName: 'Test',
-  dbName: 'TEST',
-  loadDBFirst: true,
-  testOnly: true, // Will now only work on test servers
-}
-
 ```
 
 # Support & Feature Requests

@@ -58,8 +58,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var discord_js_1 = require("discord.js");
 var _get_first_embed_1 = __importDefault(require("./!get-first-embed"));
 var _ReactionListener_1 = __importStar(require("./!ReactionListener"));
+var sendHelpMenu = function (message, instance) {
+    var _a = _get_first_embed_1.default(message, instance), embed = _a.embed, reactions = _a.reactions;
+    message.channel
+        .send('', {
+        embed: embed,
+    })
+        .then(function (message) {
+        _ReactionListener_1.addReactions(message, reactions);
+    });
+};
 module.exports = {
     aliases: 'commands',
     maxArgs: 1,
@@ -75,8 +86,8 @@ module.exports = {
         }); });
     },
     callback: function (options) {
-        var _a, _b;
-        var message = options.message, instance = options.instance;
+        var _a, _b, _c;
+        var message = options.message, instance = options.instance, args = options.args;
         var guild = message.guild;
         if (guild && !((_a = guild.me) === null || _a === void 0 ? void 0 : _a.hasPermission('SEND_MESSAGES'))) {
             console.warn("WOKCommands > Could not send message due to no permissions in channel for " + guild.name);
@@ -86,13 +97,28 @@ module.exports = {
             message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'));
             return;
         }
-        var _c = _get_first_embed_1.default(message, instance), embed = _c.embed, reactions = _c.reactions;
-        message.channel
-            .send('', {
-            embed: embed,
-        })
-            .then(function (message) {
-            _ReactionListener_1.addReactions(message, reactions);
-        });
+        // Typical "!help" syntax for the menu
+        if (args.length === 0) {
+            sendHelpMenu(message, instance);
+            return;
+        }
+        // If the user is looking for info on a specific command
+        // Ex: "!help prefix"
+        var arg = (_c = args.shift()) === null || _c === void 0 ? void 0 : _c.toLowerCase();
+        var command = instance.commandHandler.getICommand(arg);
+        if (!command) {
+            message.reply(instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+                COMMAND: arg,
+            }));
+            return;
+        }
+        var description = _ReactionListener_1.default.getHelp(command, instance, guild);
+        var embed = new discord_js_1.MessageEmbed()
+            .setTitle(instance.displayName + " " + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE') + " - " + arg)
+            .setDescription(description);
+        if (instance.color) {
+            embed.setColor(instance.color);
+        }
+        message.channel.send('', { embed: embed });
     },
 };

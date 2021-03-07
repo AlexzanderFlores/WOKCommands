@@ -64,7 +64,8 @@ var ReactionHandler = /** @class */ (function () {
     function ReactionHandler(instance, reaction, user) {
         var _this = this;
         this.guild = null;
-        this.emoji = '';
+        this.emojiName = '';
+        this.emojiId = '';
         this.door = '🚪';
         this.pageLimit = 3;
         this.init = function () { return __awaiter(_this, void 0, void 0, function () {
@@ -87,7 +88,8 @@ var ReactionHandler = /** @class */ (function () {
                         if (!this.canUserInteract()) {
                             return [2 /*return*/];
                         }
-                        this.emoji = this.reaction.emoji.name;
+                        this.emojiName = this.reaction.emoji.name;
+                        this.emojiId = this.reaction.emoji.id || '';
                         this.handleEmoji();
                         return [2 /*return*/];
                 }
@@ -153,7 +155,7 @@ var ReactionHandler = /** @class */ (function () {
          * @returns An object containing information regarding the commands
          */
         this.getCommands = function () {
-            var category = _this.instance.getCategory(_this.emoji);
+            var category = _this.instance.getCategory(_this.emojiId || _this.emojiName);
             var commandsString = _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'COMMANDS');
             if (_this.embed.description) {
                 var split = _this.embed.description.split('\n');
@@ -183,18 +185,13 @@ var ReactionHandler = /** @class */ (function () {
             var start = (page - 1) * _this.pageLimit;
             for (var a = start, counter = a; a < commands.length && a < start + _this.pageLimit; ++a) {
                 var command = commands[a];
-                var description = command.description, hidden = command.hidden, category_1 = command.category, names = command.names, syntax = command.syntax;
+                var hidden = command.hidden, category_1 = command.category, names = command.names;
                 if (!hidden && category_1 === category_1) {
                     if (typeof names === 'string') {
                         // @ts-ignore
                         names = __spreadArrays(names);
                     }
-                    var mainName = names.shift();
-                    desc += "\n\n#" + ++counter + ") **" + mainName + "**" + (description ? ' - ' : '') + description;
-                    if (names.length) {
-                        desc += "\n" + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'ALIASES') + ": \"" + names.join('", "') + "\"";
-                    }
-                    desc += "\n" + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'SYNTAX') + ": \"" + _this.instance.getPrefix(_this.guild) + mainName + (syntax ? ' ' : '') + syntax + "\"";
+                    desc += "\n\n#" + ++counter + ") " + ReactionHandler.getHelp(command, _this.instance, _this.guild);
                 }
             }
             desc += "\n\nPage " + page + " / " + maxPages + ".";
@@ -215,13 +212,13 @@ var ReactionHandler = /** @class */ (function () {
          * Handles the input from the emoji
          */
         this.handleEmoji = function () {
-            if (_this.emoji === _this.door) {
+            if (_this.emojiName === _this.door) {
                 _this.returnToMainMenu();
                 return;
             }
             var length = _this.getCommands().length;
             var _a = _this.getMaxPages(length), page = _a[0], maxPages = _a[1];
-            if (_this.emoji === '⬅') {
+            if (_this.emojiName === '⬅') {
                 if (page <= 1) {
                     if (_this.canBotRemoveReaction()) {
                         _this.reaction.users.remove(_this.user.id);
@@ -230,7 +227,7 @@ var ReactionHandler = /** @class */ (function () {
                 }
                 --page;
             }
-            else if (_this.emoji === '➡') {
+            else if (_this.emojiName === '➡') {
                 if (page >= maxPages) {
                     if (_this.canBotRemoveReaction()) {
                         _this.reaction.users.remove(_this.user.id);
@@ -247,6 +244,16 @@ var ReactionHandler = /** @class */ (function () {
         this.message = reaction.message;
         this.init();
     }
+    ReactionHandler.getHelp = function (command, instance, guild) {
+        var description = command.description, syntax = command.syntax, names = command.names;
+        var mainName = typeof names === 'string' ? names : names.shift();
+        var desc = "**" + mainName + "**" + (description ? ' - ' : '') + description;
+        if (names.length && typeof names !== 'string') {
+            desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'ALIASES') + ": \"" + names.join('", "') + "\"";
+        }
+        desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'SYNTAX') + ": \"" + instance.getPrefix(guild) + mainName + (syntax ? ' ' : '') + (syntax || '') + "\"";
+        return desc;
+    };
     return ReactionHandler;
 }());
 exports.default = ReactionHandler;

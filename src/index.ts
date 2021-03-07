@@ -8,6 +8,7 @@ import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
 import Events from './enums/Events'
+import SlashCommands from './SlashCommands'
 
 type Options = {
   commandsDir?: string
@@ -39,6 +40,7 @@ class WOKCommands extends EventEmitter {
   private _testServers: string[] = []
   private _defaultLanguage = 'english'
   private _messageHandler: MessageHandler
+  private _slashCommand: SlashCommands
 
   constructor(client: Client, options: Options) {
     super()
@@ -112,6 +114,8 @@ class WOKCommands extends EventEmitter {
       disabledDefaultCommands = [disabledDefaultCommands]
     }
 
+    this._slashCommand = new SlashCommands(this)
+
     this._commandHandler = new CommandHandler(
       this,
       client,
@@ -169,6 +173,10 @@ class WOKCommands extends EventEmitter {
       `WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead. See https://www.npmjs.com/package/wokcommands#language-support for more information`
     )
     return this
+  }
+
+  public get client(): Client {
+    return this._client
   }
 
   public get displayName(): string {
@@ -235,7 +243,8 @@ class WOKCommands extends EventEmitter {
     let result = ''
 
     this._categories.forEach((value, key) => {
-      if (emoji === value) {
+      // == is intended here
+      if (emoji == value) {
         // @ts-ignore
         result = key
         return false
@@ -375,6 +384,10 @@ class WOKCommands extends EventEmitter {
 
   public get messageHandler(): MessageHandler {
     return this._messageHandler
+  }
+
+  public get slashCommands(): SlashCommands {
+    return this._slashCommand
   }
 }
 
