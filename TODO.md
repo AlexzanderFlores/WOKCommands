@@ -22,7 +22,7 @@
 
 [ ] Mention what roles the user is missing for required roles
 
-[ ] Auto delete command messages when the user doens't have permission to use that command
+[X] Auto delete command messages when the user doens't have permission to use that command
 
 [ ] Configurable auto delete for pre-built commands
 
