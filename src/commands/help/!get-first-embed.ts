@@ -20,7 +20,6 @@ const getFirstEmbed = (message: Message, instance: WOKCommands) => {
     .setDescription(
       messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY')
     )
-    .setFooter(`ID #${message.author.id}`)
 
   if (instance.color) {
     embed.setColor(instance.color)
