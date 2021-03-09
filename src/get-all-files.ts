@@ -1,24 +1,32 @@
-import fs, { Dirent } from 'fs'
+import { Dirent, readdirSync } from "fs";
 
 const getAllFiles = (dir: string) => {
-  const files: Dirent[] = fs.readdirSync(dir, {
+  let fileType: string;
+  if (require.main!.filename.endsWith(".ts")) fileType = ".ts";
+  else fileType = ".js";
+
+  const files: Dirent[] = readdirSync(dir, {
     withFileTypes: true,
-  })
-  let jsFiles: [string, string][] = []
+  });
+  let wantedFiles: [string, string][] = [];
 
   for (const file of files) {
     if (file.isDirectory()) {
-      jsFiles = [...jsFiles, ...getAllFiles(`${dir}/${file.name}`)]
-    } else if (file.name.endsWith('.js') && !file.name.startsWith('!')) {
-      let fileName: string | string[] = file.name.replace(/\\/g, '/').split('/')
-      fileName = fileName[fileName.length - 1]
-      fileName = fileName.split('.')[0].toLowerCase()
+      wantedFiles = [...wantedFiles, ...getAllFiles(`${dir}/${file.name}`)];
+    } else {
+      if (file.name.endsWith(fileType) && !file.name.startsWith("!") && !file.name.endsWith(".d.ts")) {
+        let fileName: string | string[] = file.name
+          .replace(/\\/g, "/")
+          .split("/");
+        fileName = fileName[fileName.length - 1];
+        fileName = fileName.split(".")[0].toLowerCase();
 
-      jsFiles.push([`${dir}/${file.name}`, fileName])
+        wantedFiles.push([`${dir}/${file.name}`, fileName]);
+      }
     }
   }
 
-  return jsFiles
-}
+  return wantedFiles;
+};
 
-export = getAllFiles
+export = getAllFiles;

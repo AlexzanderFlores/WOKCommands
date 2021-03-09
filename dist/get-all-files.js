@@ -6,27 +6,33 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             r[k] = a[j];
     return r;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-var fs_1 = __importDefault(require("fs"));
+var fs_1 = require("fs");
 var getAllFiles = function (dir) {
-    var files = fs_1.default.readdirSync(dir, {
+    var fileType;
+    if (require.main.filename.endsWith(".ts"))
+        fileType = ".ts";
+    else
+        fileType = ".js";
+    var files = fs_1.readdirSync(dir, {
         withFileTypes: true,
     });
-    var jsFiles = [];
+    var wantedFiles = [];
     for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
         var file = files_1[_i];
         if (file.isDirectory()) {
-            jsFiles = __spreadArrays(jsFiles, getAllFiles(dir + "/" + file.name));
+            wantedFiles = __spreadArrays(wantedFiles, getAllFiles(dir + "/" + file.name));
         }
-        else if (file.name.endsWith('.js') && !file.name.startsWith('!')) {
-            var fileName = file.name.replace(/\\/g, '/').split('/');
-            fileName = fileName[fileName.length - 1];
-            fileName = fileName.split('.')[0].toLowerCase();
-            jsFiles.push([dir + "/" + file.name, fileName]);
+        else {
+            if (file.name.endsWith(fileType) && !file.name.startsWith("!") && !file.name.endsWith(".d.ts")) {
+                var fileName = file.name
+                    .replace(/\\/g, "/")
+                    .split("/");
+                fileName = fileName[fileName.length - 1];
+                fileName = fileName.split(".")[0].toLowerCase();
+                wantedFiles.push([dir + "/" + file.name, fileName]);
+            }
         }
     }
-    return jsFiles;
+    return wantedFiles;
 };
 module.exports = getAllFiles;
