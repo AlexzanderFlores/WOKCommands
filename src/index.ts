@@ -1,6 +1,7 @@
 import { Client, Guild, GuildEmoji } from 'discord.js'
 import { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
+import path from 'path'
 
 import CommandHandler from './CommandHandler'
 import FeatureHandler from './FeatureHandler'
@@ -9,10 +10,13 @@ import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
 import Events from './enums/Events'
 import SlashCommands from './SlashCommands'
+import getAllFiles from './get-all-files'
 
 type Options = {
   commandsDir?: string
+  commandDir?: string
   featureDir?: string
+  featuresDir?: string
   messagesPath?: string
   showWarns?: boolean
   dbOptions?: {}
@@ -53,6 +57,8 @@ class WOKCommands extends EventEmitter {
 
     let {
       commandsDir = '',
+      commandDir = '',
+      featuresDir = '',
       featureDir = '',
       messagesPath,
       showWarns = true,
@@ -62,6 +68,9 @@ class WOKCommands extends EventEmitter {
     } = options
 
     const { partials } = client.options
+
+    commandsDir = commandsDir || commandDir
+    featuresDir = featuresDir || featureDir
 
     if (
       !partials ||
@@ -124,6 +133,12 @@ class WOKCommands extends EventEmitter {
     )
     if (this._featureDir) {
       this._featureHandler = new FeatureHandler(client, this, this._featureDir)
+    }
+    // Register built in features
+    for (const [file, fileName] of getAllFiles(
+      path.join(__dirname, 'features')
+    )) {
+      require(file)(client, this)
     }
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')

@@ -86,6 +86,22 @@ class ReactionHandler {
    * @returns If the user is allowed to interact with this help menu
    */
   canUserInteract = () => {
+    // Check if the title of the embed is correct
+    const displayName = this.instance.displayName
+      ? this.instance.displayName + ' '
+      : ''
+    const isSameTitle =
+      this.embed.title ===
+      `${displayName}${this.instance.messageHandler.getEmbed(
+        this.guild,
+        'HELP_MENU',
+        'TITLE'
+      )}`
+
+    if (!isSameTitle) {
+      return false
+    }
+
     // Check if the user's ID is in the footer
     if (this.embed.footer) {
       const { text } = this.embed.footer
@@ -98,18 +114,7 @@ class ReactionHandler {
       }
     }
 
-    // Check if the title of the embed is correct
-    const displayName = this.instance.displayName
-      ? this.instance.displayName + ' '
-      : ''
-    return (
-      this.embed.title ===
-      `${displayName}${this.instance.messageHandler.getEmbed(
-        this.guild,
-        'HELP_MENU',
-        'TITLE'
-      )}`
-    )
+    return true
   }
 
   /**
