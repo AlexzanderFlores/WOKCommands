@@ -6,6 +6,6 @@ module.exports = (client: Client) => {
   })
 
   client.on('messageUpdate', (oldMessage, newMessage) => {
-    client.emit('messageUpsert', oldMessage, newMessage)
+    client.emit('messageUpsert', newMessage, oldMessage)
   })
 }

@@ -5,6 +5,6 @@ module.exports = function (client) {
         client.emit('messageUpsert', message);
     });
     client.on('messageUpdate', function (oldMessage, newMessage) {
-        client.emit('messageUpsert', oldMessage, newMessage);
+        client.emit('messageUpsert', newMessage, oldMessage);
     });
 };
