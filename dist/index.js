@@ -82,31 +82,32 @@ var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
     function WOKCommands(client, options) {
         var _this = _super.call(this) || this;
-        _this._defaultPrefix = '!';
-        _this._commandsDir = 'commands';
-        _this._featureDir = '';
-        _this._mongo = '';
+        _this._defaultPrefix = "!";
+        _this._commandsDir = "commands";
+        _this._featureDir = "";
+        _this._mongo = "";
         _this._mongoConnection = null;
-        _this._displayName = '';
+        _this._displayName = "";
         _this._prefixes = {};
         _this._categories = new Map(); // <Category Name, Emoji Icon>
         _this._hiddenCategories = [];
-        _this._color = '';
+        _this._color = "";
         _this._featureHandler = null;
         _this._tagPeople = true;
         _this._showWarns = true;
         _this._botOwner = [];
         _this._testServers = [];
-        _this._defaultLanguage = 'english';
+        _this._defaultLanguage = "english";
+        _this._embedMessage = false;
         if (!client) {
-            throw new Error('No Discord JS Client provided as first argument!');
+            throw new Error("No Discord JS Client provided as first argument!");
         }
         _this._client = client;
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.featureDir, featureDir = _b === void 0 ? '' : _b, messagesPath = options.messagesPath, _c = options.showWarns, showWarns = _c === void 0 ? true : _c, dbOptions = options.dbOptions, testServers = options.testServers, _d = options.disabledDefaultCommands, disabledDefaultCommands = _d === void 0 ? [] : _d;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? "" : _a, _b = options.featureDir, featureDir = _b === void 0 ? "" : _b, messagesPath = options.messagesPath, _c = options.showWarns, showWarns = _c === void 0 ? true : _c, dbOptions = options.dbOptions, testServers = options.testServers, _d = options.disabledDefaultCommands, disabledDefaultCommands = _d === void 0 ? [] : _d;
         var partials = client.options.partials;
         if (!partials ||
-            !partials.includes('MESSAGE') ||
-            !partials.includes('REACTION')) {
+            !partials.includes("MESSAGE") ||
+            !partials.includes("REACTION")) {
             if (showWarns) {
                 console.warn("WOKCommands > It is encouraged to use both \"MESSAGE\" and \"REACTION\" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials");
             }
@@ -129,7 +130,7 @@ var WOKCommands = /** @class */ (function (_super) {
             }
         }
         if (testServers) {
-            if (typeof testServers === 'string') {
+            if (typeof testServers === "string") {
                 testServers = [testServers];
             }
             _this._testServers = testServers;
@@ -137,7 +138,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._showWarns = showWarns;
         _this._commandsDir = commandsDir || _this._commandsDir;
         _this._featureDir = featureDir || _this._featureDir;
-        if (typeof disabledDefaultCommands === 'string') {
+        if (typeof disabledDefaultCommands === "string") {
             disabledDefaultCommands = [disabledDefaultCommands];
         }
         _this._slashCommand = new SlashCommands_1.default(_this);
@@ -145,9 +146,9 @@ var WOKCommands = /** @class */ (function (_super) {
         if (_this._featureDir) {
             _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
         }
-        _this._messageHandler = new message_handler_1.default(_this, messagesPath || '');
-        _this.setCategorySettings('Configuration', '⚙️');
-        _this.setCategorySettings('Help', '❓');
+        _this._messageHandler = new message_handler_1.default(_this, messagesPath || "");
+        _this.setCategorySettings("Configuration", "⚙️");
+        _this.setCategorySettings("Help", "❓");
         setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
             var results, _i, results_1, result, _id, prefix;
             return __generator(this, function (_a) {
@@ -169,9 +170,9 @@ var WOKCommands = /** @class */ (function (_super) {
                         return [3 /*break*/, 4];
                     case 3:
                         if (showWarns) {
-                            console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup');
+                            console.warn("WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup");
                         }
-                        this.emit(Events_1.default.DATABASE_CONNECTED, null, '');
+                        this.emit(Events_1.default.DATABASE_CONNECTED, null, "");
                         _a.label = 4;
                     case 4: return [2 /*return*/];
                 }
@@ -234,7 +235,7 @@ var WOKCommands = /** @class */ (function (_super) {
         return this;
     };
     WOKCommands.prototype.getPrefix = function (guild) {
-        return this._prefixes[guild ? guild.id : ''] || this._defaultPrefix;
+        return this._prefixes[guild ? guild.id : ""] || this._defaultPrefix;
     };
     WOKCommands.prototype.setPrefix = function (guild, prefix) {
         if (guild) {
@@ -268,15 +269,15 @@ var WOKCommands = /** @class */ (function (_super) {
         return this;
     };
     WOKCommands.prototype.getEmoji = function (category) {
-        var emoji = this._categories.get(category) || '';
-        if (typeof emoji === 'object') {
+        var emoji = this._categories.get(category) || "";
+        if (typeof emoji === "object") {
             // @ts-ignore
             return "<:" + emoji.name + ":" + emoji.id + ">";
         }
         return emoji;
     };
     WOKCommands.prototype.getCategory = function (emoji) {
-        var result = '';
+        var result = "";
         this._categories.forEach(function (value, key) {
             // == is intended here
             if (emoji == value) {
@@ -296,21 +297,21 @@ var WOKCommands = /** @class */ (function (_super) {
         return this;
     };
     WOKCommands.prototype.setCategorySettings = function (category, emoji) {
-        if (typeof category == 'string') {
+        if (typeof category == "string") {
             if (!emoji) {
                 throw new Error("WOKCommands > An emoji is required for category \"" + category + "\"");
             }
             if (this.isEmojiUsed(emoji)) {
                 console.warn("WOKCommands > The emoji \"" + emoji + "\" for category \"" + category + "\" is already used.");
             }
-            this._categories.set(category, emoji || this.categories.get(category) || '');
+            this._categories.set(category, emoji || this.categories.get(category) || "");
         }
         else {
             for (var _i = 0, category_1 = category; _i < category_1.length; _i++) {
                 var _a = category_1[_i], emoji_1 = _a.emoji, name_1 = _a.name, hidden = _a.hidden, customEmoji = _a.customEmoji;
-                if (emoji_1.startsWith('<:') && emoji_1.endsWith('>')) {
+                if (emoji_1.startsWith("<:") && emoji_1.endsWith(">")) {
                     customEmoji = true;
-                    emoji_1 = emoji_1.split(':')[2];
+                    emoji_1 = emoji_1.split(":")[2];
                     emoji_1 = emoji_1.substring(0, emoji_1.length - 1);
                 }
                 if (customEmoji) {
@@ -319,7 +320,7 @@ var WOKCommands = /** @class */ (function (_super) {
                 if (this.isEmojiUsed(emoji_1)) {
                     console.warn("WOKCommands > The emoji \"" + emoji_1 + "\" for category \"" + name_1 + "\" is already used.");
                 }
-                this._categories.set(name_1, emoji_1 || this.categories.get(name_1) || '');
+                this._categories.set(name_1, emoji_1 || this.categories.get(name_1) || "");
                 if (hidden) {
                     this._hiddenCategories.push(name_1);
                 }
@@ -380,7 +381,7 @@ var WOKCommands = /** @class */ (function (_super) {
         configurable: true
     });
     WOKCommands.prototype.setBotOwner = function (botOwner) {
-        if (typeof botOwner === 'string') {
+        if (typeof botOwner === "string") {
             botOwner = [botOwner];
         }
         this._botOwner = botOwner;
@@ -414,6 +415,17 @@ var WOKCommands = /** @class */ (function (_super) {
     Object.defineProperty(WOKCommands.prototype, "slashCommands", {
         get: function () {
             return this._slashCommand;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    WOKCommands.prototype.setEmbedMessage = function (embededMessage) {
+        this._embedMessage = embededMessage;
+        return this;
+    };
+    Object.defineProperty(WOKCommands.prototype, "embedMessages", {
+        get: function () {
+            return this._embedMessage;
         },
         enumerable: false,
         configurable: true

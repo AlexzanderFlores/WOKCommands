@@ -1,10 +1,10 @@
 /// <reference types="node" />
-import { Client, Guild, GuildEmoji } from 'discord.js';
-import { Connection } from 'mongoose';
-import { EventEmitter } from 'events';
-import CommandHandler from './CommandHandler';
-import MessageHandler from './message-handler';
-import SlashCommands from './SlashCommands';
+import { Client, Guild, GuildEmoji } from "discord.js";
+import { Connection } from "mongoose";
+import { EventEmitter } from "events";
+import CommandHandler from "./CommandHandler";
+import MessageHandler from "./message-handler";
+import SlashCommands from "./SlashCommands";
 declare type Options = {
     commandsDir?: string;
     featureDir?: string;
@@ -35,6 +35,7 @@ declare class WOKCommands extends EventEmitter {
     private _defaultLanguage;
     private _messageHandler;
     private _slashCommand;
+    private _embedMessage;
     constructor(client: Client, options: Options);
     get mongoPath(): string;
     setMongoPath(mongoPath: string): WOKCommands;
@@ -81,5 +82,7 @@ declare class WOKCommands extends EventEmitter {
     setDefaultLanguage(defaultLanguage: string): WOKCommands;
     get messageHandler(): MessageHandler;
     get slashCommands(): SlashCommands;
+    setEmbedMessage(embededMessage: boolean): WOKCommands;
+    get embedMessages(): boolean;
 }
 export = WOKCommands;

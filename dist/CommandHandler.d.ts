@@ -1,7 +1,7 @@
-import { Client } from 'discord.js';
-import WOKCommands from '.';
-import Command from './Command';
-import ICommand from './interfaces/ICommand';
+import { Client, MessageEmbed } from "discord.js";
+import WOKCommands from ".";
+import Command from "./Command";
+import ICommand from "./interfaces/ICommand";
 declare class CommandHandler {
     private _commands;
     constructor(instance: WOKCommands, client: Client, dir: string, disabledDefaultCommands: string[]);
@@ -12,5 +12,6 @@ declare class CommandHandler {
     getICommand(name: string): ICommand | undefined;
     fetchDisabledCommands(): Promise<void>;
     fetchRequiredRoles(): Promise<void>;
+    errorEmbed(message: string): MessageEmbed;
 }
 export = CommandHandler;
