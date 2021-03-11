@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -81,12 +81,12 @@ var FeatureHandler = /** @class */ (function () {
                                 case 0:
                                     waitingForDB = [];
                                     _loop_1 = function (file, fileName) {
-                                        var _a, func, config, testOnly, displayName, dbName, missing, isEnabled;
-                                        return __generator(this, function (_b) {
-                                            switch (_b.label) {
+                                        var _c, func, config, testOnly, displayName, dbName, missing, isEnabled;
+                                        return __generator(this, function (_d) {
+                                            switch (_d.label) {
                                                 case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
                                                 case 1:
-                                                    _a = _b.sent(), func = _a.default, config = _a.config;
+                                                    _c = _d.sent(), func = _c.default, config = _c.config;
                                                     testOnly = false;
                                                     if (config) {
                                                         displayName = config.displayName, dbName = config.dbName;
