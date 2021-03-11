@@ -8,3 +8,7 @@ module.exports = function (client) {
         client.emit('messageUpsert', newMessage, oldMessage);
     });
 };
+module.exports.config = {
+    displayName: 'Message Upsert',
+    dbName: 'MESSAGE-UPSERT',
+};

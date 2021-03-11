@@ -71,7 +71,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 var events_1 = require("events");
-var path_1 = __importDefault(require("path"));
 var CommandHandler_1 = __importDefault(require("./CommandHandler"));
 var FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 var mongo_1 = __importStar(require("./mongo"));
@@ -79,14 +78,13 @@ var prefixes_1 = __importDefault(require("./models/prefixes"));
 var message_handler_1 = __importDefault(require("./message-handler"));
 var Events_1 = __importDefault(require("./enums/Events"));
 var SlashCommands_1 = __importDefault(require("./SlashCommands"));
-var get_all_files_1 = __importDefault(require("./get-all-files"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
     function WOKCommands(client, options) {
         var _this = _super.call(this) || this;
         _this._defaultPrefix = '!';
         _this._commandsDir = 'commands';
-        _this._featureDir = '';
+        _this._featuresDir = '';
         _this._mongo = '';
         _this._mongoConnection = null;
         _this._displayName = '';
@@ -104,10 +102,11 @@ var WOKCommands = /** @class */ (function (_super) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
         _this._client = client;
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.commandDir, commandDir = _b === void 0 ? '' : _b, _c = options.featuresDir, featuresDir = _c === void 0 ? '' : _c, _d = options.featureDir, featureDir = _d === void 0 ? '' : _d, messagesPath = options.messagesPath, _e = options.showWarns, showWarns = _e === void 0 ? true : _e, dbOptions = options.dbOptions, testServers = options.testServers, _f = options.disabledDefaultCommands, disabledDefaultCommands = _f === void 0 ? [] : _f;
+        var commandsDir = options.commandsDir, commandDir = options.commandDir, featuresDir = options.featuresDir, featureDir = options.featureDir, messagesPath = options.messagesPath, _a = options.showWarns, showWarns = _a === void 0 ? true : _a, dbOptions = options.dbOptions, testServers = options.testServers, _b = options.disabledDefaultCommands, disabledDefaultCommands = _b === void 0 ? [] : _b;
         var partials = client.options.partials;
-        commandsDir = commandsDir || commandDir;
-        featuresDir = featuresDir || featureDir;
+        _this._showWarns = showWarns;
+        _this._commandsDir = commandsDir || commandsDir || _this._commandsDir; // has a default string
+        _this._featuresDir = featuresDir || featureDir || '';
         if (!partials ||
             !partials.includes('MESSAGE') ||
             !partials.includes('REACTION')) {
@@ -121,14 +120,14 @@ var WOKCommands = /** @class */ (function (_super) {
         // Get the directory path of the project using this package
         // This way users don't need to use path.join(__dirname, 'dir')
         if (module && require.main) {
-            var path_2 = require.main.path;
-            if (path_2) {
-                commandsDir = path_2 + "/" + (commandsDir || _this._commandsDir);
-                if (featureDir) {
-                    featureDir = path_2 + "/" + featureDir;
+            var path = require.main.path;
+            if (path) {
+                _this._commandsDir = path + "/" + _this._commandsDir;
+                if (_this._featuresDir) {
+                    _this._featuresDir = path + "/" + _this._featuresDir;
                 }
                 if (messagesPath) {
-                    messagesPath = path_2 + "/" + messagesPath;
+                    messagesPath = path + "/" + messagesPath;
                 }
             }
         }
@@ -138,22 +137,12 @@ var WOKCommands = /** @class */ (function (_super) {
             }
             _this._testServers = testServers;
         }
-        _this._showWarns = showWarns;
-        _this._commandsDir = commandsDir || _this._commandsDir;
-        _this._featureDir = featureDir || _this._featureDir;
         if (typeof disabledDefaultCommands === 'string') {
             disabledDefaultCommands = [disabledDefaultCommands];
         }
         _this._slashCommand = new SlashCommands_1.default(_this);
         _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir, disabledDefaultCommands);
-        if (_this._featureDir) {
-            _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featureDir);
-        }
-        // Register built in features
-        for (var _i = 0, _g = get_all_files_1.default(path_1.default.join(__dirname, 'features')); _i < _g.length; _i++) {
-            var _h = _g[_i], file = _h[0], fileName = _h[1];
-            require(file)(client, _this);
-        }
+        _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featuresDir);
         _this._messageHandler = new message_handler_1.default(_this, messagesPath || '');
         _this.setCategorySettings('Configuration', '⚙️');
         _this.setCategorySettings('Help', '❓');

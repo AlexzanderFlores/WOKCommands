@@ -1,7 +1,6 @@
 import { Client, Guild, GuildEmoji } from 'discord.js'
 import { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
-import path from 'path'
 
 import CommandHandler from './CommandHandler'
 import FeatureHandler from './FeatureHandler'
@@ -10,7 +9,6 @@ import prefixes from './models/prefixes'
 import MessageHandler from './message-handler'
 import Events from './enums/Events'
 import SlashCommands from './SlashCommands'
-import getAllFiles from './get-all-files'
 
 type Options = {
   commandsDir?: string
@@ -28,7 +26,7 @@ class WOKCommands extends EventEmitter {
   private _client!: Client
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
-  private _featureDir = ''
+  private _featuresDir = ''
   private _mongo = ''
   private _mongoConnection: Connection | null = null
   private _displayName = ''
@@ -56,10 +54,10 @@ class WOKCommands extends EventEmitter {
     this._client = client
 
     let {
-      commandsDir = '',
-      commandDir = '',
-      featuresDir = '',
-      featureDir = '',
+      commandsDir,
+      commandDir,
+      featuresDir,
+      featureDir,
       messagesPath,
       showWarns = true,
       dbOptions,
@@ -69,8 +67,9 @@ class WOKCommands extends EventEmitter {
 
     const { partials } = client.options
 
-    commandsDir = commandsDir || commandDir
-    featuresDir = featuresDir || featureDir
+    this._showWarns = showWarns
+    this._commandsDir = commandsDir || commandsDir || this._commandsDir // has a default string
+    this._featuresDir = featuresDir || featureDir || ''
 
     if (
       !partials ||
@@ -95,10 +94,10 @@ class WOKCommands extends EventEmitter {
     if (module && require.main) {
       const { path } = require.main
       if (path) {
-        commandsDir = `${path}/${commandsDir || this._commandsDir}`
+        this._commandsDir = `${path}/${this._commandsDir}`
 
-        if (featureDir) {
-          featureDir = `${path}/${featureDir}`
+        if (this._featuresDir) {
+          this._featuresDir = `${path}/${this._featuresDir}`
         }
 
         if (messagesPath) {
@@ -115,10 +114,6 @@ class WOKCommands extends EventEmitter {
       this._testServers = testServers
     }
 
-    this._showWarns = showWarns
-    this._commandsDir = commandsDir || this._commandsDir
-    this._featureDir = featureDir || this._featureDir
-
     if (typeof disabledDefaultCommands === 'string') {
       disabledDefaultCommands = [disabledDefaultCommands]
     }
@@ -131,15 +126,7 @@ class WOKCommands extends EventEmitter {
       this._commandsDir,
       disabledDefaultCommands
     )
-    if (this._featureDir) {
-      this._featureHandler = new FeatureHandler(client, this, this._featureDir)
-    }
-    // Register built in features
-    for (const [file, fileName] of getAllFiles(
-      path.join(__dirname, 'features')
-    )) {
-      require(file)(client, this)
-    }
+    this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')
 

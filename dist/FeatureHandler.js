@@ -58,106 +58,124 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 var fs_1 = __importDefault(require("fs"));
+var path_1 = __importDefault(require("path"));
 var Events_1 = __importDefault(require("./enums/Events"));
 var get_all_files_1 = __importDefault(require("./get-all-files"));
+var waitingForDB = [];
 var FeatureHandler = /** @class */ (function () {
     function FeatureHandler(client, instance, dir) {
         var _this = this;
         this._features = new Map(); // <Feature name, Disabled GuildIDs>
+        this.registerFeature = function (file, fileName) {
+            var func = file.default, config = file.config;
+            var testOnly = false;
+            if (config) {
+                var displayName = config.displayName, dbName = config.dbName;
+                if (config.testOnly) {
+                    testOnly = true;
+                }
+                var missing = [];
+                if (!displayName)
+                    missing.push('displayName');
+                if (!dbName)
+                    missing.push('dbName');
+                if (missing.length && _this._instance.showWarns) {
+                    console.warn("WOKCommands > Feature \"" + fileName + "\" has a config file that doesn't contain the following properties: " + missing);
+                }
+            }
+            else if (_this._instance.showWarns) {
+                console.warn("WOKCommands > Feature \"" + fileName + "\" does not export a config object.");
+            }
+            if (typeof func !== 'function') {
+                return;
+            }
+            var isEnabled = function (guildId) {
+                if (testOnly && !_this._instance.testServers.includes(guildId)) {
+                    return false;
+                }
+                return _this.isEnabled(guildId, file);
+            };
+            if (config && config.loadDBFirst === true) {
+                waitingForDB.push({
+                    func: func,
+                    client: _this._client,
+                    instance: _this._instance,
+                    isEnabled: isEnabled,
+                });
+                return;
+            }
+            func(_this._client, _this._instance, isEnabled);
+        };
         this.isEnabled = function (guildId, feature) {
             return !(_this._features.get(feature) || []).includes(guildId);
         };
-        if (dir) {
-            if (fs_1.default.existsSync(dir)) {
-                var files_1 = get_all_files_1.default(dir);
-                var amount = files_1.length;
-                if (amount > 0) {
-                    console.log("WOKCommands > Loaded " + amount + " listener" + (amount === 1 ? '' : 's') + ".");
-                    (function () { return __awaiter(_this, void 0, void 0, function () {
-                        var waitingForDB, _loop_1, _i, files_2, _a, file, fileName;
-                        var _this = this;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0:
-                                    waitingForDB = [];
-                                    _loop_1 = function (file, fileName) {
-                                        var _a, func, config, testOnly, displayName, dbName, missing, isEnabled;
-                                        return __generator(this, function (_b) {
-                                            switch (_b.label) {
-                                                case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
-                                                case 1:
-                                                    _a = _b.sent(), func = _a.default, config = _a.config;
-                                                    testOnly = false;
-                                                    if (config) {
-                                                        displayName = config.displayName, dbName = config.dbName;
-                                                        if (config.testOnly) {
-                                                            testOnly = true;
-                                                        }
-                                                        missing = [];
-                                                        if (!displayName)
-                                                            missing.push('displayName');
-                                                        if (!dbName)
-                                                            missing.push('dbName');
-                                                        if (missing.length && instance.showWarns) {
-                                                            console.warn("WOKCommands > Feature \"" + fileName + "\" has a config file that doesn't contain the following properties: " + missing);
-                                                        }
-                                                    }
-                                                    else if (instance.showWarns) {
-                                                        console.warn("WOKCommands > Feature \"" + fileName + "\" does not export a config object.");
-                                                    }
-                                                    if (typeof func === 'function') {
-                                                        isEnabled = function (guildId) {
-                                                            if (testOnly && !instance.testServers.includes(guildId)) {
-                                                                return false;
-                                                            }
-                                                            return _this.isEnabled(guildId, file);
-                                                        };
-                                                        if (config && config.loadDBFirst === true) {
-                                                            waitingForDB.push({
-                                                                func: func,
-                                                                client: client,
-                                                                instance: instance,
-                                                                isEnabled: isEnabled,
-                                                            });
-                                                            return [2 /*return*/, "continue"];
-                                                        }
-                                                        func(client, instance, isEnabled);
-                                                    }
-                                                    return [2 /*return*/];
-                                            }
-                                        });
-                                    };
-                                    _i = 0, files_2 = files_1;
-                                    _b.label = 1;
-                                case 1:
-                                    if (!(_i < files_2.length)) return [3 /*break*/, 4];
-                                    _a = files_2[_i], file = _a[0], fileName = _a[1];
-                                    return [5 /*yield**/, _loop_1(file, fileName)];
-                                case 2:
-                                    _b.sent();
-                                    _b.label = 3;
-                                case 3:
-                                    _i++;
-                                    return [3 /*break*/, 1];
-                                case 4:
-                                    instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) {
-                                        if (state === 'Connected') {
-                                            for (var _i = 0, waitingForDB_1 = waitingForDB; _i < waitingForDB_1.length; _i++) {
-                                                var _a = waitingForDB_1[_i], func = _a.func, client_1 = _a.client, instance_1 = _a.instance, isEnabled = _a.isEnabled;
-                                                func(client_1, instance_1, isEnabled);
-                                            }
-                                        }
-                                    });
-                                    return [2 /*return*/];
+        this._client = client;
+        this._instance = instance;
+        (function () { return __awaiter(_this, void 0, void 0, function () {
+            var _i, _a, _b, file, fileName, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _i = 0, _a = get_all_files_1.default(path_1.default.join(__dirname, 'features'));
+                        _d.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        _b = _a[_i], file = _b[0], fileName = _b[1];
+                        _c = this.registerFeature;
+                        return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
+                    case 2:
+                        _c.apply(this, [_d.sent(), fileName]);
+                        _d.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); })();
+        if (!dir) {
+            return;
+        }
+        if (!fs_1.default.existsSync(dir)) {
+            throw new Error("Listeners directory \"" + dir + "\" doesn't exist!");
+        }
+        var files = get_all_files_1.default(dir);
+        var amount = files.length;
+        if (amount === 0) {
+            return;
+        }
+        console.log("WOKCommands > Loaded " + amount + " listener" + (amount === 1 ? '' : 's') + ".");
+        (function () { return __awaiter(_this, void 0, void 0, function () {
+            var _i, files_1, _a, file, fileName, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        _i = 0, files_1 = files;
+                        _c.label = 1;
+                    case 1:
+                        if (!(_i < files_1.length)) return [3 /*break*/, 4];
+                        _a = files_1[_i], file = _a[0], fileName = _a[1];
+                        _b = this.registerFeature;
+                        return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
+                    case 2:
+                        _b.apply(this, [_c.sent(), fileName]);
+                        _c.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4:
+                        instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) {
+                            if (state === 'Connected') {
+                                for (var _i = 0, waitingForDB_1 = waitingForDB; _i < waitingForDB_1.length; _i++) {
+                                    var _a = waitingForDB_1[_i], func = _a.func, client_1 = _a.client, instance_1 = _a.instance, isEnabled = _a.isEnabled;
+                                    func(client_1, instance_1, isEnabled);
+                                }
                             }
                         });
-                    }); })();
+                        return [2 /*return*/];
                 }
-            }
-            else {
-                throw new Error("Listeners directory \"" + dir + "\" doesn't exist!");
-            }
-        }
+            });
+        }); })();
     }
     return FeatureHandler;
 }());
