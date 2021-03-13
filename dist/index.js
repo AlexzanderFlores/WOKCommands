@@ -105,7 +105,7 @@ var WOKCommands = /** @class */ (function (_super) {
         var commandsDir = options.commandsDir, commandDir = options.commandDir, featuresDir = options.featuresDir, featureDir = options.featureDir, messagesPath = options.messagesPath, _a = options.showWarns, showWarns = _a === void 0 ? true : _a, dbOptions = options.dbOptions, testServers = options.testServers, _b = options.disabledDefaultCommands, disabledDefaultCommands = _b === void 0 ? [] : _b;
         var partials = client.options.partials;
         _this._showWarns = showWarns;
-        _this._commandsDir = commandsDir || commandsDir || _this._commandsDir; // has a default string
+        _this._commandsDir = commandsDir || commandDir || _this._commandsDir; // has a default string
         _this._featuresDir = featuresDir || featureDir || '';
         if (!partials ||
             !partials.includes('MESSAGE') ||

@@ -68,7 +68,7 @@ class WOKCommands extends EventEmitter {
     const { partials } = client.options
 
     this._showWarns = showWarns
-    this._commandsDir = commandsDir || commandsDir || this._commandsDir // has a default string
+    this._commandsDir = commandsDir || commandDir || this._commandsDir // has a default string
     this._featuresDir = featuresDir || featureDir || ''
 
     if (
