@@ -98,18 +98,11 @@ class CommandHandler {
                 message,
               });
             } else {
-              message.reply(
-                instance.messageHandler.get(guild, 'DISABLED_COMMAND')
-              ).then((message) => {
-                console.log(instance.del)
-                if (instance.del === -1) {
-                  return
-                }
-
-                setTimeout(() => {
-                    message.delete()
-                  }, 1000 * instance.del)
-                })
+              instance.messageHandler.send(
+                  message,
+                  instance.messageHandler.get(guild, 'DISABLED_COMMAND'),
+                  true
+                )
             }
             return;
           }
@@ -142,19 +135,11 @@ class CommandHandler {
                   message,
                 });
               } else {
-                message.reply(
-                  instance.messageHandler.get(guild, "MISSING_PERMISSION", {
-                    PERM: perm,
-                  })
-                ).then((message) => {
-                if (instance.del === -1) {
-                  return
-                }
-
-                setTimeout(() => {
-                    message.delete()
-                  }, 1000 * instance.del)
-                })
+                instance.messageHandler.send(
+                  message,
+                  instance.messageHandler.get(guild, "MISSING_PERMISSION", { PERM: perm }),
+                  true
+                )
               }
               return;
             }
@@ -183,17 +168,11 @@ class CommandHandler {
                   },
                 });
               } else {
-                message.reply(
-                  instance.messageHandler.get(guild, 'MISSING_ROLES')
-                ).then((message) => {
-                if (instance.del === -1) {
-                  return
-                }
-
-                setTimeout(() => {
-                    message.delete()
-                  }, 1000 * instance.del)
-                })
+                instance.messageHandler.send(
+                  message,
+                  instance.messageHandler.get(guild, 'MISSING_ROLES'),
+                  true
+                )
               }
               return;
             }
@@ -241,7 +220,10 @@ class CommandHandler {
             });
           } else {
             // Reply with the local or global syntax error
-            message.reply(errorMsg);
+            instance.messageHandler.send(
+                  message,
+                  errorMsg,
+                )
           }
           return;
         }
@@ -262,11 +244,10 @@ class CommandHandler {
                 },
               });
             } else {
-              message.reply(
-                instance.messageHandler.get(guild, "COOLDOWN", {
-                  COOLDOWN: timeLeft,
-                })
-              );
+              instance.messageHandler.send(
+                  message,
+                  instance.messageHandler.get(guild, "COOLDOWN", { COOLDOWN: timeLeft })
+                )
             }
             return;
           }
@@ -287,7 +268,7 @@ class CommandHandler {
               },
             });
           } else {
-            message.reply(instance.messageHandler.get(guild, "EXCEPTION"));
+            instance.messageHandler.send(message, instance.messageHandler.get(guild, "EXCEPTION"))
             console.error(e);
           }
 

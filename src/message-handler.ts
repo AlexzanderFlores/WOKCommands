@@ -119,4 +119,21 @@ export default class MessageHandler {
 
     return result
   }
+
+  send(message: any, messageContent: string, autoDelete = false) {
+    const reply: boolean = this._instance.reply;
+    (
+      (reply && message.reply(messageContent)) ||
+      (!reply && message.channel.send(messageContent))
+    ).then((message: any) => {
+      if (autoDelete) {
+        if (this._instance.del === -1) {
+          return
+        }
+        setTimeout(() => {
+          message.delete()
+        }, 1000 * this._instance.del)
+      }
+    })
+  }
 }
