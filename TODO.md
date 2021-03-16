@@ -30,7 +30,7 @@
 
 [ ] Ability to customize who can run the pre-made commands (not just admins)
 
-[X] 
+[X] Configurable channel.send() instead of .reply()
 
 [ ] MySQL support
 
