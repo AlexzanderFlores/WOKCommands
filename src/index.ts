@@ -67,8 +67,8 @@ class WOKCommands extends EventEmitter {
 
     const { partials } = client.options
 
-    commandsDir = commandsDir || commandDir
-    featuresDir = featuresDir || featureDir
+    this._commandsDir = commandsDir || commandDir || this._commandsDir
+    this._featuresDir = featuresDir || featureDir || this._featuresDir
 
     if (
       !partials ||
@@ -93,10 +93,10 @@ class WOKCommands extends EventEmitter {
     if (module && require.main) {
       const { path } = require.main
       if (path) {
-        commandsDir = `${path}/${commandsDir || this._commandsDir}`
+        this._commandsDir = `${path}/${this._commandsDir}`
 
-        if (featuresDir) {
-          featuresDir = `${path}/${featuresDir}`
+        if (this._featuresDir) {
+          this._featuresDir = `${path}/${this._featuresDir}`
         }
 
         if (messagesPath) {
@@ -114,8 +114,6 @@ class WOKCommands extends EventEmitter {
     }
 
     this._showWarns = showWarns
-    this._commandsDir = commandsDir || this._commandsDir
-    this._featuresDir = featuresDir || this._featuresDir
 
     if (typeof disabledDefaultCommands === 'string') {
       disabledDefaultCommands = [disabledDefaultCommands]
@@ -129,9 +127,7 @@ class WOKCommands extends EventEmitter {
       this._commandsDir,
       disabledDefaultCommands
     )
-    if (this._featuresDir) {
-      this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
-    }
+    this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')
 
