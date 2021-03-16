@@ -120,7 +120,7 @@ class WOKCommands extends EventEmitter {
 
     this._showWarns = showWarns
     this._del = del
-    this._defaultLanguage = defaultLanguage
+    this._defaultLanguage = defaultLanguage.toLowerCase()
 
     if (typeof disabledDefaultCommands === 'string') {
       disabledDefaultCommands = [disabledDefaultCommands]

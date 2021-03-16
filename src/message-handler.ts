@@ -26,6 +26,12 @@ export default class MessageHandler {
         }
       }
 
+      if(!this._languages.includes(instance.defaultLanguage)) {
+        throw new Error(
+        `The current default language defined is not supported.`
+        )
+      }
+
       instance.on(Events.DATABASE_CONNECTED, async (connection, state) => {
         if (state !== 'Connected') {
           return
