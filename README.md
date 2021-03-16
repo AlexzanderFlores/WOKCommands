@@ -96,6 +96,7 @@ client.on('ready', () => {
     messagesPath,
     showWarns: true, // Show start up warnings
     del: -1, // Timeout in seconds before and error message gets deleted (Missing permissions, missing roles, or command disabled) set to -1 to disable
+    reply: true // Will determine if the bot uses message.reply() or message.channel.send(). If not set it will default to message.reply()
     dbOptions,
     disabledDefaultCommands
   })
