@@ -1,4 +1,4 @@
-import { Client, Message, PermissionString } from 'discord.js'
+import { Client, Message, PermissionString, TextChannel } from 'discord.js'
 import WOKCommands from '..'
 
 export default interface ICommand {
@@ -14,6 +14,7 @@ export default interface ICommand {
   permissions?: PermissionString[]
   callback?: {
     message: Message
+    channel: TextChannel
     args: string[]
     text: string
     client: Client
