@@ -42,4 +42,8 @@
 
 [ ] Refactor code to prevent large functions
 
-[ ] Ability to select a default language from any of the supported languages in messages.json
+[X] Ability to select a default language from any of the supported languages in messages.json
+
+[ ] Check if default language is messages.json
+
+[ ] Block setting of languages that are not in messages.json in the languages command
