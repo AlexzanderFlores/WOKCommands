@@ -102,11 +102,10 @@ var WOKCommands = /** @class */ (function (_super) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
         _this._client = client;
-        var commandsDir = options.commandsDir, commandDir = options.commandDir, featuresDir = options.featuresDir, featureDir = options.featureDir, messagesPath = options.messagesPath, _a = options.showWarns, showWarns = _a === void 0 ? true : _a, dbOptions = options.dbOptions, testServers = options.testServers, _b = options.disabledDefaultCommands, disabledDefaultCommands = _b === void 0 ? [] : _b;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.commandDir, commandDir = _b === void 0 ? '' : _b, _c = options.featuresDir, featuresDir = _c === void 0 ? '' : _c, _d = options.featureDir, featureDir = _d === void 0 ? '' : _d, messagesPath = options.messagesPath, _e = options.showWarns, showWarns = _e === void 0 ? true : _e, dbOptions = options.dbOptions, testServers = options.testServers, _f = options.disabledDefaultCommands, disabledDefaultCommands = _f === void 0 ? [] : _f;
         var partials = client.options.partials;
-        _this._showWarns = showWarns;
-        _this._commandsDir = commandsDir || commandDir || _this._commandsDir; // has a default string
-        _this._featuresDir = featuresDir || featureDir || '';
+        commandsDir = commandsDir || commandDir;
+        featuresDir = featuresDir || featureDir;
         if (!partials ||
             !partials.includes('MESSAGE') ||
             !partials.includes('REACTION')) {
@@ -122,9 +121,9 @@ var WOKCommands = /** @class */ (function (_super) {
         if (module && require.main) {
             var path = require.main.path;
             if (path) {
-                _this._commandsDir = path + "/" + _this._commandsDir;
-                if (_this._featuresDir) {
-                    _this._featuresDir = path + "/" + _this._featuresDir;
+                commandsDir = path + "/" + (commandsDir || _this._commandsDir);
+                if (featuresDir) {
+                    featuresDir = path + "/" + featuresDir;
                 }
                 if (messagesPath) {
                     messagesPath = path + "/" + messagesPath;
@@ -137,12 +136,17 @@ var WOKCommands = /** @class */ (function (_super) {
             }
             _this._testServers = testServers;
         }
+        _this._showWarns = showWarns;
+        _this._commandsDir = commandsDir || _this._commandsDir;
+        _this._featuresDir = featuresDir || _this._featuresDir;
         if (typeof disabledDefaultCommands === 'string') {
             disabledDefaultCommands = [disabledDefaultCommands];
         }
         _this._slashCommand = new SlashCommands_1.default(_this);
         _this._commandHandler = new CommandHandler_1.default(_this, client, _this._commandsDir, disabledDefaultCommands);
-        _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featuresDir);
+        if (_this._featuresDir) {
+            _this._featureHandler = new FeatureHandler_1.default(client, _this, _this._featuresDir);
+        }
         _this._messageHandler = new message_handler_1.default(_this, messagesPath || '');
         _this.setCategorySettings('Configuration', '⚙️');
         _this.setCategorySettings('Help', '❓');
