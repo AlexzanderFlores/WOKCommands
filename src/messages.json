@@ -30,9 +30,9 @@
     "portuguese": "Você precisa ter a permissão {PERM} para utilizar este comando."
   },
   "MISSING_ROLES": {
-    "english": "You do not have the required roles to use this command!",
-    "spanish": "¡No tienes los roles necesarios para usar este comando!",
-    "portuguese": "Você não tem o cargo necessário para usar este comando!"
+    "english": "You do not have the required roles to use this command! You need the following roles: {roles}",
+    "spanish": "¡No tienes los roles necesarios para usar este comando! Necesita los siguientes roles: {roles}",
+    "portuguese": "Não tens os cargos necessários para utilizar este comando! Precisas de: {roles}"
   },
   "COOLDOWN": {
     "english": "You must wait {COOLDOWN} before using that command again.",
