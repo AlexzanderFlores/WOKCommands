@@ -1,8 +1,10 @@
-<a href='http://wornoffkeys.com/discord?from=wokcommands-npm' target='_blank'>![alt Discord](https://img.shields.io/discord/464316540490088448?color=7289da&logo=discord&logoColor=white)</a> <a href='http://wornoffkeys.com/patreon?from=wokcommands-npm' target='_blank'>![alt Patreon](https://img.shields.io/badge/donate-patreon-F96854.svg)</a> <a href='https://github.com/AlexzanderFlores/WOKCommands' target='_blank'>![alt GitHub Repo](https://img.shields.io/github/stars/AlexzanderFlores/WOKCommands?style=social)</a>
+<a href='http://wornoffkeys.com/discord?from=wokcommands-npm' target='_blank'>![alt Discord](https://img.shields.io/discord/464316540490088448?color=7289da&logo=discord&logoColor=white)</a> <a href='https://github.com/AlexzanderFlores/WOKCommands' target='_blank'>![alt GitHub Repo](https://img.shields.io/github/stars/AlexzanderFlores/WOKCommands?style=social)</a>
 
 <a href='https://nodei.co/npm/wokcommands/' target='_blank'>![alt WOKCommands](https://nodei.co/npm/wokcommands.png)</a>
 
-# This package is still under development. Not all features are done yet.
+# WOKCommands
+
+WOKCommands is a Discord.JS command handler made by [Worn Off Keys](https://youtube.com/wornoffkeys). The goal of this package is to make it simple and easy to get your bot off the ground without worrying about your own command handler.
 
 # Table of Contents
 
@@ -90,7 +92,7 @@ client.on('ready', () => {
   // Initialize WOKCommands with specific folders and MongoDB
   new WOKCommands(client, {
     commandsDir: 'commands',
-    featureDir: 'features',
+    featuresDir: 'features',
     messagesPath,
     showWarns: true, // Show start up warnings
     dbOptions,
@@ -288,7 +290,7 @@ client.on('ready', () => {
   // Initialize WOKCommands with specific folders and MongoDB
   new WOKCommands(client, {
     commandsDir: 'commands',
-    featureDir: 'features'
+    featuresDir: 'features'
   })
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
@@ -421,7 +423,7 @@ const client = new DiscordJS.Client({
 client.on('ready', () => {
   new WOKCommands(client, , {
     commandsDir: 'commands',
-    featureDir: 'features'
+    featuresDir: 'features'
   })
     // Use your own ID of course
     // If you have only 1 ID you can pass in a string instead of an array
@@ -774,7 +776,7 @@ You can find the default `messages.json` here: https://github.com/AlexzanderFlor
 // Assumes messages.json is in the same directory as this code's file
 new WOKCommands(client, , {
     commandsDir: 'commands',
-    featureDir: 'features',
+    featuresDir: 'features',
     messagesPath: 'messages.json'
   })
 ```
@@ -882,7 +884,7 @@ const client = new DiscordJS.Client()
 client.on('ready', () => {
   const wok = new WOKCommands(client, , {
     commandsDir: 'commands',
-    featureDir: 'features'
+    featuresDir: 'features'
   })
     .setMongoPath(process.env.MONGO_URI)
     .setDefaultPrefix('?')
@@ -901,6 +903,15 @@ client.on('ready', () => {
   wok.on('commandException', (command, message, error) => {
     console.log(`An exception occured when using command "${command.names[0]}"! The error is:`)
     console.error(error)
+  })
+
+  // Ran when a message is sent or updated
+  // NOTE: This is ran on the client and not the WOKCommands instance
+  client.on('messageUpsert', (message, oldMessage) => {
+    // oldMessage is undefined if it was not updated
+    const wasUpdated = !!oldMessage
+
+    console.log(`The new content is ${message.content}.`)
   })
 })
 

@@ -28,7 +28,6 @@ const mongo = async (
   const { connection } = mongoose
   const state = results[connection.readyState] || 'Unknown'
   instance.emit(Events.DATABASE_CONNECTED, connection, state)
-  console.log('DB Connected')
 }
 
 export const getMongoConnection = (): Connection => {
