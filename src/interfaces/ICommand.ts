@@ -1,4 +1,5 @@
-import permissions from '../permissions'
+import { Client, Message, PermissionString } from 'discord.js'
+import WOKCommands from '..'
 
 export default interface ICommand {
   names: string[] | string
@@ -9,9 +10,16 @@ export default interface ICommand {
   expectedArgs?: string
   description?: string
   syntax?: string
-  requiredPermissions?: permissions
-  permissions?: permissions
-  callback?: Function
+  requiredPermissions?: PermissionString[]
+  permissions?: PermissionString[]
+  callback?: {
+    message: Message
+    args: string[]
+    text: string
+    client: Client
+    prefix: string
+    instance: WOKCommands
+  }
   cooldown?: string
   globalCooldown?: string
   ownerOnly?: boolean
