@@ -20,11 +20,11 @@
 
 [X] Global cooldowns (shows time left)
 
-[ ] Mention what roles the user is missing for required roles
+[X] Mention what roles the user is missing for required roles
 
 [X] Auto delete command messages when the user doens't have permission to use that command
 
-[ ] Configurable auto delete for pre-built commands
+[X] Configurable auto delete for pre-built commands
 
 [X] Bot owner only commands
 
