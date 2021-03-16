@@ -13,8 +13,8 @@ import SlashCommands from './SlashCommands'
 type Options = {
   commandsDir?: string
   commandDir?: string
-  featureDir?: string
   featuresDir?: string
+  featureDir?: string
   messagesPath?: string
   showWarns?: boolean
   dbOptions?: {}
@@ -54,10 +54,10 @@ class WOKCommands extends EventEmitter {
     this._client = client
 
     let {
-      commandsDir,
-      commandDir,
-      featuresDir,
-      featureDir,
+      commandsDir = '',
+      commandDir = '',
+      featuresDir = '',
+      featureDir = '',
       messagesPath,
       showWarns = true,
       dbOptions,
@@ -67,9 +67,8 @@ class WOKCommands extends EventEmitter {
 
     const { partials } = client.options
 
-    this._showWarns = showWarns
-    this._commandsDir = commandsDir || commandDir || this._commandsDir // has a default string
-    this._featuresDir = featuresDir || featureDir || ''
+    commandsDir = commandsDir || commandDir
+    featuresDir = featuresDir || featureDir
 
     if (
       !partials ||
@@ -94,10 +93,10 @@ class WOKCommands extends EventEmitter {
     if (module && require.main) {
       const { path } = require.main
       if (path) {
-        this._commandsDir = `${path}/${this._commandsDir}`
+        commandsDir = `${path}/${commandsDir || this._commandsDir}`
 
-        if (this._featuresDir) {
-          this._featuresDir = `${path}/${this._featuresDir}`
+        if (featuresDir) {
+          featuresDir = `${path}/${featuresDir}`
         }
 
         if (messagesPath) {
@@ -114,6 +113,10 @@ class WOKCommands extends EventEmitter {
       this._testServers = testServers
     }
 
+    this._showWarns = showWarns
+    this._commandsDir = commandsDir || this._commandsDir
+    this._featuresDir = featuresDir || this._featuresDir
+
     if (typeof disabledDefaultCommands === 'string') {
       disabledDefaultCommands = [disabledDefaultCommands]
     }
@@ -126,7 +129,9 @@ class WOKCommands extends EventEmitter {
       this._commandsDir,
       disabledDefaultCommands
     )
-    this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
+    if (this._featuresDir) {
+      this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
+    }
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')
 
