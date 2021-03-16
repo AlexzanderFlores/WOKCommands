@@ -55,14 +55,14 @@ var SlashCommands = /** @class */ (function () {
         this._client = instance.client;
         if (listen) {
             // @ts-ignore
-            this._client.ws.on('INTERACTION_CREATE', function (interaction) { return __awaiter(_this, void 0, void 0, function () {
-                var member, data, guild_id, channel_id, name, options, command, args, guild, channel;
+            this._client.ws.on("INTERACTION_CREATE", function (interaction) { return __awaiter(_this, void 0, void 0, function () {
+                var member, data, guild_id, channel_id, name, options, command, guild, args, channel;
                 return __generator(this, function (_a) {
                     member = interaction.member, data = interaction.data, guild_id = interaction.guild_id, channel_id = interaction.channel_id;
                     name = data.name, options = data.options;
                     command = name.toLowerCase();
-                    args = this.getArrayFromOptions(options);
                     guild = this._client.guilds.cache.get(guild_id);
+                    args = this.getArrayFromOptions(guild, options);
                     channel = guild === null || guild === void 0 ? void 0 : guild.channels.cache.get(channel_id);
                     this.invokeCommand(interaction, command, args, member, guild, channel);
                     return [2 /*return*/];
@@ -125,24 +125,35 @@ var SlashCommands = /** @class */ (function () {
             });
         });
     };
-    SlashCommands.prototype.getObjectFromOptions = function (options) {
+    // Checks if string is a user id, if true, returns a Guild Member object
+    SlashCommands.prototype.checkIfUserId = function (value, guild) {
+        if (value.startsWith("<@!") && value.endsWith(">")) {
+            value = value.substring(3).replace(">", "");
+            value = guild === null || guild === void 0 ? void 0 : guild.members.cache.get(value);
+            return value;
+        }
+        return value;
+    };
+    SlashCommands.prototype.getObjectFromOptions = function (guild, options) {
         var args = {};
         if (!options) {
             return args;
         }
         for (var _i = 0, options_1 = options; _i < options_1.length; _i++) {
             var _a = options_1[_i], name_1 = _a.name, value = _a.value;
+            value = this.checkIfUserId(value, guild);
             args[name_1] = value;
         }
         return args;
     };
-    SlashCommands.prototype.getArrayFromOptions = function (options) {
+    SlashCommands.prototype.getArrayFromOptions = function (guild, options) {
         var args = [];
         if (!options) {
             return args;
         }
         for (var _i = 0, options_2 = options; _i < options_2.length; _i++) {
             var value = options_2[_i].value;
+            value = this.checkIfUserId(value, guild);
             args.push(value);
         }
         return args;
@@ -180,7 +191,7 @@ var SlashCommands = /** @class */ (function () {
                                 channel: channel,
                                 args: options,
                                 // @ts-ignore
-                                text: options.join ? options.join(' ') : '',
+                                text: options.join ? options.join(" ") : "",
                                 client: this._client,
                                 instance: this._instance,
                                 interaction: interaction,
@@ -194,7 +205,7 @@ var SlashCommands = /** @class */ (function () {
                         data = {
                             content: result,
                         };
-                        if (!(typeof result === 'object')) return [3 /*break*/, 3];
+                        if (!(typeof result === "object")) return [3 /*break*/, 3];
                         embed = new discord_js_1.MessageEmbed(result);
                         return [4 /*yield*/, this.createAPIMessage(interaction, embed)];
                     case 2:

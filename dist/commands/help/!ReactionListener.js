@@ -35,12 +35,10 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -100,7 +98,8 @@ var ReactionHandler = /** @class */ (function () {
          */
         this.canBotRemoveReaction = function () {
             var _a;
-            return (_this.message.channel.type !== 'dm' && ((_a = _this.message.member) === null || _a === void 0 ? void 0 : _a.hasPermission('MANAGE_MESSAGES')));
+            return (_this.message.channel.type !== 'dm' &&
+                ((_a = _this.message.member) === null || _a === void 0 ? void 0 : _a.hasPermission('MANAGE_MESSAGES')));
         };
         /**
          * @returns If the user is allowed to interact with this help menu
@@ -193,7 +192,7 @@ var ReactionHandler = /** @class */ (function () {
                 if (!hidden && category_1 === category_1) {
                     if (typeof names === 'string') {
                         // @ts-ignore
-                        names = __spreadArrays(names);
+                        names = __spreadArray([], names);
                     }
                     desc += "\n\n#" + ++counter + ") " + ReactionHandler.getHelp(command, _this.instance, _this.guild);
                 }
