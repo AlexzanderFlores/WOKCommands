@@ -96,6 +96,7 @@ client.on('ready', () => {
     messagesPath,
     showWarns: true, // Show start up warnings
     del: -1, // Timeout in seconds before and error message gets deleted (Missing permissions, missing roles, or command disabled) set to -1 to disable
+    defaultLanguage: "english", // The default language is english unless specifically noted otherwise. 
     dbOptions,
     disabledDefaultCommands
   })

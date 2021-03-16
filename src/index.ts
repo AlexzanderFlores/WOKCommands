@@ -18,6 +18,7 @@ type Options = {
   messagesPath?: string
   showWarns?: boolean
   del?: number
+  defaultLanguage?: string
   dbOptions?: {}
   testServers?: string | string[]
   disabledDefaultCommands: string | string[]
@@ -63,6 +64,7 @@ class WOKCommands extends EventEmitter {
       messagesPath,
       showWarns = true,
       del = -1,
+      defaultLanguage = "english",
       dbOptions,
       testServers,
       disabledDefaultCommands = [],
@@ -118,6 +120,7 @@ class WOKCommands extends EventEmitter {
 
     this._showWarns = showWarns
     this._del = del
+    this._defaultLanguage = defaultLanguage
 
     if (typeof disabledDefaultCommands === 'string') {
       disabledDefaultCommands = [disabledDefaultCommands]
