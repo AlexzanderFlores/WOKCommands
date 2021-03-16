@@ -316,10 +316,12 @@ class CommandHandler {
     fileName: string
   ) {
     let configuration = require(file)
-    
+
     // person is using 'export default' so we import the default instead
-    if (configuration.default && Object.keys(configuration).length === 1) configuration = configuration.default
-    
+    if (configuration.default && Object.keys(configuration).length === 1) {
+      configuration = configuration.default
+    }
+
     const {
       name = fileName,
       category,
