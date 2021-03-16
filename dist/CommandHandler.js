@@ -306,6 +306,10 @@ var CommandHandler = /** @class */ (function () {
                 switch (_f.label) {
                     case 0:
                         configuration = require(file);
+                        // person is using 'export default' so we import the default instead
+                        if (configuration.default && Object.keys(configuration).length === 1) {
+                            configuration = configuration.default;
+                        }
                         _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs;
                         callbackCounter = 0;
                         if (callback)

@@ -12,9 +12,12 @@ import SlashCommands from './SlashCommands'
 
 type Options = {
   commandsDir?: string
+  commandDir?: string
+  featuresDir?: string
   featureDir?: string
   messagesPath?: string
   showWarns?: boolean
+  del?: number
   dbOptions?: {}
   testServers?: string | string[]
   disabledDefaultCommands: string | string[]
@@ -24,7 +27,7 @@ class WOKCommands extends EventEmitter {
   private _client!: Client
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
-  private _featureDir = ''
+  private _featuresDir = ''
   private _mongo = ''
   private _mongoConnection: Connection | null = null
   private _displayName = ''
@@ -36,6 +39,7 @@ class WOKCommands extends EventEmitter {
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
   private _showWarns = true
+  private _del = -1
   private _botOwner: string[] = []
   private _testServers: string[] = []
   private _defaultLanguage = 'english'
@@ -53,15 +57,21 @@ class WOKCommands extends EventEmitter {
 
     let {
       commandsDir = '',
+      commandDir = '',
+      featuresDir = '',
       featureDir = '',
       messagesPath,
       showWarns = true,
+      del = -1,
       dbOptions,
       testServers,
       disabledDefaultCommands = [],
     } = options
 
     const { partials } = client.options
+
+    this._commandsDir = commandsDir || commandDir || this._commandsDir
+    this._featuresDir = featuresDir || featureDir || this._featuresDir
 
     if (
       !partials ||
@@ -86,10 +96,10 @@ class WOKCommands extends EventEmitter {
     if (module && require.main) {
       const { path } = require.main
       if (path) {
-        commandsDir = `${path}/${commandsDir || this._commandsDir}`
+        this._commandsDir = `${path}/${this._commandsDir}`
 
-        if (featureDir) {
-          featureDir = `${path}/${featureDir}`
+        if (this._featuresDir) {
+          this._featuresDir = `${path}/${this._featuresDir}`
         }
 
         if (messagesPath) {
@@ -107,8 +117,7 @@ class WOKCommands extends EventEmitter {
     }
 
     this._showWarns = showWarns
-    this._commandsDir = commandsDir || this._commandsDir
-    this._featureDir = featureDir || this._featureDir
+    this._del = del
 
     if (typeof disabledDefaultCommands === 'string') {
       disabledDefaultCommands = [disabledDefaultCommands]
@@ -122,9 +131,7 @@ class WOKCommands extends EventEmitter {
       this._commandsDir,
       disabledDefaultCommands
     )
-    if (this._featureDir) {
-      this._featureHandler = new FeatureHandler(client, this, this._featureDir)
-    }
+    this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')
 
@@ -355,6 +362,10 @@ class WOKCommands extends EventEmitter {
 
   public get showWarns(): boolean {
     return this._showWarns
+  }
+
+  public get del(): number {
+    return this._del
   }
 
   public get botOwner(): string[] {

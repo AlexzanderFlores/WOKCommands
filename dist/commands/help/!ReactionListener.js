@@ -105,6 +105,15 @@ var ReactionHandler = /** @class */ (function () {
          * @returns If the user is allowed to interact with this help menu
          */
         this.canUserInteract = function () {
+            // Check if the title of the embed is correct
+            var displayName = _this.instance.displayName
+                ? _this.instance.displayName + ' '
+                : '';
+            var isSameTitle = _this.embed.title ===
+                "" + displayName + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'TITLE');
+            if (!isSameTitle) {
+                return false;
+            }
             // Check if the user's ID is in the footer
             if (_this.embed.footer) {
                 var text = _this.embed.footer.text;
@@ -116,12 +125,7 @@ var ReactionHandler = /** @class */ (function () {
                     return false;
                 }
             }
-            // Check if the title of the embed is correct
-            var displayName = _this.instance.displayName
-                ? _this.instance.displayName + ' '
-                : '';
-            return (_this.embed.title ===
-                "" + displayName + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'TITLE'));
+            return true;
         };
         /**
          * Invoked when the user returns to the main menu

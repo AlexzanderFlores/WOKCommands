@@ -71,7 +71,6 @@ var mongo = function (mongoPath, instance, dbOptions) {
                     connection = mongoose_1.default.connection;
                     state = results[connection.readyState] || 'Unknown';
                     instance.emit(Events_1.default.DATABASE_CONNECTED, connection, state);
-                    console.log('DB Connected');
                     return [2 /*return*/];
             }
         });
