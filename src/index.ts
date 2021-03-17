@@ -18,6 +18,7 @@ type Options = {
   messagesPath?: string
   showWarns?: boolean
   del?: number
+  ignoreBots?: boolean
   dbOptions?: {}
   testServers?: string | string[]
   disabledDefaultCommands: string | string[]
@@ -40,6 +41,7 @@ class WOKCommands extends EventEmitter {
   private _tagPeople = true
   private _showWarns = true
   private _del = -1
+  private _ignoreBots = true
   private _botOwner: string[] = []
   private _testServers: string[] = []
   private _defaultLanguage = 'english'
@@ -63,6 +65,7 @@ class WOKCommands extends EventEmitter {
       messagesPath,
       showWarns = true,
       del = -1,
+      ignoreBots = true,
       dbOptions,
       testServers,
       disabledDefaultCommands = [],
@@ -118,6 +121,7 @@ class WOKCommands extends EventEmitter {
 
     this._showWarns = showWarns
     this._del = del
+    this._ignoreBots = ignoreBots
 
     if (typeof disabledDefaultCommands === 'string') {
       disabledDefaultCommands = [disabledDefaultCommands]
@@ -366,6 +370,10 @@ class WOKCommands extends EventEmitter {
 
   public get del(): number {
     return this._del
+  }
+  
+  public get ignoreBots(): boolean {
+    return this._ignoreBots
   }
 
   public get botOwner(): string[] {

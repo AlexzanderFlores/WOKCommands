@@ -62,6 +62,10 @@ class CommandHandler {
           return;
         }
 
+        if(instance.ignoreBots && message.author.bot) {
+          return
+        }
+
         // Remove the prefix
         content = content.substring(prefix.length);
 
