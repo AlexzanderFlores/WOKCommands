@@ -56,13 +56,13 @@ var SlashCommands = /** @class */ (function () {
         if (listen) {
             // @ts-ignore
             this._client.ws.on('INTERACTION_CREATE', function (interaction) { return __awaiter(_this, void 0, void 0, function () {
-                var member, data, guild_id, channel_id, name, options, command, args, guild, channel;
+                var member, data, guild_id, channel_id, name, options, command, guild, args, channel;
                 return __generator(this, function (_a) {
                     member = interaction.member, data = interaction.data, guild_id = interaction.guild_id, channel_id = interaction.channel_id;
                     name = data.name, options = data.options;
                     command = name.toLowerCase();
-                    args = this.getArrayFromOptions(options);
                     guild = this._client.guilds.cache.get(guild_id);
+                    args = this.getArrayFromOptions(guild, options);
                     channel = guild === null || guild === void 0 ? void 0 : guild.channels.cache.get(channel_id);
                     this.invokeCommand(interaction, command, args, member, guild, channel);
                     return [2 /*return*/];
@@ -125,25 +125,33 @@ var SlashCommands = /** @class */ (function () {
             });
         });
     };
-    SlashCommands.prototype.getObjectFromOptions = function (options) {
+    // Checks if string is a user id, if true, returns a Guild Member object
+    SlashCommands.prototype.getMemberIfExists = function (value, guild) {
+        if (value.startsWith('<@!') && value.endsWith('>')) {
+            value = value.substring(3, value.length - 1);
+            value = guild === null || guild === void 0 ? void 0 : guild.members.cache.get(value);
+        }
+        return value;
+    };
+    SlashCommands.prototype.getObjectFromOptions = function (guild, options) {
         var args = {};
         if (!options) {
             return args;
         }
         for (var _i = 0, options_1 = options; _i < options_1.length; _i++) {
             var _a = options_1[_i], name_1 = _a.name, value = _a.value;
-            args[name_1] = value;
+            args[name_1] = this.getMemberIfExists(value, guild);
         }
         return args;
     };
-    SlashCommands.prototype.getArrayFromOptions = function (options) {
+    SlashCommands.prototype.getArrayFromOptions = function (guild, options) {
         var args = [];
         if (!options) {
             return args;
         }
         for (var _i = 0, options_2 = options; _i < options_2.length; _i++) {
             var value = options_2[_i].value;
-            args.push(value);
+            args.push(this.getMemberIfExists(value, guild));
         }
         return args;
     };

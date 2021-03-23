@@ -7,6 +7,7 @@ import {
   GuildMember,
   MessageEmbed,
 } from 'discord.js'
+import { brotliCompressSync } from 'zlib'
 import WOKCommands from '.'
 
 class SlashCommands {
@@ -24,10 +25,9 @@ class SlashCommands {
         const { name, options } = data
 
         const command = name.toLowerCase()
-        const args = this.getArrayFromOptions(options)
         const guild = this._client.guilds.cache.get(guild_id)
+        const args = this.getArrayFromOptions(guild, options)
         const channel = guild?.channels.cache.get(channel_id)
-
         this.invokeCommand(interaction, command, args, member, guild, channel)
       })
     }
@@ -74,7 +74,19 @@ class SlashCommands {
     return await app.commands(commandId).delete()
   }
 
+  // Checks if string is a user id, if true, returns a Guild Member object
+  private getMemberIfExists(value: string, guild: any) {
+    if (value.startsWith('<@!') && value.endsWith('>')) {
+      value = value.substring(3, value.length - 1)
+
+      value = guild?.members.cache.get(value)
+    }
+
+    return value
+  }
+
   public getObjectFromOptions(
+    guild: { members: { cache: any } },
     options?: { name: string; value: string }[]
   ): Object {
     const args: { [key: string]: any } = {}
@@ -83,13 +95,14 @@ class SlashCommands {
     }
 
     for (const { name, value } of options) {
-      args[name] = value
+      args[name] = this.getMemberIfExists(value, guild)
     }
 
     return args
   }
 
   public getArrayFromOptions(
+    guild: { members: { cache: any } } | undefined,
     options?: { name: string; value: string }[]
   ): string[] {
     const args: string[] = []
@@ -98,7 +111,7 @@ class SlashCommands {
     }
 
     for (const { value } of options) {
-      args.push(value)
+      args.push(this.getMemberIfExists(value, guild))
     }
 
     return args

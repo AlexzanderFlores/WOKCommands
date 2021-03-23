@@ -117,7 +117,17 @@ var CommandHandler = /** @class */ (function () {
                             });
                         }
                         else {
-                            message.reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND'));
+                            message
+                                .reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND'))
+                                .then(function (message) {
+                                console.log(instance.del);
+                                if (instance.del === -1) {
+                                    return;
+                                }
+                                setTimeout(function () {
+                                    message.delete();
+                                }, 1000 * instance.del);
+                            });
                         }
                         return;
                     }
@@ -140,9 +150,18 @@ var CommandHandler = /** @class */ (function () {
                                 });
                             }
                             else {
-                                message.reply(instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
+                                message
+                                    .reply(instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
                                     PERM: perm,
-                                }));
+                                }))
+                                    .then(function (message) {
+                                    if (instance.del === -1) {
+                                        return;
+                                    }
+                                    setTimeout(function () {
+                                        message.delete();
+                                    }, 1000 * instance.del);
+                                });
                             }
                             return;
                         }
@@ -169,7 +188,16 @@ var CommandHandler = /** @class */ (function () {
                                 });
                             }
                             else {
-                                message.reply(instance.messageHandler.get(guild, 'MISSING_ROLES'));
+                                message
+                                    .reply(instance.messageHandler.get(guild, 'MISSING_ROLES'))
+                                    .then(function (message) {
+                                    if (instance.del === -1) {
+                                        return;
+                                    }
+                                    setTimeout(function () {
+                                        message.delete();
+                                    }, 1000 * instance.del);
+                                });
                             }
                             return;
                         }

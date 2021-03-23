@@ -95,6 +95,7 @@ var WOKCommands = /** @class */ (function (_super) {
         _this._featureHandler = null;
         _this._tagPeople = true;
         _this._showWarns = true;
+        _this._del = -1;
         _this._botOwner = [];
         _this._testServers = [];
         _this._defaultLanguage = 'english';
@@ -102,7 +103,7 @@ var WOKCommands = /** @class */ (function (_super) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
         _this._client = client;
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.commandDir, commandDir = _b === void 0 ? '' : _b, _c = options.featuresDir, featuresDir = _c === void 0 ? '' : _c, _d = options.featureDir, featureDir = _d === void 0 ? '' : _d, messagesPath = options.messagesPath, _e = options.showWarns, showWarns = _e === void 0 ? true : _e, dbOptions = options.dbOptions, testServers = options.testServers, _f = options.disabledDefaultCommands, disabledDefaultCommands = _f === void 0 ? [] : _f;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? '' : _a, _b = options.commandDir, commandDir = _b === void 0 ? '' : _b, _c = options.featuresDir, featuresDir = _c === void 0 ? '' : _c, _d = options.featureDir, featureDir = _d === void 0 ? '' : _d, messagesPath = options.messagesPath, _e = options.showWarns, showWarns = _e === void 0 ? true : _e, _f = options.del, del = _f === void 0 ? -1 : _f, dbOptions = options.dbOptions, testServers = options.testServers, _g = options.disabledDefaultCommands, disabledDefaultCommands = _g === void 0 ? [] : _g;
         var partials = client.options.partials;
         _this._commandsDir = commandsDir || commandDir || _this._commandsDir;
         _this._featuresDir = featuresDir || featureDir || _this._featuresDir;
@@ -137,6 +138,7 @@ var WOKCommands = /** @class */ (function (_super) {
             _this._testServers = testServers;
         }
         _this._showWarns = showWarns;
+        _this._del = del;
         if (typeof disabledDefaultCommands === 'string') {
             disabledDefaultCommands = [disabledDefaultCommands];
         }
@@ -366,6 +368,13 @@ var WOKCommands = /** @class */ (function (_super) {
     Object.defineProperty(WOKCommands.prototype, "showWarns", {
         get: function () {
             return this._showWarns;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(WOKCommands.prototype, "del", {
+        get: function () {
+            return this._del;
         },
         enumerable: false,
         configurable: true
