@@ -1,8 +1,10 @@
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -16,7 +18,7 @@ var getAllFiles = function (dir) {
     for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
         var file = files_1[_i];
         if (file.isDirectory()) {
-            jsFiles = __spreadArray(__spreadArray([], jsFiles), getAllFiles(dir + "/" + file.name));
+            jsFiles = __spreadArrays(jsFiles, getAllFiles(dir + "/" + file.name));
         }
         else if (file.name.endsWith('.js') && !file.name.startsWith('!')) {
             var fileName = file.name.replace(/\\/g, '/').split('/');
