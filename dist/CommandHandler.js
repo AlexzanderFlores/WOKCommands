@@ -398,21 +398,7 @@ var CommandHandler = /** @class */ (function () {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has \"minArgs\" property defined without \"expectedArgs\" property as a slash command.");
                         }
                         slashCommands = instance.slashCommands;
-                        options = [];
-                        if (expectedArgs) {
-                            split = expectedArgs
-                                .substring(1, expectedArgs.length - 1)
-                                .split(/[>\]] [<\[]/);
-                            for (a = 0; a < split.length; ++a) {
-                                item = split[a];
-                                options.push({
-                                    name: item.replace(/ /g, '-'),
-                                    description: item,
-                                    type: 3,
-                                    required: a < minArgs,
-                                });
-                            }
-                        }
+                        options = expectedArgs || [];
                         if (!testOnly) return [3 /*break*/, 5];
                         _c = 0, _d = instance.testServers;
                         _f.label = 1;
