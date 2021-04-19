@@ -1,67 +1,67 @@
-import { Client, Guild, GuildEmoji } from 'discord.js'
-import { Connection } from 'mongoose'
-import { EventEmitter } from 'events'
+import { Client, Guild, GuildEmoji } from "discord.js";
+import { Connection } from "mongoose";
+import { EventEmitter } from "events";
 
-import CommandHandler from './CommandHandler'
-import FeatureHandler from './FeatureHandler'
-import mongo, { getMongoConnection } from './mongo'
-import prefixes from './models/prefixes'
-import MessageHandler from './message-handler'
-import Events from './enums/Events'
-import SlashCommands from './SlashCommands'
+import CommandHandler from "./CommandHandler";
+import FeatureHandler from "./FeatureHandler";
+import mongo, { getMongoConnection } from "./mongo";
+import prefixes from "./models/prefixes";
+import MessageHandler from "./message-handler";
+import Events from "./enums/Events";
+import SlashCommands from "./SlashCommands";
 
 type Options = {
-  commandsDir?: string
-  commandDir?: string
-  featuresDir?: string
-  featureDir?: string
-  messagesPath?: string
-  showWarns?: boolean
-  del?: number
-  ignoreBots?: boolean
-  dbOptions?: {}
-  testServers?: string | string[]
-  disabledDefaultCommands: string | string[]
-}
+  commandsDir?: string;
+  commandDir?: string;
+  featuresDir?: string;
+  featureDir?: string;
+  messagesPath?: string;
+  showWarns?: boolean;
+  del?: number;
+  ignoreBots?: boolean;
+  dbOptions?: {};
+  testServers?: string | string[];
+  disabledDefaultCommands: string | string[];
+};
 
 class WOKCommands extends EventEmitter {
-  private _client!: Client
-  private _defaultPrefix = '!'
-  private _commandsDir = 'commands'
-  private _featuresDir = ''
-  private _mongo = ''
-  private _mongoConnection: Connection | null = null
-  private _displayName = ''
-  private _prefixes: { [name: string]: string } = {}
-  private _categories: Map<String, String | GuildEmoji> = new Map() // <Category Name, Emoji Icon>
-  private _hiddenCategories: string[] = []
-  private _color = ''
-  private _commandHandler: CommandHandler
-  private _featureHandler: FeatureHandler | null = null
-  private _tagPeople = true
-  private _showWarns = true
-  private _del = -1
-  private _ignoreBots = true
-  private _botOwner: string[] = []
-  private _testServers: string[] = []
-  private _defaultLanguage = 'english'
-  private _messageHandler: MessageHandler
-  private _slashCommand: SlashCommands
+  private _client!: Client;
+  private _defaultPrefix = "!";
+  private _commandsDir = "commands";
+  private _featuresDir = "";
+  private _mongo = "";
+  private _mongoConnection: Connection | null = null;
+  private _displayName = "";
+  private _prefixes: { [name: string]: string } = {};
+  private _categories: Map<String, String | GuildEmoji> = new Map(); // <Category Name, Emoji Icon>
+  private _hiddenCategories: string[] = [];
+  private _color = "";
+  private _commandHandler: CommandHandler;
+  private _featureHandler: FeatureHandler | null = null;
+  private _tagPeople = true;
+  private _showWarns = true;
+  private _del = -1;
+  private _ignoreBots = true;
+  private _botOwner: string[] = [];
+  private _testServers: string[] = [];
+  private _defaultLanguage = "english";
+  private _messageHandler: MessageHandler;
+  private _slashCommand: SlashCommands;
 
   constructor(client: Client, options: Options) {
-    super()
+    super();
 
     if (!client) {
-      throw new Error('No Discord JS Client provided as first argument!')
+      throw new Error("No Discord JS Client provided as first argument!");
     }
 
-    this._client = client
+    this._client = client;
 
     let {
-      commandsDir = '',
-      commandDir = '',
-      featuresDir = '',
-      featureDir = '',
+      commandsDir = "",
+      commandDir = "",
+      featuresDir = "",
+      featureDir = "",
       messagesPath,
       showWarns = true,
       del = -1,
@@ -69,111 +69,111 @@ class WOKCommands extends EventEmitter {
       dbOptions,
       testServers,
       disabledDefaultCommands = [],
-    } = options
+    } = options;
 
-    const { partials } = client.options
+    const { partials } = client.options;
 
-    this._commandsDir = commandsDir || commandDir || this._commandsDir
-    this._featuresDir = featuresDir || featureDir || this._featuresDir
+    this._commandsDir = commandsDir || commandDir || this._commandsDir;
+    this._featuresDir = featuresDir || featureDir || this._featuresDir;
 
     if (
       !partials ||
-      !partials.includes('MESSAGE') ||
-      !partials.includes('REACTION')
+      !partials.includes("MESSAGE") ||
+      !partials.includes("REACTION")
     ) {
       if (showWarns) {
         console.warn(
           `WOKCommands > It is encouraged to use both "MESSAGE" and "REACTION" partials when using WOKCommands due to it's help menu. More information can be found here: https://discord.js.org/#/docs/main/stable/topics/partials`
-        )
+        );
       }
     }
 
     if (showWarns && !commandsDir) {
       console.warn(
         'WOKCommands > No commands folder specified. Using "commands"'
-      )
+      );
     }
 
     // Get the directory path of the project using this package
     // This way users don't need to use path.join(__dirname, 'dir')
     if (module && require.main) {
-      const { path } = require.main
+      const { path } = require.main;
       if (path) {
-        this._commandsDir = `${path}/${this._commandsDir}`
+        this._commandsDir = `${path}/${this._commandsDir}`;
 
         if (this._featuresDir) {
-          this._featuresDir = `${path}/${this._featuresDir}`
+          this._featuresDir = `${path}/${this._featuresDir}`;
         }
 
         if (messagesPath) {
-          messagesPath = `${path}/${messagesPath}`
+          messagesPath = `${path}/${messagesPath}`;
         }
       }
     }
 
     if (testServers) {
-      if (typeof testServers === 'string') {
-        testServers = [testServers]
+      if (typeof testServers === "string") {
+        testServers = [testServers];
       }
 
-      this._testServers = testServers
+      this._testServers = testServers;
     }
 
-    this._showWarns = showWarns
-    this._del = del
-    this._ignoreBots = ignoreBots
+    this._showWarns = showWarns;
+    this._del = del;
+    this._ignoreBots = ignoreBots;
 
-    if (typeof disabledDefaultCommands === 'string') {
-      disabledDefaultCommands = [disabledDefaultCommands]
+    if (typeof disabledDefaultCommands === "string") {
+      disabledDefaultCommands = [disabledDefaultCommands];
     }
 
-    this._slashCommand = new SlashCommands(this)
+    this._slashCommand = new SlashCommands(this);
 
     this._commandHandler = new CommandHandler(
       this,
       client,
       this._commandsDir,
       disabledDefaultCommands
-    )
-    this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
+    );
+    this._featureHandler = new FeatureHandler(client, this, this._featuresDir);
 
-    this._messageHandler = new MessageHandler(this, messagesPath || '')
+    this._messageHandler = new MessageHandler(this, messagesPath || "");
 
-    this.setCategorySettings('Configuration', '⚙️')
-    this.setCategorySettings('Help', '❓')
+    this.setCategorySettings("Configuration", "⚙️");
+    this.setCategorySettings("Help", "❓");
 
     setTimeout(async () => {
       if (this._mongo) {
-        await mongo(this._mongo, this, dbOptions)
+        await mongo(this._mongo, this, dbOptions);
 
-        this._mongoConnection = getMongoConnection()
+        this._mongoConnection = getMongoConnection();
 
-        const results: any[] = await prefixes.find({})
+        const results: any[] = await prefixes.find({});
 
         for (const result of results) {
-          const { _id, prefix } = result
+          const { _id, prefix } = result;
 
-          this._prefixes[_id] = prefix
+          this._prefixes[_id] = prefix;
         }
       } else {
         if (showWarns) {
           console.warn(
-            'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup'
-          )
+            "WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://github.com/AlexzanderFlores/WOKCommands#setup"
+          );
         }
 
-        this.emit(Events.DATABASE_CONNECTED, null, '')
+        this.emit(Events.DATABASE_CONNECTED, null, "");
       }
-    }, 500)
+    }, 500);
   }
 
   public get mongoPath(): string {
-    return this._mongo
+    return this._mongo;
   }
 
   public setMongoPath(mongoPath: string): WOKCommands {
-    this._mongo = mongoPath
-    return this
+    this._mongo = mongoPath;
+    return this;
   }
 
   /**
@@ -182,87 +182,87 @@ class WOKCommands extends EventEmitter {
   public setSyntaxError(syntaxError: string): WOKCommands {
     console.warn(
       `WOKCommands > The setSyntaxError method is deprecated. Please use messages.json instead. See https://www.npmjs.com/package/wokcommands#language-support for more information`
-    )
-    return this
+    );
+    return this;
   }
 
   public get client(): Client {
-    return this._client
+    return this._client;
   }
 
   public get displayName(): string {
-    return this._displayName
+    return this._displayName;
   }
 
   public setDisplayName(displayName: string): WOKCommands {
-    this._displayName = displayName
-    return this
+    this._displayName = displayName;
+    return this;
   }
 
   public get prefixes() {
-    return this._prefixes
+    return this._prefixes;
   }
 
   public get defaultPrefix(): string {
-    return this._defaultPrefix
+    return this._defaultPrefix;
   }
 
   public setDefaultPrefix(defaultPrefix: string): WOKCommands {
-    this._defaultPrefix = defaultPrefix
-    return this
+    this._defaultPrefix = defaultPrefix;
+    return this;
   }
 
   public getPrefix(guild: Guild | null): string {
-    return this._prefixes[guild ? guild.id : ''] || this._defaultPrefix
+    return this._prefixes[guild ? guild.id : ""] || this._defaultPrefix;
   }
 
   public setPrefix(guild: Guild | null, prefix: string): WOKCommands {
     if (guild) {
-      this._prefixes[guild.id] = prefix
+      this._prefixes[guild.id] = prefix;
     }
-    return this
+    return this;
   }
 
   public get categories(): Map<String, String | GuildEmoji> {
-    return this._categories
+    return this._categories;
   }
 
   public get hiddenCategories(): string[] {
-    return this._hiddenCategories
+    return this._hiddenCategories;
   }
 
   public get color(): string {
-    return this._color
+    return this._color;
   }
 
   public setColor(color: string): WOKCommands {
-    this._color = color
-    return this
+    this._color = color;
+    return this;
   }
 
   public getEmoji(category: string): string {
-    const emoji = this._categories.get(category) || ''
-    if (typeof emoji === 'object') {
+    const emoji = this._categories.get(category) || "";
+    if (typeof emoji === "object") {
       // @ts-ignore
-      return `<:${emoji.name}:${emoji.id}>`
+      return `<:${emoji.name}:${emoji.id}>`;
     }
 
-    return emoji
+    return emoji;
   }
 
   public getCategory(emoji: string): string {
-    let result = ''
+    let result = "";
 
     this._categories.forEach((value, key) => {
       // == is intended here
       if (emoji == value) {
         // @ts-ignore
-        result = key
-        return false
+        result = key;
+        return false;
       }
-    })
+    });
 
-    return result
+    return result;
   }
 
   /**
@@ -274,140 +274,140 @@ class WOKCommands extends EventEmitter {
   ): WOKCommands {
     console.warn(
       `WOKCommands > The setCategoryEmoji method is deprecated, please use setCategorySettings`
-    )
+    );
 
-    this.setCategorySettings(category, emoji)
-    return this
+    this.setCategorySettings(category, emoji);
+    return this;
   }
 
   public setCategorySettings(
     category: string | [{ [key: string]: any }],
     emoji?: string
   ): WOKCommands {
-    if (typeof category == 'string') {
+    if (typeof category == "string") {
       if (!emoji) {
         throw new Error(
           `WOKCommands > An emoji is required for category "${category}"`
-        )
+        );
       }
 
       if (this.isEmojiUsed(emoji)) {
         console.warn(
           `WOKCommands > The emoji "${emoji}" for category "${category}" is already used.`
-        )
+        );
       }
 
       this._categories.set(
         category,
-        emoji || this.categories.get(category) || ''
-      )
+        emoji || this.categories.get(category) || ""
+      );
     } else {
       for (let { emoji, name, hidden, customEmoji } of category) {
-        if (emoji.startsWith('<:') && emoji.endsWith('>')) {
-          customEmoji = true
-          emoji = emoji.split(':')[2]
-          emoji = emoji.substring(0, emoji.length - 1)
+        if (emoji.startsWith("<:") && emoji.endsWith(">")) {
+          customEmoji = true;
+          emoji = emoji.split(":")[2];
+          emoji = emoji.substring(0, emoji.length - 1);
         }
 
         if (customEmoji) {
-          emoji = this._client.emojis.cache.get(emoji)
+          emoji = this._client.emojis.cache.get(emoji);
         }
 
         if (this.isEmojiUsed(emoji)) {
           console.warn(
             `WOKCommands > The emoji "${emoji}" for category "${name}" is already used.`
-          )
+          );
         }
 
-        this._categories.set(name, emoji || this.categories.get(name) || '')
+        this._categories.set(name, emoji || this.categories.get(name) || "");
 
         if (hidden) {
-          this._hiddenCategories.push(name)
+          this._hiddenCategories.push(name);
         }
       }
     }
 
-    return this
+    return this;
   }
 
   private isEmojiUsed(emoji: string): boolean {
-    let isUsed = false
+    let isUsed = false;
 
     this._categories.forEach((value) => {
       if (value === emoji) {
-        isUsed = true
+        isUsed = true;
       }
-    })
+    });
 
-    return isUsed
+    return isUsed;
   }
 
   public get commandHandler(): CommandHandler {
-    return this._commandHandler
+    return this._commandHandler;
   }
 
   public get mongoConnection(): Connection | null {
-    return this._mongoConnection
+    return this._mongoConnection;
   }
 
   public isDBConnected(): boolean {
-    const connection = this.mongoConnection
-    return !!(connection && connection.readyState === 1)
+    const connection = this.mongoConnection;
+    return !!(connection && connection.readyState === 1);
   }
 
   public setTagPeople(tagPeople: boolean): WOKCommands {
-    this._tagPeople = tagPeople
-    return this
+    this._tagPeople = tagPeople;
+    return this;
   }
 
   public get tagPeople(): boolean {
-    return this._tagPeople
+    return this._tagPeople;
   }
 
   public get showWarns(): boolean {
-    return this._showWarns
+    return this._showWarns;
   }
 
   public get del(): number {
-    return this._del
+    return this._del;
   }
-  
+
   public get ignoreBots(): boolean {
-    return this._ignoreBots
+    return this._ignoreBots;
   }
 
   public get botOwner(): string[] {
-    return this._botOwner
+    return this._botOwner;
   }
 
   public setBotOwner(botOwner: string | string[]): WOKCommands {
-    if (typeof botOwner === 'string') {
-      botOwner = [botOwner]
+    if (typeof botOwner === "string") {
+      botOwner = [botOwner];
     }
-    this._botOwner = botOwner
-    return this
+    this._botOwner = botOwner;
+    return this;
   }
 
   public get testServers(): string[] {
-    return this._testServers
+    return this._testServers;
   }
 
   public get defaultLanguage(): string {
-    return this._defaultLanguage
+    return this._defaultLanguage;
   }
 
   public setDefaultLanguage(defaultLanguage: string): WOKCommands {
-    this._defaultLanguage = defaultLanguage
-    return this
+    this._defaultLanguage = defaultLanguage;
+    return this;
   }
 
   public get messageHandler(): MessageHandler {
-    return this._messageHandler
+    return this._messageHandler;
   }
 
   public get slashCommands(): SlashCommands {
-    return this._slashCommand
+    return this._slashCommand;
   }
 }
 
-export = WOKCommands
+export = WOKCommands;
