@@ -64,9 +64,9 @@ var ReactionHandler = /** @class */ (function () {
     function ReactionHandler(instance, reaction, user) {
         var _this = this;
         this.guild = null;
-        this.emojiName = '';
-        this.emojiId = '';
-        this.door = '🚪';
+        this.emojiName = "";
+        this.emojiId = "";
+        this.door = "🚪";
         this.pageLimit = 3;
         this.init = function () { return __awaiter(_this, void 0, void 0, function () {
             var _a, embeds, guild;
@@ -89,7 +89,7 @@ var ReactionHandler = /** @class */ (function () {
                             return [2 /*return*/];
                         }
                         this.emojiName = this.reaction.emoji.name;
-                        this.emojiId = this.reaction.emoji.id || '';
+                        this.emojiId = this.reaction.emoji.id || "";
                         this.handleEmoji();
                         return [2 /*return*/];
                 }
@@ -100,7 +100,7 @@ var ReactionHandler = /** @class */ (function () {
          */
         this.canBotRemoveReaction = function () {
             var _a;
-            return (_this.message.channel.type !== 'dm' && ((_a = _this.message.member) === null || _a === void 0 ? void 0 : _a.hasPermission('MANAGE_MESSAGES')));
+            return (_this.message.channel.type !== "dm" && ((_a = _this.message.member) === null || _a === void 0 ? void 0 : _a.hasPermission("MANAGE_MESSAGES")));
         };
         /**
          * @returns If the user is allowed to interact with this help menu
@@ -108,17 +108,17 @@ var ReactionHandler = /** @class */ (function () {
         this.canUserInteract = function () {
             // Check if the title of the embed is correct
             var displayName = _this.instance.displayName
-                ? _this.instance.displayName + ' '
-                : '';
+                ? _this.instance.displayName + " "
+                : "";
             var isSameTitle = _this.embed.title ===
-                "" + displayName + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'TITLE');
+                "" + displayName + _this.instance.messageHandler.getEmbed(_this.guild, "HELP_MENU", "TITLE");
             if (!isSameTitle) {
                 return false;
             }
             // Check if the user's ID is in the footer
             if (_this.embed.footer) {
                 var text = _this.embed.footer.text;
-                var id = text === null || text === void 0 ? void 0 : text.split('#')[1];
+                var id = text === null || text === void 0 ? void 0 : text.split("#")[1];
                 if (id !== _this.user.id) {
                     if (_this.canBotRemoveReaction()) {
                         _this.reaction.users.remove(_this.user.id);
@@ -147,10 +147,10 @@ var ReactionHandler = /** @class */ (function () {
         this.getMaxPages = function (commandLength) {
             var page = 1;
             if (_this.embed && _this.embed.description) {
-                var split = _this.embed.description.split('\n');
+                var split = _this.embed.description.split("\n");
                 var lastLine = split[split.length - 1];
-                if (lastLine.startsWith('Page ')) {
-                    page = parseInt(lastLine.split(' ')[1]);
+                if (lastLine.startsWith("Page ")) {
+                    page = parseInt(lastLine.split(" ")[1]);
                 }
             }
             return [page, Math.ceil(commandLength / _this.pageLimit)];
@@ -160,12 +160,12 @@ var ReactionHandler = /** @class */ (function () {
          */
         this.getCommands = function () {
             var category = _this.instance.getCategory(_this.emojiId || _this.emojiName);
-            var commandsString = _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'COMMANDS');
+            var commandsString = _this.instance.messageHandler.getEmbed(_this.guild, "HELP_MENU", "COMMANDS");
             if (_this.embed.description) {
-                var split = _this.embed.description.split('\n');
-                var cmdStr = ' ' + commandsString;
+                var split = _this.embed.description.split("\n");
+                var cmdStr = " " + commandsString;
                 if (split[0].endsWith(cmdStr)) {
-                    category = split[0].replace(cmdStr, '');
+                    category = split[0].replace(cmdStr, "");
                 }
             }
             var commands = _this.instance.commandHandler.getCommandsByCategory(category);
@@ -182,16 +182,16 @@ var ReactionHandler = /** @class */ (function () {
         this.generateMenu = function (page, maxPages) {
             var _a = _this.getCommands(), length = _a.length, commands = _a.commands, commandsString = _a.commandsString, category = _a.category;
             var hasMultiplePages = length > _this.pageLimit;
-            var desc = category + " " + commandsString + "\n\n" + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'DESCRIPTION_FIRST_LINE');
+            var desc = category + " " + commandsString + "\n\n" + _this.instance.messageHandler.getEmbed(_this.guild, "HELP_MENU", "DESCRIPTION_FIRST_LINE");
             if (hasMultiplePages) {
-                desc += "\n\n" + _this.instance.messageHandler.getEmbed(_this.guild, 'HELP_MENU', 'DESCRIPTION_SECOND_LINE');
+                desc += "\n\n" + _this.instance.messageHandler.getEmbed(_this.guild, "HELP_MENU", "DESCRIPTION_SECOND_LINE");
             }
             var start = (page - 1) * _this.pageLimit;
             for (var a = start, counter = a; a < commands.length && a < start + _this.pageLimit; ++a) {
                 var command = commands[a];
                 var hidden = command.hidden, category_1 = command.category, names = command.names;
                 if (!hidden && category_1 === category_1) {
-                    if (typeof names === 'string') {
+                    if (typeof names === "string") {
                         // @ts-ignore
                         names = __spreadArrays(names);
                     }
@@ -206,10 +206,10 @@ var ReactionHandler = /** @class */ (function () {
             }
             var reactions = [];
             if (hasMultiplePages) {
-                reactions.push('⬅');
-                reactions.push('➡');
+                reactions.push("⬅");
+                reactions.push("➡");
             }
-            reactions.push('🚪');
+            reactions.push("🚪");
             addReactions(_this.message, reactions);
         };
         /**
@@ -222,7 +222,7 @@ var ReactionHandler = /** @class */ (function () {
             }
             var length = _this.getCommands().length;
             var _a = _this.getMaxPages(length), page = _a[0], maxPages = _a[1];
-            if (_this.emojiName === '⬅') {
+            if (_this.emojiName === "⬅") {
                 if (page <= 1) {
                     if (_this.canBotRemoveReaction()) {
                         _this.reaction.users.remove(_this.user.id);
@@ -231,7 +231,7 @@ var ReactionHandler = /** @class */ (function () {
                 }
                 --page;
             }
-            else if (_this.emojiName === '➡') {
+            else if (_this.emojiName === "➡") {
                 if (page >= maxPages) {
                     if (_this.canBotRemoveReaction()) {
                         _this.reaction.users.remove(_this.user.id);
@@ -250,12 +250,12 @@ var ReactionHandler = /** @class */ (function () {
     }
     ReactionHandler.getHelp = function (command, instance, guild) {
         var description = command.description, syntax = command.syntax, names = command.names;
-        var mainName = typeof names === 'string' ? names : names.shift();
-        var desc = "**" + mainName + "**" + (description ? ' - ' : '') + description;
-        if (names.length && typeof names !== 'string') {
-            desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'ALIASES') + ": \"" + names.join('", "') + "\"";
+        var mainName = typeof names === "string" ? names : names.shift();
+        var desc = "**" + mainName + "**" + (description ? " - " : "") + description;
+        if (names.length && typeof names !== "string") {
+            desc += "\n" + instance.messageHandler.getEmbed(guild, "HELP_MENU", "ALIASES") + ": \"" + names.join('", "') + "\"";
         }
-        desc += "\n" + instance.messageHandler.getEmbed(guild, 'HELP_MENU', 'SYNTAX') + ": \"" + instance.getPrefix(guild) + mainName + (syntax ? ' ' : '') + (syntax || '') + "\"";
+        desc += "\n" + instance.messageHandler.getEmbed(guild, "HELP_MENU", "SYNTAX") + ": \"" + instance.getPrefix(guild) + mainName + (syntax ? " " : "") + (syntax || "") + "\"";
         return desc;
     };
     return ReactionHandler;

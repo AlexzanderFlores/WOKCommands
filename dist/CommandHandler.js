@@ -88,6 +88,9 @@ var CommandHandler = /** @class */ (function () {
                 if (!content.startsWith(prefix)) {
                     return;
                 }
+                if (instance.ignoreBots && message.author.bot) {
+                    return;
+                }
                 // Remove the prefix
                 content = content.substring(prefix.length);
                 var args = content.split(/ /g);
