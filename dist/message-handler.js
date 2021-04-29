@@ -92,6 +92,9 @@ var MessageHandler = /** @class */ (function () {
                                 this._languages.push(language.toLowerCase());
                             }
                         }
+                        if (!this._languages.includes(instance.defaultLanguage)) {
+                            throw new Error("The current default language defined is not supported.");
+                        }
                         instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) { return __awaiter(_this, void 0, void 0, function () {
                             var results, _i, results_1, _a, guildId, language;
                             return __generator(this, function (_b) {
