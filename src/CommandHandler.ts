@@ -169,12 +169,13 @@ class CommandHandler {
           const roles = command.getRequiredRoles(guild.id)
 
           if (roles && roles.length) {
-            const missingRoles = []
+            const missingRoles = [];
+            const missingRolesNames = [];
 
             for (const role of roles) {
               if (!member.roles.cache.has(role)) {
-                missingRoles.push(role)
-                break
+                missingRoles.push(role);
+                missingRolesNames.push(guild.roles.cache.get(role)?.name);
               }
             }
 
@@ -187,6 +188,20 @@ class CommandHandler {
                   info: {
                     missingRoles,
                   },
+                });
+              } else {
+                message.reply(
+                  instance.messageHandler.get(guild, 'MISSING_ROLES', {
+                    roles: missingRolesNames.join(', ')
+                  })
+                ).then((message) => {
+                if (instance.del === -1) {
+                  return
+                }
+
+                setTimeout(() => {
+                    message.delete()
+                  }, 1000 * instance.del)
                 })
               } else {
                 message
