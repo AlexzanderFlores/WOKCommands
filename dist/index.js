@@ -104,7 +104,7 @@ var WOKCommands = /** @class */ (function (_super) {
             throw new Error("No Discord JS Client provided as first argument!");
         }
         _this._client = client;
-        var _a = options.commandsDir, commandsDir = _a === void 0 ? "" : _a, _b = options.commandDir, commandDir = _b === void 0 ? "" : _b, _c = options.featuresDir, featuresDir = _c === void 0 ? "" : _c, _d = options.featureDir, featureDir = _d === void 0 ? "" : _d, messagesPath = options.messagesPath, _e = options.showWarns, showWarns = _e === void 0 ? true : _e, _f = options.del, del = _f === void 0 ? -1 : _f, _g = options.ignoreBots, ignoreBots = _g === void 0 ? true : _g, dbOptions = options.dbOptions, testServers = options.testServers, _h = options.disabledDefaultCommands, disabledDefaultCommands = _h === void 0 ? [] : _h;
+        var _a = options.commandsDir, commandsDir = _a === void 0 ? "" : _a, _b = options.commandDir, commandDir = _b === void 0 ? "" : _b, _c = options.featuresDir, featuresDir = _c === void 0 ? "" : _c, _d = options.featureDir, featureDir = _d === void 0 ? "" : _d, messagesPath = options.messagesPath, _e = options.showWarns, showWarns = _e === void 0 ? true : _e, _f = options.del, del = _f === void 0 ? -1 : _f, _g = options.defaultLanguage, defaultLanguage = _g === void 0 ? "english" : _g, _h = options.ignoreBots, ignoreBots = _h === void 0 ? true : _h, dbOptions = options.dbOptions, testServers = options.testServers, _j = options.disabledDefaultCommands, disabledDefaultCommands = _j === void 0 ? [] : _j;
         var partials = client.options.partials;
         _this._commandsDir = commandsDir || commandDir || _this._commandsDir;
         _this._featuresDir = featuresDir || featureDir || _this._featuresDir;
@@ -140,6 +140,7 @@ var WOKCommands = /** @class */ (function (_super) {
         }
         _this._showWarns = showWarns;
         _this._del = del;
+        _this._defaultLanguage = defaultLanguage.toLowerCase();
         _this._ignoreBots = ignoreBots;
         if (typeof disabledDefaultCommands === "string") {
             disabledDefaultCommands = [disabledDefaultCommands];
