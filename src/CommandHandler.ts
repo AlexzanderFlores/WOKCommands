@@ -461,7 +461,7 @@ class CommandHandler {
       const slashCommands = instance.slashCommands
       const options: object[] = []
 
-      if (expectedArgs) {
+      if (expectedArgs && typeof expectedArgs === "string") {
         const split = expectedArgs
           .substring(1, expectedArgs.length - 1)
           .split(/[>\]] [<\[]/)
@@ -475,6 +475,11 @@ class CommandHandler {
             type: 3,
             required: a < minArgs,
           })
+        }
+      }
+      else if (expectedArgs && typeof expectedArgs === "object") {
+        for (var arg of expectedArgs) {
+          options.push(arg)
         }
       }
 
