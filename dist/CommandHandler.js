@@ -60,7 +60,7 @@ var CommandHandler = /** @class */ (function () {
         var _this = this;
         this._commands = new Map();
         // Register built in commands
-        for (var _i = 0, _a = get_all_files_1.default(path_1.default.join(__dirname, 'commands')); _i < _a.length; _i++) {
+        for (var _i = 0, _a = get_all_files_1.default(path_1.default.join(__dirname, "commands")); _i < _a.length; _i++) {
             var _b = _a[_i], file = _b[0], fileName = _b[1];
             if (disabledDefaultCommands.includes(fileName)) {
                 continue;
@@ -76,12 +76,13 @@ var CommandHandler = /** @class */ (function () {
             if (amount <= 0) {
                 return;
             }
-            console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
+            console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? "" : "s") + ".");
             for (var _c = 0, files_1 = files; _c < files_1.length; _c++) {
                 var _d = files_1[_c], file = _d[0], fileName = _d[1];
                 this.registerCommand(instance, client, file, fileName);
             }
-            client.on('message', function (message) {
+            client.on("message", function (message) {
+                var _a;
                 var guild = message.guild;
                 var content = message.content;
                 var prefix = instance.getPrefix(guild);
@@ -121,7 +122,7 @@ var CommandHandler = /** @class */ (function () {
                         }
                         else {
                             message
-                                .reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND'))
+                                .reply(instance.messageHandler.get(guild, "DISABLED_COMMAND"))
                                 .then(function (message) {
                                 console.log(instance.del);
                                 if (instance.del === -1) {
@@ -141,8 +142,8 @@ var CommandHandler = /** @class */ (function () {
                     return;
                 }
                 if (guild && member) {
-                    for (var _i = 0, _a = requiredPermissions || []; _i < _a.length; _i++) {
-                        var perm = _a[_i];
+                    for (var _i = 0, _b = requiredPermissions || []; _i < _b.length; _i++) {
+                        var perm = _b[_i];
                         // @ts-ignore
                         if (!member.hasPermission(perm)) {
                             if (error) {
@@ -154,7 +155,7 @@ var CommandHandler = /** @class */ (function () {
                             }
                             else {
                                 message
-                                    .reply(instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
+                                    .reply(instance.messageHandler.get(guild, "MISSING_PERMISSION", {
                                     PERM: perm,
                                 }))
                                     .then(function (message) {
@@ -172,11 +173,12 @@ var CommandHandler = /** @class */ (function () {
                     var roles = command.getRequiredRoles(guild.id);
                     if (roles && roles.length) {
                         var missingRoles = [];
-                        for (var _b = 0, roles_1 = roles; _b < roles_1.length; _b++) {
-                            var role = roles_1[_b];
+                        var missingRolesNames = [];
+                        for (var _c = 0, roles_1 = roles; _c < roles_1.length; _c++) {
+                            var role = roles_1[_c];
                             if (!member.roles.cache.has(role)) {
                                 missingRoles.push(role);
-                                break;
+                                missingRolesNames.push((_a = guild.roles.cache.get(role)) === null || _a === void 0 ? void 0 : _a.name);
                             }
                         }
                         if (missingRoles.length) {
@@ -192,7 +194,9 @@ var CommandHandler = /** @class */ (function () {
                             }
                             else {
                                 message
-                                    .reply(instance.messageHandler.get(guild, 'MISSING_ROLES'))
+                                    .reply(instance.messageHandler.get(guild, "MISSING_ROLES", {
+                                    ROLES: missingRolesNames.join(", "),
+                                }))
                                     .then(function (message) {
                                     if (instance.del === -1) {
                                         return;
@@ -212,7 +216,7 @@ var CommandHandler = /** @class */ (function () {
                     var syntaxError = command.syntaxError || {};
                     var messageHandler = instance.messageHandler;
                     var errorMsg = syntaxError[messageHandler.getLanguage(guild)] ||
-                        instance.messageHandler.get(guild, 'SYNTAX_ERROR');
+                        instance.messageHandler.get(guild, "SYNTAX_ERROR");
                     // Replace {PREFIX} with the actual prefix
                     if (errorMsg) {
                         errorMsg = errorMsg.replace(/{PREFIX}/g, prefix);
@@ -221,7 +225,7 @@ var CommandHandler = /** @class */ (function () {
                     errorMsg = errorMsg.replace(/{COMMAND}/g, name);
                     // Replace {ARGUMENTS} with the expectedArgs property from the command
                     // If one was not provided then replace {ARGUMENTS} with an empty string
-                    errorMsg = errorMsg.replace(/ {ARGUMENTS}/g, expectedArgs ? " " + expectedArgs : '');
+                    errorMsg = errorMsg.replace(/ {ARGUMENTS}/g, expectedArgs ? " " + expectedArgs : "");
                     if (error) {
                         error({
                             error: CommandErrors_1.default.INVALID_ARGUMENTS,
@@ -243,7 +247,7 @@ var CommandHandler = /** @class */ (function () {
                 }
                 // Check for cooldowns
                 if ((cooldown || globalCooldown) && user) {
-                    var guildId = guild ? guild.id : 'dm';
+                    var guildId = guild ? guild.id : "dm";
                     var timeLeft = command.getCooldownSeconds(guildId, user.id);
                     if (timeLeft) {
                         if (error) {
@@ -257,7 +261,7 @@ var CommandHandler = /** @class */ (function () {
                             });
                         }
                         else {
-                            message.reply(instance.messageHandler.get(guild, 'COOLDOWN', {
+                            message.reply(instance.messageHandler.get(guild, "COOLDOWN", {
                                 COOLDOWN: timeLeft,
                             }));
                         }
@@ -280,7 +284,7 @@ var CommandHandler = /** @class */ (function () {
                         });
                     }
                     else {
-                        message.reply(instance.messageHandler.get(guild, 'EXCEPTION'));
+                        message.reply(instance.messageHandler.get(guild, "EXCEPTION"));
                         console.error(e);
                     }
                     instance.emit(Events_1.default.COMMAND_EXCEPTION, command, message, e);
@@ -293,7 +297,7 @@ var CommandHandler = /** @class */ (function () {
                     return __generator(this, function (_c) {
                         switch (_c.label) {
                             case 0:
-                                connected = state === 'Connected';
+                                connected = state === "Connected";
                                 command.verifyDatabaseCooldowns(connected);
                                 if (!connected) {
                                     return [2 /*return*/];
@@ -308,16 +312,14 @@ var CommandHandler = /** @class */ (function () {
                                 _c.sent();
                                 return [4 /*yield*/, cooldown_1.default.find({
                                         name: command.names[0],
-                                        type: command.globalCooldown ? 'global' : 'per-user',
-                                    })
-                                    // @ts-ignore
-                                ];
+                                        type: command.globalCooldown ? "global" : "per-user",
+                                    })];
                             case 3:
                                 results = _c.sent();
                                 // @ts-ignore
                                 for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
                                     _a = results_1[_i], _id = _a._id, cooldown_2 = _a.cooldown;
-                                    _b = _id.split('-'), name_1 = _b[0], guildId = _b[1], userId = _b[2];
+                                    _b = _id.split("-"), name_1 = _b[0], guildId = _b[1], userId = _b[2];
                                     command.setCooldown(guildId, userId, cooldown_2);
                                 }
                                 return [2 /*return*/];
@@ -360,10 +362,10 @@ var CommandHandler = /** @class */ (function () {
                         if (!name && (!names || names.length === 0)) {
                             throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
                         }
-                        if (typeof names === 'string') {
+                        if (typeof names === "string") {
                             names = [names];
                         }
-                        if (typeof name !== 'string') {
+                        if (typeof name !== "string") {
                             throw new Error("Command located at \"" + file + "\" does not have a string as a name.");
                         }
                         if (name && !names.includes(name.toLowerCase())) {
@@ -379,10 +381,10 @@ var CommandHandler = /** @class */ (function () {
                         }
                         missing = [];
                         if (!category) {
-                            missing.push('Category');
+                            missing.push("Category");
                         }
                         if (!description) {
-                            missing.push('Description');
+                            missing.push("Description");
                         }
                         if (missing.length && instance.showWarns) {
                             console.warn("WOKCommands > Command \"" + names[0] + "\" does not have the following properties: " + missing + ".");
@@ -390,7 +392,7 @@ var CommandHandler = /** @class */ (function () {
                         if (testOnly && !instance.testServers.length) {
                             console.warn("WOKCommands > Command \"" + names[0] + "\" has \"testOnly\" set to true, but no test servers are defined.");
                         }
-                        if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
+                        if (slash !== undefined && typeof slash !== "boolean" && slash !== "both") {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has a \"slash\" property that is not boolean \"true\" or string \"both\".");
                         }
                         if (!slash) return [3 /*break*/, 7];
@@ -409,7 +411,7 @@ var CommandHandler = /** @class */ (function () {
                             for (a = 0; a < split.length; ++a) {
                                 item = split[a];
                                 options.push({
-                                    name: item.replace(/ /g, '-'),
+                                    name: item.replace(/ /g, "-"),
                                     description: item,
                                     type: 3,
                                     required: a < minArgs,
@@ -457,7 +459,7 @@ var CommandHandler = /** @class */ (function () {
             var results = [];
             var added = [];
             this._commands.forEach(function (_a) {
-                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? '' : _d, _e = _a.hidden, hidden = _e === void 0 ? false : _e, _f = _a.testOnly, testOnly = _f === void 0 ? false : _f;
+                var names = _a.names, _b = _a.category, category = _b === void 0 ? "" : _b, _c = _a.description, description = _c === void 0 ? "" : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? "" : _d, _e = _a.hidden, hidden = _e === void 0 ? false : _e, _f = _a.testOnly, testOnly = _f === void 0 ? false : _f;
                 if (!added.includes(names[0])) {
                     results.push({
                         names: __spreadArrays(names),
