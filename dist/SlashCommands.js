@@ -127,7 +127,7 @@ var SlashCommands = /** @class */ (function () {
     };
     // Checks if string is a user id, if true, returns a Guild Member object
     SlashCommands.prototype.getMemberIfExists = function (value, guild) {
-        if (value.startsWith('<@!') && value.endsWith('>')) {
+        if (value && typeof value === "string" && value.startsWith('<@!') && value.endsWith('>')) {
             value = value.substring(3, value.length - 1);
             value = guild === null || guild === void 0 ? void 0 : guild.members.cache.get(value);
         }
