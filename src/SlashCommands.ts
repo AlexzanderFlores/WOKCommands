@@ -76,7 +76,7 @@ class SlashCommands {
 
   // Checks if string is a user id, if true, returns a Guild Member object
   private getMemberIfExists(value: string, guild: any) {
-    if (value.startsWith('<@!') && value.endsWith('>')) {
+    if (value && typeof value === "string" && value.startsWith('<@!') && value.endsWith('>')) {
       value = value.substring(3, value.length - 1)
 
       value = guild?.members.cache.get(value)
