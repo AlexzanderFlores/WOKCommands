@@ -1,4 +1,4 @@
-export = [
+const permissionList = [
   'CREATE_INSTANT_INVITE',
   'KICK_MEMBERS',
   'BAN_MEMBERS',
@@ -31,3 +31,8 @@ export = [
   'MANAGE_WEBHOOKS',
   'MANAGE_EMOJIS',
 ]
+
+export { permissionList }
+
+type Permissions = typeof permissionList
+export default Permissions

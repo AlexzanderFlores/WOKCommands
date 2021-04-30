@@ -52,6 +52,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMongoConnection = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
+var Events_1 = __importDefault(require("./enums/Events"));
 var results = {
     0: 'Disconnected',
     1: 'Connected',
@@ -69,7 +70,7 @@ var mongo = function (mongoPath, instance, dbOptions) {
                     _a.sent();
                     connection = mongoose_1.default.connection;
                     state = results[connection.readyState] || 'Unknown';
-                    instance.emit('databaseConnected', connection, state);
+                    instance.emit(Events_1.default.DATABASE_CONNECTED, connection, state);
                     return [2 /*return*/];
             }
         });
