@@ -56,16 +56,27 @@ var SlashCommands = /** @class */ (function () {
         if (listen) {
             // @ts-ignore
             this._client.ws.on("INTERACTION_CREATE", function (interaction) { return __awaiter(_this, void 0, void 0, function () {
-                var member, data, guild_id, channel_id, name, options, command, guild, args, channel;
+                var member, data, guild_id, channel_id, type, user, Appdata, name, options, command, guild, args, channel;
                 return __generator(this, function (_a) {
-                    member = interaction.member, data = interaction.data, guild_id = interaction.guild_id, channel_id = interaction.channel_id;
-                    name = data.name, options = data.options;
-                    command = name.toLowerCase();
-                    guild = this._client.guilds.cache.get(guild_id);
-                    args = this.getArrayFromOptions(guild, options);
-                    channel = guild === null || guild === void 0 ? void 0 : guild.channels.cache.get(channel_id);
-                    this.invokeCommand(interaction, command, args, member, guild, channel);
-                    return [2 /*return*/];
+                    switch (_a.label) {
+                        case 0:
+                            member = interaction.member, data = interaction.data, guild_id = interaction.guild_id, channel_id = interaction.channel_id, type = interaction.type, user = interaction.user;
+                            if (!(type === 1)) return [3 /*break*/, 2];
+                            return [4 /*yield*/, this.createInteractionResponse(interaction, 1)];
+                        case 1:
+                            _a.sent();
+                            return [2 /*return*/];
+                        case 2:
+                            Appdata = data;
+                            name = Appdata.name, options = Appdata.options;
+                            command = name.toLowerCase();
+                            guild = guild_id ? this._client.guilds.cache.get(guild_id) : undefined;
+                            args = this.getArrayFromOptions(guild, options);
+                            channel = channel_id ? guild === null || guild === void 0 ? void 0 : guild.channels.cache.get(channel_id) : undefined;
+                            interaction.channel_type = user ? "DM" : "GUILD";
+                            this.invokeCommand(interaction, command, args, member, guild, channel);
+                            return [2 /*return*/];
+                    }
                 });
             }); });
         }
@@ -154,6 +165,9 @@ var SlashCommands = /** @class */ (function () {
         }
         for (var _i = 0, options_2 = options; _i < options_2.length; _i++) {
             var value = options_2[_i].value;
+            if (!value) {
+                break;
+            }
             args.push(this.getMemberIfExists(value, guild));
         }
         return args;
@@ -175,16 +189,231 @@ var SlashCommands = /** @class */ (function () {
             });
         });
     };
-    SlashCommands.prototype.invokeCommand = function (interaction, commandName, options, member, guild, channel) {
+    SlashCommands.prototype.getInteractionResponseByToken = function (application_id, token) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, result, data, embed;
             return __generator(this, function (_a) {
                 switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getInteractionResponse({ token: token, application_id: application_id })];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.deleteInteractionResponseByToken = function (application_id, token) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.deleteInteractionResponse({ token: token, application_id: application_id })];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.createInteractionResponse = function (interaction, type, data, ephemeral) {
+        return __awaiter(this, void 0, void 0, function () {
+            var Send;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        Send = { type: type };
+                        if (data && ephemeral) {
+                            data.flags = 64;
+                        }
+                        Send.data = data;
+                        return [4 /*yield*/, this._client.api
+                                // @ts-ignore
+                                .interactions(interaction.id, interaction.token)
+                                .callback.post({ data: Send })];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.getInteractionResponse = function (interaction) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this._client.api
+                            // @ts-ignore
+                            .webhooks(interaction.application_id, interaction.token)
+                            .messages["@original"].get()];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.editInteractionResponse = function (interaction, data) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this._client.api
+                            // @ts-ignore
+                            .webhooks(interaction.application_id, interaction.token)
+                            .messages["@original"].patch({ data: data })];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    //ATTENTION, if the message is ephemeral you can't delete it, only the user who got the message can see and delete it!!
+    SlashCommands.prototype.deleteInteractionResponse = function (interaction) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this._client.api
+                            // @ts-ignore
+                            .webhooks(interaction.application_id, interaction.token)
+                            .messages["@original"].delete()];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.createFollowupMessage = function (interaction, data, ephemeral) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (data && ephemeral) {
+                            data.flags = 64;
+                        }
+                        return [4 /*yield*/, this._client.api
+                                // @ts-ignore
+                                .webhooks(interaction.application_id, interaction.token)
+                                .post({ data: data })];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.editFollowupMessage = function (interaction, data, message) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this._client.api
+                            // @ts-ignore
+                            .webhooks(interaction.application_id, interaction.token)
+                            .messages(message.id).patch({ data: data })];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    //ATTENTION, if the message is ephemeral you can't delete it, only the user who got the message can see and delete it!!
+    SlashCommands.prototype.deleteFollowupMessage = function (interaction, message) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this._client.api
+                            // @ts-ignore
+                            .webhooks(interaction.application_id, interaction.token)
+                            .messages(message.id).delete()];
+                    case 1: 
+                    // @ts-ignore
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    SlashCommands.prototype.invokeCommand = function (interaction, commandName, options, member, guild, channel) {
+        return __awaiter(this, void 0, void 0, function () {
+            var command, result, patch, embed, _a;
+            var _this = this;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         command = this._instance.commandHandler.getCommand(commandName);
                         if (!command || !command.callback) {
                             return [2 /*return*/, false];
                         }
+                        interaction.status = {};
+                        interaction.delete = function () { return __awaiter(_this, void 0, void 0, function () {
+                            var respond;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, this.deleteInteractionResponse(interaction)];
+                                    case 1:
+                                        respond = _a.sent();
+                                        interaction.status.deletet = true;
+                                        return [2 /*return*/, respond];
+                                }
+                            });
+                        }); };
+                        interaction.loading = function () { return __awaiter(_this, void 0, void 0, function () {
+                            var respond, respondMessage;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, this.createInteractionResponse(interaction, 5)];
+                                    case 1:
+                                        respond = _a.sent();
+                                        interaction.status.loaded = true;
+                                        return [4 /*yield*/, this.getInteractionResponse(interaction)];
+                                    case 2:
+                                        respondMessage = _a.sent();
+                                        return [2 /*return*/, respondMessage];
+                                }
+                            });
+                        }); };
+                        interaction.reply = function (data) { return __awaiter(_this, void 0, void 0, function () {
+                            var DataToSend, respond, DataToSend, respond, respondMessage;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        if (!interaction.status.loaded) return [3 /*break*/, 2];
+                                        DataToSend = void 0;
+                                        //TODO enable support for also passing an embed as data
+                                        if (typeof data === "string") {
+                                            DataToSend = { content: data };
+                                        }
+                                        else {
+                                            DataToSend = data;
+                                        }
+                                        return [4 /*yield*/, this.editInteractionResponse(interaction, DataToSend)];
+                                    case 1:
+                                        respond = _a.sent();
+                                        interaction.status.send = true;
+                                        return [2 /*return*/, respond];
+                                    case 2:
+                                        if (!!interaction.status.send) return [3 /*break*/, 5];
+                                        DataToSend = void 0;
+                                        //TODO enable support for also passing an embed as data
+                                        if (typeof data === "string") {
+                                            DataToSend = { content: data };
+                                        }
+                                        else {
+                                            DataToSend = data;
+                                        }
+                                        return [4 /*yield*/, this.createInteractionResponse(interaction, 4, DataToSend)];
+                                    case 3:
+                                        respond = _a.sent();
+                                        interaction.status.send = true;
+                                        return [4 /*yield*/, this.getInteractionResponse(interaction)];
+                                    case 4:
+                                        respondMessage = _a.sent();
+                                        return [2 /*return*/, respondMessage];
+                                    case 5:
+                                        console.error("WOKCommands > Interaction \"" + interaction.id + "\" loaded and send the message already");
+                                        return [2 /*return*/, Promise.reject("WOKCommands > Interaction \"" + interaction.id + "\" loaded and send the message already")];
+                                }
+                            });
+                        }); };
+                        interaction.followUpMessages = { create: this.createFollowupMessage, delete: this.deleteFollowupMessage, edit: this.editFollowupMessage };
                         return [4 /*yield*/, command.callback({
                                 member: member,
                                 guild: guild,
@@ -197,31 +426,40 @@ var SlashCommands = /** @class */ (function () {
                                 interaction: interaction,
                             })];
                     case 1:
-                        result = _a.sent();
-                        if (!result) {
-                            console.error("WOKCommands > Command \"" + commandName + "\" did not return any content from it's callback function. This is required as it is a slash command.");
+                        result = _b.sent();
+                        if (interaction.status.send) {
+                            return [2 /*return*/, true];
+                        }
+                        if (interaction.status.loaded) {
+                            console.error("WOKCommands > Command \"" + commandName + "\" used loading, but not send, thats a mi of old and new methods, switch fully to the new ones to fix this");
                             return [2 /*return*/, false];
                         }
-                        data = {
-                            content: result,
-                        };
+                        if (!result && !interaction.status.send) {
+                            console.error("WOKCommands > Command \"" + commandName + "\" didn't send anything, and didn't return a value as fallback action");
+                            return [2 /*return*/, false];
+                        }
+                        if (interaction.status.deletet && result) {
+                            console.error("WOKCommands > Command \"" + commandName + "\" the interaction response was already deletet");
+                            return [2 /*return*/, false];
+                        }
+                        if (result) {
+                            console.warn("WOKCommands > Command \"" + commandName + "\" returned something from the callback, this is deprecated and will be removed later on");
+                        }
+                        patch = {};
                         if (!(typeof result === "object")) return [3 /*break*/, 3];
                         embed = new discord_js_1.MessageEmbed(result);
+                        // @ts-ignore
+                        _a = patch;
                         return [4 /*yield*/, this.createAPIMessage(interaction, embed)];
                     case 2:
-                        data = _a.sent();
-                        _a.label = 3;
-                    case 3:
                         // @ts-ignore
-                        this._client.api
-                            // @ts-ignore
-                            .interactions(interaction.id, interaction.token)
-                            .callback.post({
-                            data: {
-                                type: 4,
-                                data: data,
-                            },
-                        });
+                        _a.embeds = [(_b.sent())];
+                        return [3 /*break*/, 4];
+                    case 3:
+                        patch.content = result;
+                        _b.label = 4;
+                    case 4:
+                        this.createInteractionResponse(interaction, 4, patch);
                         return [2 /*return*/, true];
                 }
             });
