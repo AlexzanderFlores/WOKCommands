@@ -69,7 +69,7 @@
 		"portuguese": "O estado deve ser \"ativado\" ou \"desativado\".",
 		"russian": "Состояние должно быть либо \"включено\", либо \"отключено\".",
 		"german": "Der Zustand muss entweder \"aktiviere\" oder \"deaktiviere\" sein.",
-		"czech": "Stav musí být buď \"povolený\" nebo \"zakázaný\""
+		"czech": "Stav musí být buď \"povolený\" nebo \"zakázaný\"."
 	},
 	"CANNOT_ENABLE_DISABLE_IN_DMS": {
 		"english": "You cannot enable or disable commands in private messages.",
