@@ -86,15 +86,24 @@ var CommandHandler = /** @class */ (function () {
                 var guild = message.guild;
                 var content = message.content;
                 var prefix = instance.getPrefix(guild);
+<<<<<<< HEAD
                 var startsWithEmoji = _this.startsWithEmoji(content);
                 if (!content.startsWith(prefix) && !startsWithEmoji) {
+=======
+                if (!content.startsWith(prefix)) {
+>>>>>>> parent of b764432... added emojis to supported "prefixes"
                     return;
                 }
                 if (instance.ignoreBots && message.author.bot) {
                     return;
                 }
+<<<<<<< HEAD
                 // Remove the prefix, if not an emoji
                 content = startsWithEmoji ? content : content.substring(prefix.length);
+=======
+                // Remove the prefix
+                content = content.substring(prefix.length);
+>>>>>>> parent of b764432... added emojis to supported "prefixes"
                 var args = content.split(/ /g);
                 // Remove the "command", leaving just the arguments
                 var firstElement = args.shift();
@@ -339,7 +348,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         return __awaiter(this, void 0, void 0, function () {
-            var configuration, _a, name, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, callbackCounter, names, _i, _b, perm, missing, slashCommands, options, split, a, item, _c, _d, id, hasCallback, command, _e, names_1, name_2, emoji, customEmoji;
+            var configuration, _a, name, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, callbackCounter, names, _i, _b, perm, missing, slashCommands, options, split, a, item, _c, _d, id, hasCallback, command, _e, names_1, name_2;
             return __generator(this, function (_f) {
                 switch (_f.label) {
                     case 0:
@@ -447,6 +456,7 @@ var CommandHandler = /** @class */ (function () {
                             for (_e = 0, names_1 = names; _e < names_1.length; _e++) {
                                 name_2 = names_1[_e];
                                 // Ensure the alias is lower case because we read as lower case later on
+<<<<<<< HEAD
                                 //Emojis Handler for Commands, since matching a string for an emoji is pretty complicated(regex, emojis can be multiple concatenated), we have to provide an object!!!
                                 //after writing the startsWithEmoji function, it would be possible, but with objects we can specifiy the customEmoji property, possibl that we move out of aliases then we could use detection without object (inlcude "id" to custom emojis, possibe to genearte emoji from :banana: to 🍌 from sending and reading it from discord)
                                 if (typeof name_2 === "object") {
@@ -471,6 +481,9 @@ var CommandHandler = /** @class */ (function () {
                                 else {
                                     this._commands.set(name_2.toLowerCase(), command);
                                 }
+=======
+                                this._commands.set(name_2.toLowerCase(), command);
+>>>>>>> parent of b764432... added emojis to supported "prefixes"
                             }
                         }
                         return [2 /*return*/];
@@ -478,6 +491,7 @@ var CommandHandler = /** @class */ (function () {
             });
         });
     };
+<<<<<<< HEAD
     CommandHandler.prototype.startsWithEmoji = function (content) {
         var regex = /<:(\w+):(\d+)>/g;
         var iterator = content.match(regex) || [];
@@ -501,6 +515,8 @@ var CommandHandler = /** @class */ (function () {
         }
         return false;
     };
+=======
+>>>>>>> parent of b764432... added emojis to supported "prefixes"
     Object.defineProperty(CommandHandler.prototype, "commands", {
         get: function () {
             var results = [];

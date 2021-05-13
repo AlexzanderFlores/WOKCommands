@@ -76,7 +76,8 @@ var mongo = function (mongoPath, instance, dbOptions) {
         });
     });
 };
-exports.getMongoConnection = function () {
+var getMongoConnection = function () {
     return mongoose_1.default.connection;
 };
+exports.getMongoConnection = getMongoConnection;
 exports.default = mongo;

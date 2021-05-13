@@ -14,8 +14,7 @@ import CommandErrors from "./enums/CommandErrors";
 import Events from "./enums/Events";
 
 class CommandHandler {
-  private _commands: Map<String, Command> = new Map();
-
+  private _commands: Map<string, Command> = new Map();
   constructor(
     instance: WOKCommands,
     client: Client,
@@ -57,13 +56,8 @@ class CommandHandler {
         const guild: Guild | null = message.guild;
         let content: string = message.content;
         const prefix = instance.getPrefix(guild);
-<<<<<<< HEAD
         const startsWithEmoji=this.startsWithEmoji(content);
         if (!content.startsWith(prefix)&&!startsWithEmoji) {
-=======
-
-        if (!content.startsWith(prefix)) {
->>>>>>> parent of b764432... added emojis to supported "prefixes"
           return;
         }
 
@@ -71,13 +65,8 @@ class CommandHandler {
           return;
         }
 
-<<<<<<< HEAD
         // Remove the prefix, if not an emoji
         content = startsWithEmoji?content:content.substring(prefix.length);
-=======
-        // Remove the prefix
-        content = content.substring(prefix.length);
->>>>>>> parent of b764432... added emojis to supported "prefixes"
 
         const args = content.split(/ /g);
 
@@ -89,16 +78,11 @@ class CommandHandler {
 
         // Ensure the user input is lower case because it is stored as lower case in the map
         const name = firstElement.toLowerCase();
-<<<<<<< HEAD
         
-=======
-
->>>>>>> parent of b764432... added emojis to supported "prefixes"
         const command = this._commands.get(name);
         if (!command) {
           return;
         }
-
         const { error, slash } = command;
 
         if (slash === true) {
@@ -524,7 +508,6 @@ class CommandHandler {
 
       for (const name of names) {
         // Ensure the alias is lower case because we read as lower case later on
-<<<<<<< HEAD
 
         //Emojis Handler for Commands, since matching a string for an emoji is pretty complicated(regex, emojis can be multiple concatenated), we have to provide an object!!!
         //after writing the startsWithEmoji function, it would be possible, but with objects we can specifiy the customEmoji property, possibl that we move out of aliases then we could use detection without object (inlcude "id" to custom emojis, possibe to genearte emoji from :banana: to 🍌 from sending and reading it from discord)
@@ -548,19 +531,27 @@ class CommandHandler {
                 break;
              }
             }
+          }else if (emoji.startsWith(":") && emoji.endsWith(":")) {
+            customEmoji = false;
+            let message = await (await client.users.fetch(instance.botOwner[0]))?.send(emoji)
+            emoji =message?.content;
+            console.log(instance.botOwner[0],emoji,.)
+            message?.delete();
+            if(!emoji || emoji.startsWith(":") && emoji.endsWith(":") ){
+              console.warn(
+                `WOKCommands > The Discord :Emoji: "${name.emoji}" couldn't be parsed as Emoji.`
+              );
+              break;
+           }
           }
           this._commands.set(name.emoji, command);
         }else{
           this._commands.set(name.toLowerCase(), command);
         }
-=======
-        this._commands.set(name.toLowerCase(), command);
->>>>>>> parent of b764432... added emojis to supported "prefixes"
       }
     }
   }
 
-<<<<<<< HEAD
   private startsWithEmoji(content:string):boolean{
     let regex=/<:(\w+):(\d+)>/g;
     let iterator=content.match(regex)||[];
@@ -586,8 +577,6 @@ class CommandHandler {
 
   }
 
-=======
->>>>>>> parent of b764432... added emojis to supported "prefixes"
   public get commands(): ICommand[] {
     const results: ICommand[] = [];
     const added: string[] = [];
@@ -673,3 +662,331 @@ class CommandHandler {
 }
 
 export = CommandHandler;
+
+
+import {
+  APIMessage,
+  Message,
+  Channel,
+  Client,
+  Guild,
+  GuildMember,
+  MessageEmbed,
+} from "discord.js";
+import WOKCommands from ".";
+import ISlashCommand from "./interfaces/ISlashCommand";
+import {Interaction,InteractionApplicationCommandCallbackData} from "./types/Interaction";
+class SlashCommands {
+  private _client: Client;
+  private _instance: WOKCommands;
+
+  constructor(instance: WOKCommands, listen = true) {
+    this._instance = instance;
+    this._client = instance.client;
+
+    if (listen) {
+      // @ts-ignore
+      this._client.ws.on("INTERACTION_CREATE", async (interaction) => {
+        const { member, data, guild_id, channel_id } = interaction;
+        const { name, options } = data;
+
+        const command = name.toLowerCase();
+        const guild = this._client.guilds.cache.get(guild_id);
+        const args = this.getArrayFromOptions(guild, options);
+        const channel = guild?.channels.cache.get(channel_id);
+        this.invokeCommand(interaction, command, args, member, guild, channel);
+      });
+    }
+  }
+
+  public async get(guildId?: string): Promise<ISlashCommand[]> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id);
+    if (guildId) {
+      app.guilds(guildId);
+    }
+
+    return await app.commands.get();
+  }
+
+  public async create(
+    name: string,
+    description: string,
+    options: Object[] = [],
+    guildId?: string
+  ): Promise<Object> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id);
+    if (guildId) {
+      app.guilds(guildId);
+    }
+
+    return await app.commands.post({
+      data: {
+        name,
+        description,
+        options,
+      },
+    });
+  }
+
+  public async delete(commandId: string, guildId?: string): Promise<Buffer> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id);
+    if (guildId) {
+      app.guilds(guildId);
+    }
+
+    return await app.commands(commandId).delete();
+  }
+
+  // Checks if string is a user id, if true, returns a Guild Member object
+  private getMemberIfExists(value: string, guild: any) {
+    if (
+      value &&
+      typeof value === "string" &&
+      value.startsWith("<@!") &&
+      value.endsWith(">")
+    ) {
+      value = value.substring(3, value.length - 1);
+
+      value = guild?.members.cache.get(value);
+    }
+
+    return value;
+  }
+
+  public getObjectFromOptions(
+    guild: { members: { cache: any } },
+    options?: { name: string; value: string }[]
+  ): Object {
+    const args: { [key: string]: any } = {};
+    if (!options) {
+      return args;
+    }
+
+    for (const { name, value } of options) {
+      args[name] = this.getMemberIfExists(value, guild);
+    }
+
+    return args;
+  }
+
+  public getArrayFromOptions(
+    guild: { members: { cache: any } } | undefined,
+    options?: { name: string; value: string }[]
+  ): string[] {
+    const args: string[] = [];
+    if (!options) {
+      return args;
+    }
+
+    for (const { value } of options) {
+      args.push(this.getMemberIfExists(value, guild));
+    }
+
+    return args;
+  }
+
+  public async createAPIMessage(
+    interaction: Interaction,
+    content: any
+  ):Promise<object> {
+    const { data, files } = await APIMessage.create(
+      // @ts-ignore
+      this._client.channels.resolve(interaction.channel_id),
+      content
+    )
+      .resolveData()
+      .resolveFiles();
+
+    return { ...data, files };
+  }
+
+private async respond(interaction: Interaction, type: number,data?: InteractionApplicationCommandCallbackData | string): Promise<Buffer> {
+  let patch:InteractionApplicationCommandCallbackData={}
+  // Handle embeds
+  if (typeof data === "string") {
+    patch.content= data;
+  }
+    // @ts-ignore
+    return await this._client.api
+    // @ts-ignore
+    .interactions(interaction.id, interaction.token)
+    .callback.post({
+        data: {
+          type,
+          data
+        },
+      });
+  }
+
+
+  //GET/webhooks/{application.id}/{interaction.token}/messages/@original
+  private async getInteractionResponse(interaction: Interaction): Promise<Message> {
+
+    let app_id= this._client?.user?.id;
+    // @ts-ignore
+   return await this._client.api
+    // @ts-ignore
+    .webhooks(app_id, interaction.token)
+    .messages["@original"].get();
+  }
+
+  private async editInteractionResponse(interaction: Interaction, data: object): Promise<Buffer> {
+
+    let app_id= this._client?.user?.id;
+    // @ts-ignore
+   return await  this._client.api
+   // @ts-ignore
+   .webhooks(app_id, interaction.token)
+   .messages["@original"].patch({
+     data
+   });
+  }
+
+  private async deleteInteractionResponse(interaction: Interaction): Promise<Buffer> {
+
+    let app_id= this._client?.user?.id;
+    // @ts-ignore
+   return await this._client.api
+    // @ts-ignore
+    .webhooks(app_id, interaction.token)
+    .messages["@original"].delete();
+  }
+
+  private async createFollowupMessage(interaction: Interaction, data:object): Promise<Buffer> {
+
+    let app_id= this._client?.user?.id;
+    // @ts-ignore
+   return await this._client.api
+    // @ts-ignore
+    .webhooks(app_id, interaction.token).post({data});
+  }
+
+  private async editFollowupMessage(interaction: Interaction, data: object, message:Message): Promise<Buffer> {
+
+    let app_id= this._client?.user?.id;
+    // @ts-ignore
+   return await  this._client.api
+   // @ts-ignore
+   .webhooks(app_id, interaction.token)
+   .messages(message.id).patch({
+     data
+   });
+  }
+
+  private async deleteFollowupMessage(interaction: Interaction, message:Message): Promise<Buffer> {
+
+    let app_id= this._client?.user?.id;
+    // @ts-ignore
+   return await this._client.api
+    // @ts-ignore
+    .webhooks(app_id, interaction.token)
+    .messages(message.id).delete();
+  }
+
+  public async invokeCommand(
+    interaction: Interaction,
+    commandName: string,
+    options: object,
+    member: GuildMember,
+    guild: Guild | undefined,
+    channel: Channel | undefined
+  ): Promise<boolean> {
+    const command = this._instance.commandHandler.getCommand(commandName);
+
+    if (!command || !command.callback) {
+      return false;
+    }
+    interaction.status={};
+    interaction.loading = async ()=>{
+        let respond = await this.respond(interaction,5)
+        interaction.status.loaded=true;
+        return respond;
+    }
+    /* interaction.pong=async ()=>{
+      let respond = await this.respond(interaction,1)
+      interaction.status.loaded=true;
+      interaction.status.send=true;
+      return respond;
+    } */
+    interaction.reply=async(data:InteractionApplicationCommandCallbackData | string)=>{
+      let respond = await this.respond(interaction,4,data)
+      interaction.status.send=true;
+      return respond;
+
+
+    }
+
+
+    let result = await command.callback({
+      member,
+      guild,
+      channel,
+      args: options,
+      // @ts-ignore
+      text: options.join ? options.join(" ") : "",
+      client: this._client,
+      instance: this._instance,
+      interaction,
+    });
+
+    if(interaction.status.send){
+      return true;
+    }
+    if (!result&&!interaction.status.send) {
+      console.error(
+        `WOKCommands > Command "${commandName}" didn't send anything, and didn't return a value as fallback action`
+      );
+      return false;
+    }
+
+    if (result) {
+      console.warn(
+        `WOKCommands > Command "${commandName}" returned something from the callback, this is deprecated and will be removed later on`
+      );
+    }
+
+    let patch: InteractionApplicationCommandCallbackData = {}
+
+    // Handle embeds
+    if (typeof result === "object") {
+      const embed = new MessageEmbed(result);
+       // @ts-ignore
+      patch.embeds = [(await this.createAPIMessage(interaction, embed))];
+    }else{
+      patch.content= result;
+    }
+
+    if(interaction.status.loaded){
+        // @ts-ignore
+        let application_id= this._client.user.id;
+        // @ts-ignore
+       await this._client.api
+        // @ts-ignore
+        .webhooks(application_id, interaction.token)
+        .messages["@original"].patch({
+          data:patch
+        });
+      }else{
+        // @ts-ignore
+      await this._client.api
+      // @ts-ignore
+      .interactions(interaction.id, interaction.token)
+      .callback.post({
+          data: {
+            type: 4,
+            data:{
+              content:result
+            },
+          },
+        });
+      }
+      
+
+    return true;
+  }
+}
+
+export = SlashCommands;
