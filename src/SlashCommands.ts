@@ -280,8 +280,20 @@ class SlashCommands {
         );
         return Promise.reject(`WOKCommands > Interaction "${interaction.id}" loaded and send the message already`);
       }
-
     }
+      interaction.edit=async(data:InteractionApplicationCommandCallbackData | string):Promise<Message>=>{
+          let DataToSend:EditWebhookMessage ;
+          //TODO enable support for also passing an embed as data
+          if (typeof data === "string") {
+            DataToSend={content:data}
+          }else{
+            DataToSend=data
+          }
+          let respond = await this.editInteractionResponse(interaction,DataToSend)
+          interaction.status.send=true;
+          return respond;
+      }
+      
     interaction.followUpMessages={create:this.createFollowupMessage,delete:this.deleteFollowupMessage,edit:this.editFollowupMessage};
 
     let result = await command.callback({

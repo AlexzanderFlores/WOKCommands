@@ -63,6 +63,7 @@ export type Interaction = {
     };
     reply?(data:InteractionApplicationCommandCallbackData| string): Promise<Message>;
     loading?(): Promise<Message>;
+    edit?(data:InteractionApplicationCommandCallbackData| string): Promise<Message>;
     delete?():Promise<Buffer>;
     followUpMessages?:{
         create(interaction: Interaction, data:ExecuteWebhook,ephemeral?:boolean):Promise<Message>;

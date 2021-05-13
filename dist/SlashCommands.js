@@ -413,6 +413,26 @@ var SlashCommands = /** @class */ (function () {
                                 }
                             });
                         }); };
+                        interaction.edit = function (data) { return __awaiter(_this, void 0, void 0, function () {
+                            var DataToSend, respond;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        //TODO enable support for also passing an embed as data
+                                        if (typeof data === "string") {
+                                            DataToSend = { content: data };
+                                        }
+                                        else {
+                                            DataToSend = data;
+                                        }
+                                        return [4 /*yield*/, this.editInteractionResponse(interaction, DataToSend)];
+                                    case 1:
+                                        respond = _a.sent();
+                                        interaction.status.send = true;
+                                        return [2 /*return*/, respond];
+                                }
+                            });
+                        }); };
                         interaction.followUpMessages = { create: this.createFollowupMessage, delete: this.deleteFollowupMessage, edit: this.editFollowupMessage };
                         return [4 /*yield*/, command.callback({
                                 member: member,
