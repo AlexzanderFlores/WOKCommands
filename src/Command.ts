@@ -4,7 +4,8 @@ import WOKCommands from '.'
 import permissions from './permissions'
 import ICommand from './interfaces/ICommand'
 import cooldownSchema from './models/cooldown'
-
+import {InternalSlashCommandOptions
+} from "./types/Interaction";
 class Command {
   private instance: WOKCommands
   private client: Client
@@ -32,7 +33,7 @@ class Command {
   private _guildOnly = false
   private _testOnly = false
   private _slash: boolean | string = false
-
+  private _options:InternalSlashCommandOptions[] = [] 
   constructor(
     instance: WOKCommands,
     client: Client,
@@ -55,6 +56,7 @@ class Command {
       guildOnly = false,
       testOnly = false,
       slash = false,
+      options = []
     }: ICommand
   ) {
     this.instance = instance
@@ -84,6 +86,7 @@ class Command {
     this._callback = callback
     this._error = error
     this._slash = slash
+    this._options = Array.isArray(options) ? options : (options ? [options] : [])
 
     if (this.cooldown && this.globalCooldown) {
       throw new Error(
@@ -469,6 +472,9 @@ class Command {
 
   public get slash(): boolean | string {
     return this._slash
+  }
+  public get options(): InternalSlashCommandOptions[] {
+    return this._options
   }
 }
 

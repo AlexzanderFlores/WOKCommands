@@ -12,7 +12,13 @@ import cooldown from "./models/cooldown";
 import { permissionList } from "./permissions";
 import CommandErrors from "./enums/CommandErrors";
 import Events from "./enums/Events";
-
+import {
+  ApplicationCommandOption,
+  InternalSlashCommandOptions,
+  ApplicationCommandOptionChoice
+} from "./types/Interaction";
+import SlashCommands from "./SlashCommands";
+import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from "constants";
 class CommandHandler {
   private _commands: Map<String, Command> = new Map();
 
@@ -373,6 +379,7 @@ class CommandHandler {
       permissions,
       testOnly,
       slash,
+      options,
       expectedArgs,
       minArgs,
     } = configuration;
@@ -462,9 +469,75 @@ class CommandHandler {
           `WOKCommands > Command "${names[0]}" has "minArgs" property defined without "expectedArgs" property as a slash command.`
         );
       }
-
+      if (options !== undefined && options.length===0) {
+        console.warn(
+          `WOKCommands > Command "${names[0]}" has "options" property defined but nothing in it`
+        );
+      }
       const slashCommands = instance.slashCommands;
-      const options: object[] = [];
+      const ApplicationOptions: ApplicationCommandOption[] = [];
+      if(options){
+        options.map((element:InternalSlashCommandOptions,index:number) => {
+            if(!element.type){
+              element.type=slashCommands.getOptionFromName("STRING");
+            }else if(typeof element.type ==="string"){
+              element.type=slashCommands.getOptionFromName(element.type);
+            }
+          if(element.choices && !( element.type === 3 || element.type === 4 )){
+            throw new Error(
+              `WOKCommands > Command "${names[0]}" > options ${index} > choices is only avaiable for STRING and INTEGER`
+            );
+          }else if(element.choices){
+            if(element.choices.length>25){
+              throw new Error(
+                `WOKCommands > Command "${names[0]}" > options ${index} > choices is too long, Discord allows a maximum of 25 `
+              );
+            }
+            element.choices=element.choices.map((element2:any,index2:number)=>{
+              let el:ApplicationCommandOptionChoice;
+              if(typeof element2 === "object"){
+                el=element2;
+                if(!el.name){
+                  throw new Error(
+                    `WOKCommands > Command "${names[0]}" > options ${index} > choices ${index2} > name is required`
+                  );
+                }
+                if(!el.value){
+                  el.value=el.name;
+                }
+                if(el.name.length>100){
+                  throw new Error(
+                    `WOKCommands > Command "${names[0]}" > options ${index} > choices ${index2} > the name is too long, only up to 100 Characters allowed`
+                  );
+                }
+                if(typeof(el.value) === "string" && el.value.length>100){
+                  throw new Error(
+                    `WOKCommands > Command "${names[0]}" > options ${index} > choices ${index2} > the value in string format is too long, only up to 100 Characters allowed`
+                  );
+                }
+                
+              }else if(typeof element2 === "string"){
+                el={name:element2,value:element2};
+              }else if(typeof element2 === "number"){
+                let value=Math.round(element2)
+                if(value!==element2){
+                  console.warn(
+                    `WOKCommands > Command "${names[0]}" > options ${index} > choices ${index2} > the value is not na INTEGER so we round() it`
+                  );
+                }
+                el={name:value.toString(),value};
+              }else{
+                throw new Error(
+                  `WOKCommands > Command "${names[0]}" > options ${index} > choices ${index2} > isn't in a suitable format, please provide a string or a correct object`
+                );
+              }
+              return el;
+            })
+
+          }
+          return element   // @ts-ignore
+        });
+      }
 
       if (expectedArgs) {
         const split = expectedArgs
@@ -473,22 +546,35 @@ class CommandHandler {
 
         for (let a = 0; a < split.length; ++a) {
           const item = split[a];
-
-          options.push({
-            name: item.replace(/ /g, "-"),
+          const option:ApplicationCommandOption = {
+            name: item.replace(/ /g, "-").toLowerCase(),
             description: item,
-            type: 3,
+             // @ts-ignore
+            type: options?.[a] ? options[a].type : slashCommands.getOptionFromName("STRING"),
             required: a < minArgs,
-          });
+          }
+          if(options?.[a]&&options[a].choices){
+            option.choices=options[a].choices;
+          }
+          if(options?.[a]&&options[a].whole){
+            slashCommands.setWhole(names[0],option.name)
+          }
+          if(!(option.name.match(/^[a-z0-9_-]{1,32}$/))){
+            throw new Error(
+              `WOKCommands > Command "${names[0]}" has an unsuitable name for Slash Commands, it was already tried to replace " " with "-" and make everything lowercase!`
+            );
+          }
+            // @ts-ignore
+          ApplicationOptions.push(option);
         }
       }
 
       if (testOnly) {
         for (const id of instance.testServers) {
-          await slashCommands.create(names[0], description, options, id);
+          await slashCommands.editOrCreateCommand({name:names[0], description, options:ApplicationOptions}, id);
         }
       } else {
-        await slashCommands.create(names[0], description, options);
+        await slashCommands.editOrCreateCommand({name:names[0], description, options:ApplicationOptions});
       }
     }
 
@@ -571,6 +657,7 @@ class CommandHandler {
 
   public getICommand(name: string): ICommand | undefined {
     return this.commands.find((command) => command.names.includes(name));
+
   }
 
   public async fetchDisabledCommands() {

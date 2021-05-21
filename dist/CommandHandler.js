@@ -338,7 +338,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         return __awaiter(this, void 0, void 0, function () {
-            var configuration, _a, name, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, callbackCounter, names, _i, _b, perm, missing, slashCommands, options, split, a, item, _c, _d, id, hasCallback, command, _e, names_1, name_2;
+            var configuration, _a, name, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, options, expectedArgs, minArgs, callbackCounter, names, _i, _b, perm, missing, slashCommands_1, ApplicationOptions, split, a, item, option, _c, _d, id, hasCallback, command, _e, names_1, name_2;
             return __generator(this, function (_f) {
                 switch (_f.label) {
                     case 0:
@@ -347,7 +347,7 @@ var CommandHandler = /** @class */ (function () {
                         if (configuration.default && Object.keys(configuration).length === 1) {
                             configuration = configuration.default;
                         }
-                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs;
+                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, options = configuration.options, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs;
                         callbackCounter = 0;
                         if (callback)
                             ++callbackCounter;
@@ -402,20 +402,86 @@ var CommandHandler = /** @class */ (function () {
                         if (minArgs !== undefined && !expectedArgs) {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has \"minArgs\" property defined without \"expectedArgs\" property as a slash command.");
                         }
-                        slashCommands = instance.slashCommands;
-                        options = [];
+                        if (options !== undefined && options.length === 0) {
+                            console.warn("WOKCommands > Command \"" + names[0] + "\" has \"options\" property defined but nothing in it");
+                        }
+                        slashCommands_1 = instance.slashCommands;
+                        ApplicationOptions = [];
+                        if (options) {
+                            options.map(function (element, index) {
+                                if (!element.type) {
+                                    element.type = slashCommands_1.getOptionFromName("STRING");
+                                }
+                                else if (typeof element.type === "string") {
+                                    element.type = slashCommands_1.getOptionFromName(element.type);
+                                }
+                                if (element.choices && !(element.type === 3 || element.type === 4)) {
+                                    throw new Error("WOKCommands > Command \"" + names[0] + "\" > options " + index + " > choices is only avaiable for STRING and INTEGER");
+                                }
+                                else if (element.choices) {
+                                    if (element.choices.length > 25) {
+                                        throw new Error("WOKCommands > Command \"" + names[0] + "\" > options " + index + " > choices is too long, Discord allows a maximum of 25 ");
+                                    }
+                                    element.choices = element.choices.map(function (element2, index2) {
+                                        var el;
+                                        if (typeof element2 === "object") {
+                                            el = element2;
+                                            if (!el.name) {
+                                                throw new Error("WOKCommands > Command \"" + names[0] + "\" > options " + index + " > choices " + index2 + " > name is required");
+                                            }
+                                            if (!el.value) {
+                                                el.value = el.name;
+                                            }
+                                            if (el.name.length > 100) {
+                                                throw new Error("WOKCommands > Command \"" + names[0] + "\" > options " + index + " > choices " + index2 + " > the name is too long, only up to 100 Characters allowed");
+                                            }
+                                            if (typeof (el.value) === "string" && el.value.length > 100) {
+                                                throw new Error("WOKCommands > Command \"" + names[0] + "\" > options " + index + " > choices " + index2 + " > the value in string format is too long, only up to 100 Characters allowed");
+                                            }
+                                        }
+                                        else if (typeof element2 === "string") {
+                                            el = { name: element2, value: element2 };
+                                        }
+                                        else if (typeof element2 === "number") {
+                                            var value = Math.round(element2);
+                                            if (value !== element2) {
+                                                console.warn("WOKCommands > Command \"" + names[0] + "\" > options " + index + " > choices " + index2 + " > the value is not na INTEGER so we round() it");
+                                            }
+                                            el = { name: value.toString(), value: value };
+                                        }
+                                        else {
+                                            throw new Error("WOKCommands > Command \"" + names[0] + "\" > options " + index + " > choices " + index2 + " > isn't in a suitable format, please provide a string or a correct object");
+                                        }
+                                        return el;
+                                    });
+                                }
+                                return element; // @ts-ignore
+                            });
+                        }
                         if (expectedArgs) {
                             split = expectedArgs
                                 .substring(1, expectedArgs.length - 1)
                                 .split(/[>\]] [<\[]/);
                             for (a = 0; a < split.length; ++a) {
                                 item = split[a];
-                                options.push({
-                                    name: item.replace(/ /g, "-"),
+                                option = {
+                                    name: item.replace(/ /g, "-").toLowerCase(),
                                     description: item,
-                                    type: 3,
+                                    // @ts-ignore
+                                    type: (options === null || options === void 0 ? void 0 : options[a]) ? options[a].type : slashCommands_1.getOptionFromName("STRING"),
                                     required: a < minArgs,
-                                });
+                                };
+                                if ((options === null || options === void 0 ? void 0 : options[a]) && options[a].choices) {
+                                    option.choices = options[a].choices;
+                                }
+                                if ((options === null || options === void 0 ? void 0 : options[a]) && options[a].whole) {
+                                    slashCommands_1.setWhole(names[0], option.name);
+                                }
+                                if (!(option.name.match(/^[a-z0-9_-]{1,32}$/))) {
+                                    throw new Error("WOKCommands > Command \"" + names[0] + "\" has an unsuitable name for Slash Commands, it was already tried to replace \" \" with \"-\" and make everything lowercase!");
+                                }
+                                // @ts-ignore
+                                ApplicationOptions.push(option);
                             }
                         }
                         if (!testOnly) return [3 /*break*/, 5];
@@ -424,7 +490,7 @@ var CommandHandler = /** @class */ (function () {
                     case 1:
                         if (!(_c < _d.length)) return [3 /*break*/, 4];
                         id = _d[_c];
-                        return [4 /*yield*/, slashCommands.create(names[0], description, options, id)];
+                        return [4 /*yield*/, slashCommands_1.editOrCreateCommand({ name: names[0], description: description, options: ApplicationOptions }, id)];
                     case 2:
                         _f.sent();
                         _f.label = 3;
@@ -432,7 +498,7 @@ var CommandHandler = /** @class */ (function () {
                         _c++;
                         return [3 /*break*/, 1];
                     case 4: return [3 /*break*/, 7];
-                    case 5: return [4 /*yield*/, slashCommands.create(names[0], description, options)];
+                    case 5: return [4 /*yield*/, slashCommands_1.editOrCreateCommand({ name: names[0], description: description, options: ApplicationOptions })];
                     case 6:
                         _f.sent();
                         _f.label = 7;
