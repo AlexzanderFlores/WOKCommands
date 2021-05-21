@@ -172,7 +172,7 @@ var SlashCommands = /** @class */ (function () {
                     case 1:
                         AllCommands = _a.sent();
                         isAlreadyThere = AllCommands.filter(function (command) { return data.name == command.name; });
-                        if (!isAlreadyThere) return [3 /*break*/, 3];
+                        if (!(isAlreadyThere && isAlreadyThere.length > 0)) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.editCommand(isAlreadyThere[0].id, data, guildId)];
                     case 2: return [2 /*return*/, _a.sent()];
                     case 3: return [4 /*yield*/, this.createCommand(data, guildId)];

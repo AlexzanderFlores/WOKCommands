@@ -112,7 +112,7 @@ class SlashCommands {
   /*   if(this.isTheSame(isAlreadyThere[0],data)){
       return Promise.reject("Exactly same exists already");
     } */
-    if(isAlreadyThere){
+    if(isAlreadyThere&&isAlreadyThere.length>0){
       return await this.editCommand(isAlreadyThere[0].id,data,guildId)
     }else{
       return await this.createCommand(data,guildId)
