@@ -51,7 +51,7 @@ module.exports = {
                     channel = options.channel, instance = options.instance, args = options.args;
                     guild = channel.guild;
                     slashCommands = instance.slashCommands;
-                    return [4 /*yield*/, slashCommands.get()];
+                    return [4 /*yield*/, slashCommands.getCommands()];
                 case 1:
                     global = _a.sent();
                     if (args.length && args[0] === "delete") {
@@ -61,7 +61,7 @@ module.exports = {
                             return [2 /*return*/];
                         }
                         useGuild = global.filter(function (cmd) { return cmd.id === targetCommand_1; }).length === 0;
-                        slashCommands.delete(targetCommand_1, useGuild ? guild.id : undefined);
+                        slashCommands.deleteCommand(targetCommand_1, useGuild ? guild.id : undefined);
                         if (useGuild) {
                             channel.send("Slash command with the ID \"" + targetCommand_1 + "\" has been deleted from guild \"" + guild.id + "\"");
                         }
@@ -74,7 +74,7 @@ module.exports = {
                         .addField("How to delete a slash command:", "_" + instance.getPrefix(guild) + "slash delete <command ID>")
                         .addField("List of global slash commands:", global.length ? global.map(function (cmd) { return cmd.name + ": " + cmd.id; }) : "None");
                     if (!guild) return [3 /*break*/, 3];
-                    return [4 /*yield*/, slashCommands.get(guild.id)];
+                    return [4 /*yield*/, slashCommands.getCommands(guild.id)];
                 case 2:
                     guildOnly = _a.sent();
                     embed.addField("List of slash commands for \"" + guild.name + "\" only", guildOnly.length

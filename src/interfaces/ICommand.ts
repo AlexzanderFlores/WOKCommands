@@ -1,6 +1,9 @@
-import { Client, Message, PermissionString, TextChannel } from 'discord.js'
+import { Client, Message, PermissionString, TextChannel,GuildMember,Guild } from 'discord.js'
 import WOKCommands from '..'
-
+import {InternalSlashCommandOptions,
+  ApplicationCommandInteractionData,
+  Interaction
+  } from "../types/Interaction";
 export default interface ICommand {
   names: string[] | string
   category: string
@@ -14,12 +17,18 @@ export default interface ICommand {
   permissions?: PermissionString[]
   callback?: {
     message: Message
-    channel: TextChannel
+    channel?: TextChannel
     args: string[]
-    text: string
+    text?: string
     client: Client
-    prefix: string
+    prefix?: string
     instance: WOKCommands
+    rawArgs?:ApplicationCommandInteractionData
+    slash?:boolean
+    interaction?: Interaction
+    member?: GuildMember
+    guild?: Guild
+  
   }
   cooldown?: string
   globalCooldown?: string
@@ -28,4 +37,5 @@ export default interface ICommand {
   guildOnly?: boolean
   testOnly?: boolean
   slash?: boolean | 'both'
+  options?:InternalSlashCommandOptions[]
 }

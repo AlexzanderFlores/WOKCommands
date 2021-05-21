@@ -14,7 +14,7 @@ export = {
     const { guild } = channel;
     const { slashCommands } = instance;
 
-    const global = await slashCommands.get();
+    const global = await slashCommands.getCommands();
 
     if (args.length && args[0] === "delete") {
       const targetCommand = args[1];
@@ -26,7 +26,7 @@ export = {
       const useGuild =
         global.filter((cmd) => cmd.id === targetCommand).length === 0;
 
-      slashCommands.delete(targetCommand, useGuild ? guild.id : undefined);
+      slashCommands.deleteCommand(targetCommand, useGuild ? guild.id : undefined);
 
       if (useGuild) {
         channel.send(
@@ -51,7 +51,7 @@ export = {
       );
 
     if (guild) {
-      const guildOnly = await slashCommands.get(guild.id);
+      const guildOnly = await slashCommands.getCommands(guild.id);
 
       embed.addField(
         `List of slash commands for "${guild.name}" only`,

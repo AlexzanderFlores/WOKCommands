@@ -9,19 +9,25 @@ import {
   Snowflake
 } from "discord.js";
 import WOKCommands from ".";
-import ISlashCommand from "./interfaces/ISlashCommand";
 import {Interaction,
   InteractionApplicationCommandCallbackData,
   ApplicationCommandInteractionData,
   ApplicationCommandInteractionDataOption,
   InteractionResponse,InteractionCallbackType,
   EditWebhookMessage,
-  ExecuteWebhook
+  ExecuteWebhook,
+  ApplicationCommand,
+  ApplicationCommandOptionType_value,
+  ApplicationCommandSend,
+  GuildApplicationCommandPermissions,
+  ApplicationCommandPermissions,
+  ApplicationCommandInteractionDataResolved,
+  WholeStorage
 } from "./types/Interaction";
 class SlashCommands {
   private _client: Client;
   private _instance: WOKCommands;
-
+  private _whole:WholeStorage= {};
   constructor(instance: WOKCommands, listen = true) {
     this._instance = instance;
     this._client = instance.client;
@@ -37,19 +43,18 @@ class SlashCommands {
         }
         // if type !== 1 data is always present!!
         const Appdata:ApplicationCommandInteractionData=data!!;
-        const { name, options } = Appdata;
-        
-        const command = name.toLowerCase();
+        const { name, options ,resolved} = Appdata;
+        //console.log(Appdata)
         const guild = guild_id?this._client.guilds.cache.get(guild_id):undefined;
-        const args = this.getArrayFromOptions(guild, options);
+        const args = this.getArrayFromOptions(guild,name,options,resolved);
         const channel = channel_id?guild?.channels.cache.get(channel_id):undefined;
         interaction.channel_type=user?"DM":"GUILD";
-        this.invokeCommand(interaction, command, args, member, guild, channel);
+        this.invokeCommand(interaction, name, args, member, guild, channel,Appdata);
       });
     }
   }
 
-  public async get(guildId?: string): Promise<ISlashCommand[]> {
+  public async getCommands(guildId?: string): Promise<ApplicationCommand[]> {
     // @ts-ignore
     const app = this._client.api.applications(this._client.user.id);
     if (guildId) {
@@ -59,12 +64,10 @@ class SlashCommands {
     return await app.commands.get();
   }
 
-  public async create(
-    name: string,
-    description: string,
-    options: Object[] = [],
+  public async createCommand(
+    data:ApplicationCommandSend,
     guildId?: string
-  ): Promise<Object> {
+  ): Promise<ApplicationCommand> {
     // @ts-ignore
     const app = this._client.api.applications(this._client.user.id);
     if (guildId) {
@@ -72,15 +75,11 @@ class SlashCommands {
     }
 
     return await app.commands.post({
-      data: {
-        name,
-        description,
-        options,
-      },
+      data
     });
   }
 
-  public async delete(commandId: string, guildId?: string): Promise<Buffer> {
+  public async deleteCommand(commandId: string, guildId?: string): Promise<Buffer> {
     // @ts-ignore
     const app = this._client.api.applications(this._client.user.id);
     if (guildId) {
@@ -90,31 +89,130 @@ class SlashCommands {
     return await app.commands(commandId).delete();
   }
 
+  public async getCommand(commandId: string,guildId?: string): Promise<ApplicationCommand> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id);
+    if (guildId) {
+      app.guilds(guildId);
+    }
+    return await app.commands(commandId).get();
+  }
+
+  public async editCommand(commandId: string,data:ApplicationCommandSend,guildId?: string): Promise<ApplicationCommand> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id);
+    if (guildId) {
+      app.guilds(guildId);
+    }
+    return await app.commands(commandId).patch({data});
+  }
+  public async editOrCreateCommand(data:ApplicationCommandSend,guildId?: string): Promise<ApplicationCommand> {
+    const AllCommands = await this.getCommands(guildId)
+    const isAlreadyThere = AllCommands.filter((command) => data.name==command.name);
+  /*   if(this.isTheSame(isAlreadyThere[0],data)){
+      return Promise.reject("Exactly same exists already");
+    } */
+    if(isAlreadyThere){
+      return await this.editCommand(isAlreadyThere[0].id,data,guildId)
+    }else{
+      return await this.createCommand(data,guildId)
+    }
+  }
+
+  private isTheSame(data:ApplicationCommand,data2:ApplicationCommandSend): boolean {
+    let o=data.options;
+    let o2=data2.options;
+    let options= (o===o2 || (o&&o2 && o.length==o2.length && JSON.stringify(o)===JSON.stringify(o)))
+    return (data.name===data2.name && data.description===data2.description && options)??false;
+  }
+  //TODO if needed: Bulk Overwrite Global/Guild Application Commands: PUT/applications/{application.id}/commands
+
+  public async getCommandsPermissions(guildId: string): Promise<GuildApplicationCommandPermissions[]> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id).guilds(guildId);
+    return await app.commands.permissions.get();
+  }
+
+  public async getCommandPermissions(commandId: string,guildId: string): Promise<GuildApplicationCommandPermissions> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id).guilds(guildId);
+    return await app.commands(commandId).permissions.get();
+  }
+
+  public async editCommandPermissions(commandId: string,data:[ApplicationCommandPermissions],guildId: string): Promise<GuildApplicationCommandPermissions> {
+    // @ts-ignore
+    const app = this._client.api.applications(this._client.user.id);
+    if (guildId) {
+      app.guilds(guildId);
+    }
+    return await app.commands(commandId).put({data});
+  }
+
+  //TODO if necessary Batch Edit Application Command Permissions:  PUT/applications/{application.id}/guilds/{guild.id}/commands/permissions
+
   // Checks if string is a user id, if true, returns a Guild Member object
   private getMemberIfExists(value: string, guild: any) {
     if (
       value &&
       typeof value === "string" &&
-      value.startsWith("<@!") &&
+      (value.startsWith("<@!") || value.startsWith("<@")) && 
       value.endsWith(">")
     ) {
-      value = value.substring(3, value.length - 1);
+      value = value.substring((value.substring(2,3)=="!"?3:2), value.length - 1);
 
       value = guild?.members.cache.get(value);
     }
-
     return value;
+  }
+
+  public setWhole(CommandName:string,ArgumentName:string){
+    if(!(this._whole?.[CommandName])){
+      this._whole[CommandName]=[]
+    }
+      this._whole[CommandName].push(ArgumentName)
+  }
+
+  private isWhole(CommandName:string,ArgumentName:string):boolean{
+    if((this._whole?.[CommandName])){
+      let isThere=this._whole[CommandName].find((element:string)=>{return element==ArgumentName})
+      return !!isThere
+    }
+    return false;
+  }
+
+  private detectType(value: string|undefined, resolved: ApplicationCommandInteractionDataResolved | undefined):string|undefined {
+      if(!value){
+          return undefined;
+      }else if(resolved?.users?.[value]){
+        return "users"
+      }else if(resolved?.channels?.[value]){
+        return "channels"
+      }else if(resolved?.roles?.[value]){
+        return "roles"
+      }
+      return undefined;
+  }
+
+  private isMemberString(value: string):boolean{
+    if (
+      value &&
+      typeof value === "string" &&
+      (value.startsWith("<@!") || value.startsWith("<@")) && 
+      value.endsWith(">")
+    ) {
+      return true;
+    }
+    return false;
   }
 
   public getObjectFromOptions(
     guild: { members: { cache: any } },
-    options?: [ApplicationCommandInteractionDataOption]
+    options?: ApplicationCommandInteractionDataOption[]
   ): Object {
     const args: { [key: string]: any } = {};
     if (!options) {
       return args;
     }
-
     for (const { name, value } of options) {
       args[name] = this.getMemberIfExists(value!!, guild);
     }
@@ -123,21 +221,87 @@ class SlashCommands {
   }
 
   public getArrayFromOptions(
-    guild: { members: { cache: any } } | undefined,
-    options?: [ApplicationCommandInteractionDataOption]
-  ): string[] {
-    const args: string[] = [];
+    guild: { members: { cache: any } ,channels: { cache: any },roles: { cache: any }} | undefined,
+    CommandName:string,
+    options?: ApplicationCommandInteractionDataOption[],
+    resolved?:ApplicationCommandInteractionDataResolved,
+  ): any[] {
+    const args: any[] = [];
     if (!options) {
       return args;
     }
-
-    for (const { value } of options) {
-      if(!value){
+    options.forEach((option:ApplicationCommandInteractionDataOption,index:number)=>{
+    const {name,type,value} = option;
+    const isWhole:boolean = this.isWhole(CommandName,name)
+    let result;
+    switch(type) {
+      case 1:
+        //TODO just give it up
+        result=""
         break;
-      }
-      args.push(this.getMemberIfExists(value, guild));
+      case 2:
+        //TODO just give it up
+        result=""
+        break;
+      case 3:
+        if(this.isMemberString(value??"")){
+          console.warn(
+            `WOKCommands > Use the types option to get some better user experience with avaible dropdown of the users etc, using string for users is deprecated`
+          );
+        }
+        result=value;
+        break;
+      case 4:
+        result=value
+        break; 
+      case 5:
+        result=value;
+        break; 
+      case 6:
+        if(!isWhole&&value&&resolved?.users?.[value]){
+          result=resolved.users[value];
+        }else if(guild){
+          let user=guild.members.cache.get(value);
+          result=user??value;
+        }
+        break;
+      case 7:
+        if(!isWhole&&value&&resolved?.channels?.[value]){
+          result=resolved.channels[value];
+        }else if(guild){
+          let channel=guild.channels.cache.get(value);
+          result=channel??value;
+        }
+        break;  
+      case 8:
+        if(!isWhole&&value&&resolved?.roles?.[value]){
+          result=resolved.roles[value];
+        }else if(guild){
+          let role=guild.roles.cache.get(value);
+          result=role??value;
+        }
+        break;  
+      case 9:
+        let type=this.detectType(value,resolved)
+        // @ts-ignore
+        if(value&&type&&resolved?.[type]?.[value]){
+          // @ts-ignore
+          result=resolved[type][value];
+        }else if(guild){
+          // @ts-ignore
+          let mentionable=guild[type].cache.get(value);
+          result=mentionable??value;
+        }
+        break;              
+      default:
+        throw new Error(
+          `WOKCommands > FATAL ERROR, this SHOULDN'T HAPPEN EVER AT ALL, RUN FOREST RUN!!!`
+        );
+    } 
+    if(result){
+      args.push(result);
     }
-
+    });
     return args;
   }
 
@@ -228,10 +392,11 @@ class SlashCommands {
   public async invokeCommand(
     interaction: Interaction,
     commandName: string,
-    options: object,
+    options: object, //parsed args
     member: GuildMember | undefined,
     guild: Guild | undefined,
-    channel: Channel | undefined
+    channel: Channel | undefined,
+    rawArgs: ApplicationCommandInteractionData
   ): Promise<boolean> {
     const command = this._instance.commandHandler.getCommand(commandName);
 
@@ -301,8 +466,8 @@ class SlashCommands {
       guild,
       channel,
       args: options,
-      // @ts-ignore
-      text: options.join ? options.join(" ") : "",
+      slash:true,
+      rawArgs,
       client: this._client,
       instance: this._instance,
       interaction,
@@ -319,9 +484,9 @@ class SlashCommands {
     }
 
     if (!result&&!interaction.status.send) {
-      console.error(
+      /* console.error(
         `WOKCommands > Command "${commandName}" didn't send anything, and didn't return a value as fallback action`
-      );
+      ); */
       return false;
     }
 
@@ -350,6 +515,17 @@ class SlashCommands {
     this.createInteractionResponse(interaction,4,patch)
     return true;
   }
+
+  public getOptionFromName(name:string):ApplicationCommandOptionType_value{
+    const _values = [1,2,3,4,5,6,7,8,9];
+    let response=3;
+    const _names =  ["SUB_COMMAND","SUB_COMMAND_GROUP", "STRING","INTEGER","BOOLEAN","USER","CHANNEL","ROLE" ,"MENTIONABLE"]
+    _names.forEach((_name,i)=>{if(_name==name.toUpperCase()){response=_values[i];}})
+    // @ts-ignore
+    return response;
+  }
 }
+
+
 
 export = SlashCommands;
