@@ -58,8 +58,8 @@ class CommandHandler {
         let content: string = message.content;
         const prefix = instance.getPrefix(guild);
 
-        if (!content.startsWith(prefix)) {
-          return;
+        if((content.substring(0,prefix.length).localeCompare(prefix, undefined, { sensitivity: 'accent'})) === 1) {
+          return
         }
 
         if (instance.ignoreBots && message.author.bot) {
