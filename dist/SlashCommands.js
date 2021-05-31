@@ -1,6 +1,6 @@
 "use strict";
 var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
+    __assign = Object.assign || function (t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
             s = arguments[i];
             for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
@@ -20,8 +20,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function () { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -55,19 +55,23 @@ var SlashCommands = /** @class */ (function () {
         this._client = instance.client;
         if (listen) {
             // @ts-ignore
-            this._client.ws.on("INTERACTION_CREATE", function (interaction) { return __awaiter(_this, void 0, void 0, function () {
-                var member, data, guild_id, channel_id, name, options, command, guild, args, channel;
-                return __generator(this, function (_a) {
-                    member = interaction.member, data = interaction.data, guild_id = interaction.guild_id, channel_id = interaction.channel_id;
-                    name = data.name, options = data.options;
-                    command = name.toLowerCase();
-                    guild = this._client.guilds.cache.get(guild_id);
-                    args = this.getArrayFromOptions(guild, options);
-                    channel = guild === null || guild === void 0 ? void 0 : guild.channels.cache.get(channel_id);
-                    this.invokeCommand(interaction, command, args, member, guild, channel);
-                    return [2 /*return*/];
-                });
-            }); });
+            this._client.ws.on("INTERACTION_CREATE", function (interaction) {
+                if (interaction.type == 2) {
+                    return __awaiter(_this, void 0, void 0, function () {
+                        var member, data, guild_id, channel_id, name, options, command, guild, args, channel;
+                        return __generator(this, function (_a) {
+                            member = interaction.member, data = interaction.data, guild_id = interaction.guild_id, channel_id = interaction.channel_id;
+                            name = data.name, options = data.options;
+                            command = name.toLowerCase();
+                            guild = this._client.guilds.cache.get(guild_id);
+                            args = this.getArrayFromOptions(guild, options);
+                            channel = guild === null || guild === void 0 ? void 0 : guild.channels.cache.get(channel_id);
+                            this.invokeCommand(interaction, command, args, member, guild, channel);
+                            return [2 /*return*/];
+                        });
+                    });
+                }
+            });
         }
     }
     SlashCommands.prototype.get = function (guildId) {
@@ -98,12 +102,12 @@ var SlashCommands = /** @class */ (function () {
                             app.guilds(guildId);
                         }
                         return [4 /*yield*/, app.commands.post({
-                                data: {
-                                    name: name,
-                                    description: description,
-                                    options: options,
-                                },
-                            })];
+                            data: {
+                                name: name,
+                                description: description,
+                                options: options,
+                            },
+                        })];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -166,8 +170,8 @@ var SlashCommands = /** @class */ (function () {
                     case 0: return [4 /*yield*/, discord_js_1.APIMessage.create(
                         // @ts-ignore
                         this._client.channels.resolve(interaction.channel_id), content)
-                            .resolveData()
-                            .resolveFiles()];
+                        .resolveData()
+                        .resolveFiles()];
                     case 1:
                         _a = _b.sent(), data = _a.data, files = _a.files;
                         return [2 /*return*/, __assign(__assign({}, data), { files: files })];
@@ -186,16 +190,16 @@ var SlashCommands = /** @class */ (function () {
                             return [2 /*return*/, false];
                         }
                         return [4 /*yield*/, command.callback({
-                                member: member,
-                                guild: guild,
-                                channel: channel,
-                                args: options,
-                                // @ts-ignore
-                                text: options.join ? options.join(" ") : "",
-                                client: this._client,
-                                instance: this._instance,
-                                interaction: interaction,
-                            })];
+                            member: member,
+                            guild: guild,
+                            channel: channel,
+                            args: options,
+                            // @ts-ignore
+                            text: options.join ? options.join(" ") : "",
+                            client: this._client,
+                            instance: this._instance,
+                            interaction: interaction,
+                        })];
                     case 1:
                         result = _a.sent();
                         if (!result) {
@@ -217,11 +221,11 @@ var SlashCommands = /** @class */ (function () {
                             // @ts-ignore
                             .interactions(interaction.id, interaction.token)
                             .callback.post({
-                            data: {
-                                type: 4,
-                                data: data,
-                            },
-                        });
+                                data: {
+                                    type: 4,
+                                    data: data,
+                                },
+                            });
                         return [2 /*return*/, true];
                 }
             });
