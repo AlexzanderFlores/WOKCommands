@@ -54,10 +54,10 @@ exports.getMongoConnection = void 0;
 var mongoose_1 = __importDefault(require("mongoose"));
 var Events_1 = __importDefault(require("./enums/Events"));
 var results = {
-    0: 'Disconnected',
-    1: 'Connected',
-    2: 'Connecting',
-    3: 'Disconnecting',
+    0: "Disconnected",
+    1: "Connected",
+    2: "Connecting",
+    3: "Disconnecting",
 };
 var mongo = function (mongoPath, instance, dbOptions) {
     if (dbOptions === void 0) { dbOptions = {}; }
@@ -69,7 +69,7 @@ var mongo = function (mongoPath, instance, dbOptions) {
                 case 1:
                     _a.sent();
                     connection = mongoose_1.default.connection;
-                    state = results[connection.readyState] || 'Unknown';
+                    state = results[connection.readyState] || "Unknown";
                     instance.emit(Events_1.default.DATABASE_CONNECTED, connection, state);
                     return [2 /*return*/];
             }

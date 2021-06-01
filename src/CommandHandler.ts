@@ -9,12 +9,14 @@ import ICommand from "./interfaces/ICommand";
 import disabledCommands from "./models/disabled-commands";
 import requiredRoles from "./models/required-roles";
 import cooldown from "./models/cooldown";
+import channelCommands from "./models/channel-commands";
 import { permissionList } from "./permissions";
 import CommandErrors from "./enums/CommandErrors";
 import Events from "./enums/Events";
 
 class CommandHandler {
   private _commands: Map<String, Command> = new Map();
+  private _client: Client | null = null;
 
   constructor(
     instance: WOKCommands,
@@ -22,6 +24,8 @@ class CommandHandler {
     dir: string,
     disabledDefaultCommands: string[]
   ) {
+    this._client = client;
+
     // Register built in commands
     for (const [file, fileName] of getAllFiles(
       path.join(__dirname, "commands")
@@ -285,6 +289,30 @@ class CommandHandler {
           command.setCooldown(guildId, user.id);
         }
 
+        // Check for channel specific commands
+        if (guild) {
+          const key = `${guild.id}-${command.names[0]}`;
+
+          const channels = command.requiredChannels.get(key);
+          if (
+            channels &&
+            channels.length &&
+            !channels.includes(message.channel.id)
+          ) {
+            let channelList = "";
+            for (const channel of channels) {
+              channelList += `<#${channel}>, `;
+            }
+            channelList = channelList.substring(0, channelList.length - 2);
+            message.reply(
+              instance.messageHandler.get(guild, "ALLOWED_CHANNELS", {
+                CHANNELS: channelList,
+              })
+            );
+            return;
+          }
+        }
+
         try {
           command.execute(message, args);
         } catch (e) {
@@ -307,19 +335,21 @@ class CommandHandler {
       });
 
       // If we cannot connect to a database then ensure all cooldowns are less than 5m
-      instance.on(Events.DATABASE_CONNECTED, (connection, state) => {
+      instance.on(Events.DATABASE_CONNECTED, async (connection, state) => {
+        const connected = state === "Connected";
+
+        if (!connected) {
+          return;
+        }
+
+        // Load previously used cooldowns
+
+        await this.fetchDisabledCommands();
+        await this.fetchRequiredRoles();
+        await this.fetchChannelOnly();
+
         this._commands.forEach(async (command) => {
-          const connected = state === "Connected";
           command.verifyDatabaseCooldowns(connected);
-
-          if (!connected) {
-            return;
-          }
-
-          // Load previously used cooldowns
-
-          await this.fetchDisabledCommands();
-          await this.fetchRequiredRoles();
 
           const results = await cooldown.find({
             name: command.names[0],
@@ -595,6 +625,33 @@ class CommandHandler {
           cmd.addRequiredRole(guildId, roleId);
         }
       }
+    }
+  }
+
+  public async fetchChannelOnly() {
+    const results: any[] = await channelCommands.find({});
+
+    for (const result of results) {
+      const { command, guildId, channels } = result;
+
+      const cmd = this._commands.get(command);
+      if (!cmd) {
+        continue;
+      }
+
+      const guild = this._client?.guilds.cache.get(guildId);
+      if (!guild) {
+        continue;
+      }
+
+      cmd.setRequiredChannels(
+        guild,
+        command,
+        channels
+          .toString()
+          .replace(/\"\[\]/g, "")
+          .split(",")
+      );
     }
   }
 }
