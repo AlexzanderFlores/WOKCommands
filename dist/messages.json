@@ -181,6 +181,41 @@
         "russian": "Произошла ошибка при выполнении этой команды! Об этой ошибке было сообщено разработчикам.",
         "german": "Beim Ausführen dieses Befehls ist ein Fehler aufgetreten! Dieser Fehler wurde den Entwicklern gemeldet."
     },
+    "NO_TAGGED_CHANNELS": {
+        "english": "Please tag at least one channel.",
+        "spanish": "Etiqueta al menos un canal.",
+        "portuguese": "Marque pelo menos um canal.",
+        "russian": "Отметьте хотя бы один канал.",
+        "german": "Bitte taggen Sie mindestens einen Kanal."
+    },
+    "NOT_CHANNEL_COMMAND": {
+        "english": "That command is currently not limited to any channel.",
+        "spanish": "Ese comando actualmente no se limita a ningún canal.",
+        "portuguese": "Esse comando atualmente não está limitado a nenhum canal.",
+        "russian": "Эта команда в настоящее время не ограничена каким-либо каналом.",
+        "german": "Dieser Befehl ist derzeit nicht auf einen Kanal beschränkt."
+    },
+    "NO_LONGER_CHANNEL_COMMAND": {
+        "english": "That command is no longer a channel specific command.",
+        "spanish": "Ese comando ya no es un comando específico de canal.",
+        "portuguese": "Esse comando não é mais um comando específico do canal.",
+        "russian": "Эта команда больше не является командой канала.",
+        "german": "Dieser Befehl ist kein kanalspezifischer Befehl mehr."
+    },
+    "NOW_CHANNEL_COMMAND": {
+        "english": "\"{COMMAND}\" can now only be ran in {CHANNELS}.",
+        "spanish": "\"{COMMAND}\" ahora solo se puede ejecutar en {CHANNELS}.",
+        "portuguese": "\"{COMMAND}\" agora só pode ser executado em {CHANNELS}.",
+        "russian": "\"{COMMAND}\" теперь может выполняться только на {CHANNELS}.",
+        "german": "\"{COMMAND}\" kann jetzt nur noch in {CHANNELS} ausgeführt werden."
+    },
+    "ALLOWED_CHANNELS": {
+        "english": "You can only use that command in the following: {CHANNELS}.",
+        "spanish": "Solo puede usar ese comando en lo siguiente: {CHANNELS}.",
+        "portuguese": "Você só pode usar esse comando nos seguintes: {CHANNELS}.",
+        "russian": "Вы можете использовать эту команду только в следующих случаях: {CHANNELS}.",
+        "german": "Sie können diesen Befehl nur im Folgenden verwenden: {CHANNELS}."
+    },
     "HELP_MENU": {
         "TITLE": {
             "english": "Help Menu",

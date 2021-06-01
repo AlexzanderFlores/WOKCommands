@@ -43,7 +43,7 @@ var Command = /** @class */ (function () {
     function Command(instance, client, names, callback, error, _a) {
         var category = _a.category, minArgs = _a.minArgs, maxArgs = _a.maxArgs, syntaxError = _a.syntaxError, expectedArgs = _a.expectedArgs, description = _a.description, requiredPermissions = _a.requiredPermissions, permissions = _a.permissions, cooldown = _a.cooldown, globalCooldown = _a.globalCooldown, _b = _a.ownerOnly, ownerOnly = _b === void 0 ? false : _b, _c = _a.hidden, hidden = _c === void 0 ? false : _c, _d = _a.guildOnly, guildOnly = _d === void 0 ? false : _d, _e = _a.testOnly, testOnly = _e === void 0 ? false : _e, _f = _a.slash, slash = _f === void 0 ? false : _f;
         this._names = [];
-        this._category = '';
+        this._category = "";
         this._minArgs = 0;
         this._maxArgs = -1;
         this._requiredRoles = new Map(); // <GuildID, RoleIDs[]>
@@ -51,7 +51,7 @@ var Command = /** @class */ (function () {
         this._error = null;
         this._disabled = [];
         this._cooldownDuration = 0;
-        this._cooldownChar = '';
+        this._cooldownChar = "";
         this._userCooldowns = new Map(); // <GuildID-UserID, Seconds> OR <dm-UserID, Seconds>
         this._guildCooldowns = new Map(); // <GuildID, Seconds>
         this._databaseCooldown = false;
@@ -60,13 +60,14 @@ var Command = /** @class */ (function () {
         this._guildOnly = false;
         this._testOnly = false;
         this._slash = false;
+        this._requiredChannels = new Map(); // <GuildID-Command, Channel IDs>
         this.instance = instance;
         this.client = client;
-        this._names = typeof names === 'string' ? [names] : names;
+        this._names = typeof names === "string" ? [names] : names;
         this._category = category;
         this._minArgs = minArgs || 0;
         this._maxArgs = maxArgs === undefined ? -1 : maxArgs;
-        if (typeof syntaxError === 'string') {
+        if (typeof syntaxError === "string") {
             console.warn("WOKCommands > String syntax errors are deprecated. Please use an object instead to specify the language. See https://github.com/AlexzanderFlores/WOKCommands#storing-custom-messages-and-translations");
             syntaxError = {
                 english: syntaxError,
@@ -76,8 +77,8 @@ var Command = /** @class */ (function () {
         this._expectedArgs = expectedArgs;
         this._description = description;
         this._requiredPermissions = requiredPermissions || permissions;
-        this._cooldown = cooldown || '';
-        this._globalCooldown = globalCooldown || '';
+        this._cooldown = cooldown || "";
+        this._globalCooldown = globalCooldown || "";
         this._ownerOnly = ownerOnly;
         this._hidden = hidden;
         this._guildOnly = guildOnly;
@@ -92,10 +93,10 @@ var Command = /** @class */ (function () {
             throw new Error("Command \"" + names[0] + "\" has both requiredPermissions and permissions fields. These are interchangeable but only one should be provided.");
         }
         if (this.cooldown) {
-            this.verifyCooldown(this._cooldown, 'cooldown');
+            this.verifyCooldown(this._cooldown, "cooldown");
         }
         if (this.globalCooldown) {
-            this.verifyCooldown(this._globalCooldown, 'global cooldown');
+            this.verifyCooldown(this._globalCooldown, "global cooldown");
         }
         if (this._minArgs < 0) {
             throw new Error("Command \"" + names[0] + "\" has a minimum argument count less than 0!");
@@ -110,18 +111,18 @@ var Command = /** @class */ (function () {
     Command.prototype.execute = function (message, args) {
         if (this._ownerOnly &&
             !this.instance.botOwner.includes(message.author.id)) {
-            message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
+            message.reply(this.instance.messageHandler.get(message.guild, "BOT_OWNERS_ONLY"));
             return;
         }
         if (this.guildOnly && !message.guild) {
-            message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
+            message.reply(this.instance.messageHandler.get(message.guild, "GUILD_ONLY_COMMAND"));
             return;
         }
         this._callback({
             message: message,
             channel: message.channel,
             args: args,
-            text: args.join(' '),
+            text: args.join(" "),
             client: this.client,
             prefix: this.instance.getPrefix(message.guild),
             instance: this.instance,
@@ -219,7 +220,7 @@ var Command = /** @class */ (function () {
         configurable: true
     });
     Command.prototype.verifyCooldown = function (cooldown, type) {
-        if (typeof cooldown !== 'string') {
+        if (typeof cooldown !== "string") {
             throw new Error("Invalid " + type + " format! Must be a string, examples: \"10s\" \"5m\" etc.");
         }
         var results = cooldown.match(/[a-z]+|[^a-z]+/gi) || [];
@@ -231,29 +232,29 @@ var Command = /** @class */ (function () {
             throw new Error("Invalid " + type + " format! Number is invalid.");
         }
         this._cooldownChar = results[1];
-        if (this._cooldownChar !== 's' &&
-            this._cooldownChar !== 'm' &&
-            this._cooldownChar !== 'h' &&
-            this._cooldownChar !== 'd') {
+        if (this._cooldownChar !== "s" &&
+            this._cooldownChar !== "m" &&
+            this._cooldownChar !== "h" &&
+            this._cooldownChar !== "d") {
             throw new Error("Invalid " + type + " format! Unknown type. Please provide 's', 'm', 'h', or 'd' for seconds, minutes, hours, or days respectively.");
         }
-        if (type === 'global cooldown' &&
-            this._cooldownChar === 's' &&
+        if (type === "global cooldown" &&
+            this._cooldownChar === "s" &&
             this._cooldownDuration < 60) {
             throw new Error("Invalid " + type + " format! The minimum duration for a global cooldown is 1m.");
         }
-        var moreInfo = ' For more information please see https://github.com/AlexzanderFlores/WOKCommands#command-cooldowns';
+        var moreInfo = " For more information please see https://github.com/AlexzanderFlores/WOKCommands#command-cooldowns";
         if (this._cooldownDuration < 1) {
             throw new Error("Invalid " + type + " format! Durations must be at least 1." + moreInfo);
         }
-        if ((this._cooldownChar === 's' || this._cooldownChar === 'm') &&
+        if ((this._cooldownChar === "s" || this._cooldownChar === "m") &&
             this._cooldownDuration > 60) {
             throw new Error("Invalid " + type + " format! Second or minute durations cannot exceed 60." + moreInfo);
         }
-        if (this._cooldownChar === 'h' && this._cooldownDuration > 24) {
+        if (this._cooldownChar === "h" && this._cooldownDuration > 24) {
             throw new Error("Invalid " + type + " format! Hour durations cannot exceed 24." + moreInfo);
         }
-        if (this._cooldownChar === 'd' && this._cooldownDuration > 365) {
+        if (this._cooldownChar === "d" && this._cooldownDuration > 365) {
             throw new Error("Invalid " + type + " format! Day durations cannot exceed 365." + moreInfo);
         }
     };
@@ -272,9 +273,9 @@ var Command = /** @class */ (function () {
         configurable: true
     });
     Command.prototype.verifyDatabaseCooldowns = function (connected) {
-        if (this._cooldownChar === 'd' ||
-            this._cooldownChar === 'h' ||
-            (this._cooldownChar === 'm' && this._cooldownDuration >= 5)) {
+        if (this._cooldownChar === "d" ||
+            this._cooldownChar === "h" ||
+            (this._cooldownChar === "m" && this._cooldownDuration >= 5)) {
             this._databaseCooldown = true;
             if (!connected) {
                 console.warn("WOKCommands > A database connection is STRONGLY RECOMMENDED for cooldowns of 5 minutes or more.");
@@ -288,7 +289,7 @@ var Command = /** @class */ (function () {
     Command.prototype.decrementCooldowns = function () {
         var _this = this;
         var _loop_1 = function (map) {
-            if (typeof map !== 'string') {
+            if (typeof map !== "string") {
                 map.forEach(function (value, key) {
                     if (--value <= 0) {
                         map.delete(key);
@@ -314,7 +315,7 @@ var Command = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         if (!(cooldown % 20 === 0)) return [3 /*break*/, 4];
-                        type = this.globalCooldown ? 'global' : 'per-user';
+                        type = this.globalCooldown ? "global" : "per-user";
                         if (!(cooldown <= 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, cooldown_1.default.deleteOne({ _id: _id, name: this.names[0], type: type })];
                     case 1:
@@ -342,15 +343,15 @@ var Command = /** @class */ (function () {
         var target = this.globalCooldown || this.cooldown;
         if (target) {
             var seconds = customCooldown || this._cooldownDuration;
-            var durationType = customCooldown ? 's' : this._cooldownChar;
+            var durationType = customCooldown ? "s" : this._cooldownChar;
             switch (durationType) {
-                case 'm':
+                case "m":
                     seconds *= 60;
                     break;
-                case 'h':
+                case "h":
                     seconds *= 60 * 60;
                     break;
-                case 'd':
+                case "d":
                     seconds *= 60 * 60 * 24;
                     break;
             }
@@ -369,13 +370,13 @@ var Command = /** @class */ (function () {
             ? this._guildCooldowns.get(guildId)
             : this._userCooldowns.get(guildId + "-" + userId);
         if (!seconds) {
-            return '';
+            return "";
         }
         var days = Math.floor(seconds / (3600 * 24));
         var hours = Math.floor((seconds % (3600 * 24)) / 3600);
         var minutes = Math.floor((seconds % 3600) / 60);
         seconds = Math.floor(seconds % 60);
-        var result = '';
+        var result = "";
         if (days) {
             result += days + "d ";
         }
@@ -400,7 +401,7 @@ var Command = /** @class */ (function () {
     };
     Command.prototype.removeRequiredRole = function (guildId, roleId) {
         var _a, _b;
-        if (roleId === 'none') {
+        if (roleId === "none") {
             (_a = this._requiredRoles) === null || _a === void 0 ? void 0 : _a.delete(guildId);
             return;
         }
@@ -449,6 +450,19 @@ var Command = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Command.prototype, "requiredChannels", {
+        get: function () {
+            return this._requiredChannels;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Command.prototype.setRequiredChannels = function (guild, command, channels) {
+        if (!guild) {
+            return;
+        }
+        this.requiredChannels.set(guild.id + "-" + command, channels);
+    };
     return Command;
 }());
 module.exports = Command;

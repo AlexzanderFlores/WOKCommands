@@ -52,6 +52,7 @@ var get_all_files_1 = __importDefault(require("./get-all-files"));
 var disabled_commands_1 = __importDefault(require("./models/disabled-commands"));
 var required_roles_1 = __importDefault(require("./models/required-roles"));
 var cooldown_1 = __importDefault(require("./models/cooldown"));
+var channel_commands_1 = __importDefault(require("./models/channel-commands"));
 var permissions_1 = require("./permissions");
 var CommandErrors_1 = __importDefault(require("./enums/CommandErrors"));
 var Events_1 = __importDefault(require("./enums/Events"));
@@ -59,6 +60,8 @@ var CommandHandler = /** @class */ (function () {
     function CommandHandler(instance, client, dir, disabledDefaultCommands) {
         var _this = this;
         this._commands = new Map();
+        this._client = null;
+        this._client = client;
         // Register built in commands
         for (var _i = 0, _a = get_all_files_1.default(path_1.default.join(__dirname, "commands")); _i < _a.length; _i++) {
             var _b = _a[_i], file = _b[0], fileName = _b[1];
@@ -269,6 +272,25 @@ var CommandHandler = /** @class */ (function () {
                     }
                     command.setCooldown(guildId, user.id);
                 }
+                // Check for channel specific commands
+                if (guild) {
+                    var key = guild.id + "-" + command.names[0];
+                    var channels = command.requiredChannels.get(key);
+                    if (channels &&
+                        channels.length &&
+                        !channels.includes(message.channel.id)) {
+                        var channelList = "";
+                        for (var _d = 0, channels_1 = channels; _d < channels_1.length; _d++) {
+                            var channel = channels_1[_d];
+                            channelList += "<#" + channel + ">, ";
+                        }
+                        channelList = channelList.substring(0, channelList.length - 2);
+                        message.reply(instance.messageHandler.get(guild, "ALLOWED_CHANNELS", {
+                            CHANNELS: channelList,
+                        }));
+                        return;
+                    }
+                }
                 try {
                     command.execute(message, args);
                 }
@@ -291,42 +313,53 @@ var CommandHandler = /** @class */ (function () {
                 }
             });
             // If we cannot connect to a database then ensure all cooldowns are less than 5m
-            instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) {
-                _this._commands.forEach(function (command) { return __awaiter(_this, void 0, void 0, function () {
-                    var connected, results, _i, results_1, _a, _id, cooldown_2, _b, name_1, guildId, userId;
-                    return __generator(this, function (_c) {
-                        switch (_c.label) {
-                            case 0:
-                                connected = state === "Connected";
-                                command.verifyDatabaseCooldowns(connected);
-                                if (!connected) {
-                                    return [2 /*return*/];
-                                }
-                                // Load previously used cooldowns
-                                return [4 /*yield*/, this.fetchDisabledCommands()];
-                            case 1:
-                                // Load previously used cooldowns
-                                _c.sent();
-                                return [4 /*yield*/, this.fetchRequiredRoles()];
-                            case 2:
-                                _c.sent();
-                                return [4 /*yield*/, cooldown_1.default.find({
-                                        name: command.names[0],
-                                        type: command.globalCooldown ? "global" : "per-user",
-                                    })];
-                            case 3:
-                                results = _c.sent();
-                                // @ts-ignore
-                                for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
-                                    _a = results_1[_i], _id = _a._id, cooldown_2 = _a.cooldown;
-                                    _b = _id.split("-"), name_1 = _b[0], guildId = _b[1], userId = _b[2];
-                                    command.setCooldown(guildId, userId, cooldown_2);
-                                }
+            instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) { return __awaiter(_this, void 0, void 0, function () {
+                var connected;
+                var _this = this;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            connected = state === "Connected";
+                            if (!connected) {
                                 return [2 /*return*/];
-                        }
-                    });
-                }); });
-            });
+                            }
+                            // Load previously used cooldowns
+                            return [4 /*yield*/, this.fetchDisabledCommands()];
+                        case 1:
+                            // Load previously used cooldowns
+                            _a.sent();
+                            return [4 /*yield*/, this.fetchRequiredRoles()];
+                        case 2:
+                            _a.sent();
+                            return [4 /*yield*/, this.fetchChannelOnly()];
+                        case 3:
+                            _a.sent();
+                            this._commands.forEach(function (command) { return __awaiter(_this, void 0, void 0, function () {
+                                var results, _i, results_1, _a, _id, cooldown_2, _b, name_1, guildId, userId;
+                                return __generator(this, function (_c) {
+                                    switch (_c.label) {
+                                        case 0:
+                                            command.verifyDatabaseCooldowns(connected);
+                                            return [4 /*yield*/, cooldown_1.default.find({
+                                                    name: command.names[0],
+                                                    type: command.globalCooldown ? "global" : "per-user",
+                                                })];
+                                        case 1:
+                                            results = _c.sent();
+                                            // @ts-ignore
+                                            for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
+                                                _a = results_1[_i], _id = _a._id, cooldown_2 = _a.cooldown;
+                                                _b = _id.split("-"), name_1 = _b[0], guildId = _b[1], userId = _b[2];
+                                                command.setCooldown(guildId, userId, cooldown_2);
+                                            }
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); });
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
         }
         var decrementCountdown = function () {
             _this._commands.forEach(function (command) {
@@ -533,6 +566,36 @@ var CommandHandler = /** @class */ (function () {
                                     cmd.addRequiredRole(guildId, roleId);
                                 }
                             }
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    CommandHandler.prototype.fetchChannelOnly = function () {
+        var _a;
+        return __awaiter(this, void 0, void 0, function () {
+            var results, _i, results_4, result, command, guildId, channels, cmd, guild;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, channel_commands_1.default.find({})];
+                    case 1:
+                        results = _b.sent();
+                        for (_i = 0, results_4 = results; _i < results_4.length; _i++) {
+                            result = results_4[_i];
+                            command = result.command, guildId = result.guildId, channels = result.channels;
+                            cmd = this._commands.get(command);
+                            if (!cmd) {
+                                continue;
+                            }
+                            guild = (_a = this._client) === null || _a === void 0 ? void 0 : _a.guilds.cache.get(guildId);
+                            if (!guild) {
+                                continue;
+                            }
+                            cmd.setRequiredChannels(guild, command, channels
+                                .toString()
+                                .replace(/\"\[\]/g, "")
+                                .split(","));
                         }
                         return [2 /*return*/];
                 }
