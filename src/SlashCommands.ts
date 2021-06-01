@@ -23,6 +23,7 @@ class SlashCommands {
       this._client.ws.on("INTERACTION_CREATE", async (interaction) => {
         const { member, data, guild_id, channel_id } = interaction;
         const { name, options } = data;
+        if(!name) return
 
         const command = name.toLowerCase();
         const guild = this._client.guilds.cache.get(guild_id);
