@@ -25,7 +25,7 @@
     "spanish": "Solo el propietario del bot puede ejecutar este comando.",
     "portuguese": "Apenas o proprietário do bot pode executar este comando.",
     "russian": "Только владелец бота может использовать эту команду.",
-    "german": "Nur der Besitzer des Botes kann diesen Befehl ausführen"
+    "german": "Nur der Besitzer des Bots kann diesen Befehl ausführen"
   },
   "DISABLED_COMMAND": {
     "english": "That command is currently disabled in this server.",
