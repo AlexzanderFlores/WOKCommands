@@ -390,6 +390,7 @@ class CommandHandler {
 
     const {
       name = fileName,
+      argTypes,
       category,
       commands,
       aliases,
@@ -493,6 +494,12 @@ class CommandHandler {
         );
       }
 
+      if (argTypes !== undefined && argTypes.map(arg => typeof arg === 'number').reduce((a,b) => a && b)){
+        throw new Error(
+          `WOKCommands > "argTypes" option must be an array of numbers`
+        );
+      }
+
       const slashCommands = instance.slashCommands;
       const options: object[] = [];
 
@@ -507,7 +514,7 @@ class CommandHandler {
           options.push({
             name: item.replace(/ /g, "-"),
             description: item,
-            type: 3,
+            type: argTypes !== undefined && argTypes[a] !== undefined ? argTypes[a] : 3,
             required: a < minArgs,
           });
         }
