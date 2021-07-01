@@ -435,7 +435,7 @@ var CommandHandler = /** @class */ (function () {
                         if (minArgs !== undefined && !expectedArgs) {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has \"minArgs\" property defined without \"expectedArgs\" property as a slash command.");
                         }
-                        if (argTypes !== undefined && argTypes.map(function (arg) { return typeof arg !== 'number'; }).reduce(function (a, b) { return a || b; })) {
+                        if (argTypes !== undefined && !Array.isArray(argTypes) || argTypes.map(function (arg) { return typeof arg !== 'number'; }).reduce(function (a, b) { return a || b; })) {
                             throw new Error("WOKCommands > \"argTypes\" option must be an array of numbers");
                         }
                         slashCommands = instance.slashCommands;
