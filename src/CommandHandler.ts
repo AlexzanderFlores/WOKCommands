@@ -494,7 +494,7 @@ class CommandHandler {
         );
       }
 
-      if (argTypes !== undefined && !Array.isArray(argTypes) || argTypes.map(arg => typeof arg !== 'number').reduce((a,b) => a || b)){
+      if (argTypes !== undefined && (!Array.isArray(argTypes) || argTypes.map(arg => typeof arg !== 'number').reduce((a,b) => a || b))){
         throw new Error(
           `WOKCommands > "argTypes" option must be an array of numbers`
         );
