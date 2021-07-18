@@ -217,7 +217,7 @@
   },
   "NO_REACT_PERMS": {
     "english": "This bot needs the \"Add Reactions\" permission to use the help menu.",
-    "spanish": "Este bot precisa da permissão \"Adicionar reações\" para usar o menu de ajuda.",
+    "spanish": "Este bot necesita el permiso \"Añadir reacciones\" para usar el menú de ayuda.",
     "portuguese": "Este bot precisa da permissão \"Adicionar reações\" para usar o menu de ajuda.",
     "russian": "Этому боту требуется право \"Добавлять реакции\", что-бы использовать меню помощи.",
     "german": "Der Bot benötigt die Berechtigung \"Reaktionen hinzufügen\", damit das Hilfemenü genutzt werden kann.",
