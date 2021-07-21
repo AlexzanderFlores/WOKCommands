@@ -404,6 +404,7 @@ class CommandHandler {
       testOnly,
       slash,
       expectedArgs,
+      argChoices,
       minArgs,
     } = configuration;
 
@@ -504,12 +505,34 @@ class CommandHandler {
         for (let a = 0; a < split.length; ++a) {
           const item = split[a];
 
-          options.push({
+          type Option = {
+            name: string,
+            description: string,
+            type: number,
+            required: boolean,
+            choices?: Array<OptionChoices>
+          }
+
+          type OptionChoices = {
+            name: string,
+            value: string
+          };
+
+          const option: Option = {
             name: item.replace(/ /g, "-"),
             description: item,
             type: 3,
             required: a < minArgs,
-          });
+          };
+
+          if (Object.keys(argChoices).includes(item)) {
+            const choices = argChoices[item];
+            if (choices.length) {
+              option.choices = choices;
+            }
+          }
+          
+          options.push(option);
         }
       }
 
