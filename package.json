@@ -3,7 +3,7 @@
   "version": "1.3.6",
   "main": "dist/index.js",
   "scripts": {
-    "compile": "tsc && node index.js",
+    "compile": "tsc && node dist/index.js",
     "dev": "nodemon -e ts --exec \"npm run compile\""
   },
   "keywords": [],
