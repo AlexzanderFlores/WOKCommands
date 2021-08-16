@@ -42,11 +42,11 @@ var channel_commands_1 = __importDefault(require("../models/channel-commands"));
 module.exports = {
     minArgs: 1,
     expectedArgs: '<Command name> [Channel tags OR "none"]',
-    cooldown: "2s",
-    requiredPermissions: ["ADMINISTRATOR"],
+    cooldown: '2s',
+    requiredPermissions: ['ADMINISTRATOR'],
     guildOnly: true,
-    description: "Makes a command only work in some channels.",
-    category: "Configuration",
+    description: 'Makes a command only work in some channels.',
+    category: 'Configuration',
     callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
         var message, args, instance, guild, messageHandler, commandName, command, action, results;
         return __generator(this, function (_a) {
@@ -55,17 +55,17 @@ module.exports = {
                     message = options.message, args = options.args, instance = options.instance;
                     guild = message.guild;
                     messageHandler = instance.messageHandler;
-                    commandName = (args.shift() || "").toLowerCase();
+                    commandName = (args.shift() || '').toLowerCase();
                     command = instance.commandHandler.getICommand(commandName);
-                    if (!command) {
-                        message.reply(messageHandler.get(guild, "UNKNOWN_COMMAND", {
+                    if (!command || !command.names) {
+                        message.reply(messageHandler.get(guild, 'UNKNOWN_COMMAND', {
                             COMMAND: commandName,
                         }));
                         return [2 /*return*/];
                     }
                     commandName = command.names[0];
                     action = args[0];
-                    if (!(action && action.toLowerCase() === "none")) return [3 /*break*/, 2];
+                    if (!(action && action.toLowerCase() === 'none')) return [3 /*break*/, 2];
                     return [4 /*yield*/, channel_commands_1.default.deleteMany({
                             guildId: guild === null || guild === void 0 ? void 0 : guild.id,
                             command: commandName,
@@ -73,15 +73,15 @@ module.exports = {
                 case 1:
                     results = _a.sent();
                     if (results.n === 0) {
-                        message.reply(messageHandler.get(guild, "NOT_CHANNEL_COMMAND"));
+                        message.reply(messageHandler.get(guild, 'NOT_CHANNEL_COMMAND'));
                     }
                     else {
-                        message.reply(messageHandler.get(guild, "NO_LONGER_CHANNEL_COMMAND"));
+                        message.reply(messageHandler.get(guild, 'NO_LONGER_CHANNEL_COMMAND'));
                     }
                     return [2 /*return*/];
                 case 2:
                     if (message.mentions.channels.size === 0) {
-                        message.reply(messageHandler.get(guild, "NO_TAGGED_CHANNELS"));
+                        message.reply(messageHandler.get(guild, 'NO_TAGGED_CHANNELS'));
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, channel_commands_1.default.findOneAndUpdate({
@@ -98,9 +98,9 @@ module.exports = {
                         })];
                 case 3:
                     _a.sent();
-                    message.reply(messageHandler.get(guild, "NOW_CHANNEL_COMMAND", {
+                    message.reply(messageHandler.get(guild, 'NOW_CHANNEL_COMMAND', {
                         COMMAND: commandName,
-                        CHANNELS: args.join(" "),
+                        CHANNELS: args.join(' '),
                     }));
                     return [2 /*return*/];
             }

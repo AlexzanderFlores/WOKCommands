@@ -216,6 +216,13 @@
     "russian": "Вы можете использовать эту команду только в следующих случаях: {CHANNELS}.",
     "german": "Sie können diesen Befehl nur im Folgenden verwenden: {CHANNELS}."
   },
+  "CANNOT_DISABLE_THIS_COMMAND": {
+    "english": "This command cannot be disabled.",
+    "spanish": "Este comando no se puede desactivar.",
+    "portuguese": "Este comando não pode ser desabilitado.",
+    "russian": "Эту команду нельзя отключить.",
+    "german": "Dieser Befehl kann nicht deaktiviert werden."
+  },
   "HELP_MENU": {
     "TITLE": {
       "english": "Help Menu",

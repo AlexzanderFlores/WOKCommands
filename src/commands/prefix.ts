@@ -1,4 +1,4 @@
-import ICommandArguments from '../interfaces/ICommandArguments'
+import { ICallbackObject, ICommand } from '../..'
 import prefixes from '../models/prefixes'
 
 export = {
@@ -8,7 +8,7 @@ export = {
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the prefix for the current guild',
   category: 'Configuration',
-  callback: async (options: ICommandArguments) => {
+  callback: async (options: ICallbackObject) => {
     const { message, args, text, prefix, instance } = options
 
     const { guild } = message
@@ -55,4 +55,4 @@ export = {
       }
     }
   },
-}
+} as ICommand

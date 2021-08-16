@@ -1,7 +1,7 @@
 import { Client } from 'discord.js'
 
 module.exports = (client: Client) => {
-  client.on('message', (message) => {
+  client.on('messageCreate', (message) => {
     client.emit('messageUpsert', message)
   })
 

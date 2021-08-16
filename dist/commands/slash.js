@@ -40,11 +40,11 @@ module.exports = {
     maxArgs: 3,
     expectedArgs: '["delete"] [command ID]',
     ownerOnly: true,
-    description: "Allows the bot developers to manage existing slash commands",
-    category: "Development",
+    description: 'Allows the bot developers to manage existing slash commands',
+    category: 'Development',
     hidden: true,
     callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
-        var channel, instance, args, guild, slashCommands, global, targetCommand_1, useGuild, embed, guildOnly;
+        var channel, instance, args, guild, slashCommands, global, targetCommand_1, useGuild_1, allSlashCommands, embed, guildOnly, guildOnlyCommands_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -54,15 +54,24 @@ module.exports = {
                     return [4 /*yield*/, slashCommands.get()];
                 case 1:
                     global = _a.sent();
-                    if (args.length && args[0] === "delete") {
+                    if (args.length && args[0] === 'delete') {
                         targetCommand_1 = args[1];
                         if (!targetCommand_1) {
-                            channel.send("Please specify a command ID");
+                            channel.send('Please specify a command ID');
                             return [2 /*return*/];
                         }
-                        useGuild = global.filter(function (cmd) { return cmd.id === targetCommand_1; }).length === 0;
-                        slashCommands.delete(targetCommand_1, useGuild ? guild.id : undefined);
-                        if (useGuild) {
+                        useGuild_1 = false;
+                        try {
+                            global === null || global === void 0 ? void 0 : global.forEach(function (cmd) {
+                                if (cmd.id === targetCommand_1) {
+                                    useGuild_1 = true;
+                                    throw new Error('');
+                                }
+                            });
+                        }
+                        catch (ignored) { }
+                        slashCommands.delete(targetCommand_1, useGuild_1 ? guild.id : undefined);
+                        if (useGuild_1) {
                             channel.send("Slash command with the ID \"" + targetCommand_1 + "\" has been deleted from guild \"" + guild.id + "\"");
                         }
                         else {
@@ -70,20 +79,37 @@ module.exports = {
                         }
                         return [2 /*return*/];
                     }
+                    allSlashCommands = '';
+                    if (global.size) {
+                        global.forEach(function (cmd) {
+                            allSlashCommands += cmd.name + ": " + cmd.id + "\n";
+                        });
+                    }
+                    else {
+                        allSlashCommands = 'None';
+                    }
                     embed = new discord_js_1.MessageEmbed()
-                        .addField("How to delete a slash command:", "_" + instance.getPrefix(guild) + "slash delete <command ID>")
-                        .addField("List of global slash commands:", global.length ? global.map(function (cmd) { return cmd.name + ": " + cmd.id; }) : "None");
+                        .addField('How to delete a slash command:', "_" + instance.getPrefix(guild) + "slash delete <command ID>")
+                        .addField('List of global slash commands:', allSlashCommands);
                     if (!guild) return [3 /*break*/, 3];
                     return [4 /*yield*/, slashCommands.get(guild.id)];
                 case 2:
                     guildOnly = _a.sent();
-                    embed.addField("List of slash commands for \"" + guild.name + "\" only", guildOnly.length
-                        ? guildOnly.map(function (cmd) { return " " + cmd.name + ": " + cmd.id; })
-                        : "None");
+                    guildOnlyCommands_1 = '';
+                    if (guildOnly.size) {
+                        guildOnly.forEach(function (cmd) {
+                            guildOnlyCommands_1 += cmd.name + ": " + cmd.id + "\n";
+                        });
+                    }
+                    else {
+                        guildOnlyCommands_1 = 'None';
+                    }
                     _a.label = 3;
                 case 3:
-                    embed.setColor(instance.color);
-                    channel.send("", { embed: embed });
+                    if (instance.color) {
+                        embed.setColor(instance.color);
+                    }
+                    channel.send({ embeds: [embed] });
                     return [2 /*return*/];
             }
         });

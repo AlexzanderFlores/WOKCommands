@@ -2,19 +2,20 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var discord_js_1 = require("discord.js");
 var getFirstEmbed = function (message, instance) {
+    var _a;
     var guild = message.guild, member = message.member;
     var commands = instance.commandHandler.commands, messageHandler = instance.messageHandler;
     var embed = new discord_js_1.MessageEmbed()
         .setTitle(instance.displayName + " " + messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE'))
         .setDescription(messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY'))
-        .setFooter("ID #" + message.author.id);
+        .setFooter("ID #" + ((_a = message.author) === null || _a === void 0 ? void 0 : _a.id));
     if (instance.color) {
         embed.setColor(instance.color);
     }
     var categories = {};
-    var isAdmin = member && member.hasPermission('ADMINISTRATOR');
+    var isAdmin = member && member.permissions.has('ADMINISTRATOR');
     for (var _i = 0, commands_1 = commands; _i < commands_1.length; _i++) {
-        var _a = commands_1[_i], category = _a.category, testOnly = _a.testOnly;
+        var _b = commands_1[_i], category = _b.category, testOnly = _b.testOnly;
         if (!category ||
             (testOnly && guild && !instance.testServers.includes(guild.id)) ||
             (!isAdmin && instance.hiddenCategories.includes(category))) {
