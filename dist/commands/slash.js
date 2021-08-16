@@ -41,7 +41,7 @@ module.exports = {
     expectedArgs: '["delete"] [command ID]',
     ownerOnly: true,
     description: 'Allows the bot developers to manage existing slash commands',
-    category: 'Development',
+    category: 'Configuration',
     hidden: true,
     callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
         var channel, instance, args, guild, slashCommands, global, targetCommand_1, useGuild_1, allSlashCommands, embed, guildOnly, guildOnlyCommands_1;

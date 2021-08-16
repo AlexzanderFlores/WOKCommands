@@ -78,7 +78,7 @@ interface OptionsWithS {
   commandDir?: never
   featureDir?: never
 
-  commandsDir?: string
+  commandsDir: string
   featuresDir?: string
   messagesPath?: string
   showWarns?: boolean
@@ -94,7 +94,7 @@ interface OptionsWithoutS {
   commandsDir?: never
   featuresDir?: never
 
-  commandDir?: string
+  commandDir: string
   featureDir?: string
   messagesPath?: string
   showWarns?: boolean

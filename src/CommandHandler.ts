@@ -43,11 +43,7 @@ class CommandHandler {
       }
 
       const files = getAllFiles(dir)
-
       const amount = files.length
-      if (amount <= 0) {
-        return
-      }
 
       console.log(
         `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
