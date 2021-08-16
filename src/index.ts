@@ -1,4 +1,4 @@
-import { Client, ColorResolvable, Guild, GuildEmoji, Intents } from 'discord.js'
+import { Client, ColorResolvable, Guild, GuildEmoji } from 'discord.js'
 import { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
 
@@ -351,3 +351,5 @@ export default class WOKCommands extends EventEmitter {
     return this._slashCommand
   }
 }
+
+module.exports = WOKCommands

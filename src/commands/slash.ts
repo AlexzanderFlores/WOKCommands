@@ -6,7 +6,7 @@ export = {
   expectedArgs: '["delete"] [command ID]',
   ownerOnly: true,
   description: 'Allows the bot developers to manage existing slash commands',
-  category: 'Development',
+  category: 'Configuration',
   hidden: true,
   callback: async (options: ICallbackObject) => {
     const { channel, instance, args } = options

@@ -419,3 +419,4 @@ var WOKCommands = /** @class */ (function (_super) {
     return WOKCommands;
 }(events_1.EventEmitter));
 exports.default = WOKCommands;
+module.exports = WOKCommands;

@@ -74,9 +74,6 @@ var CommandHandler = /** @class */ (function () {
             }
             var files = get_all_files_1.default(dir);
             var amount = files.length;
-            if (amount <= 0) {
-                return;
-            }
             console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
             for (var _c = 0, files_1 = files; _c < files_1.length; _c++) {
                 var _d = files_1[_c], file = _d[0], fileName = _d[1];
