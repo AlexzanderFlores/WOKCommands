@@ -1,68 +1,45 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var fs_1 = __importDefault(require("fs"));
-var path_1 = __importDefault(require("path"));
-var Command_1 = __importDefault(require("./Command"));
-var get_all_files_1 = __importDefault(require("./get-all-files"));
-var disabled_commands_1 = __importDefault(require("./models/disabled-commands"));
-var required_roles_1 = __importDefault(require("./models/required-roles"));
-var cooldown_1 = __importDefault(require("./models/cooldown"));
-var channel_commands_1 = __importDefault(require("./models/channel-commands"));
-var permissions_1 = require("./permissions");
-var CommandErrors_1 = __importDefault(require("./enums/CommandErrors"));
-var Events_1 = __importDefault(require("./enums/Events"));
-var CommandHandler = /** @class */ (function () {
-    function CommandHandler(instance, client, dir, disabledDefaultCommands) {
-        var _this = this;
-        this._commands = new Map();
-        this._client = null;
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const Command_1 = __importDefault(require("./Command"));
+const get_all_files_1 = __importDefault(require("./get-all-files"));
+const disabled_commands_1 = __importDefault(require("./models/disabled-commands"));
+const required_roles_1 = __importDefault(require("./models/required-roles"));
+const cooldown_1 = __importDefault(require("./models/cooldown"));
+const channel_commands_1 = __importDefault(require("./models/channel-commands"));
+const permissions_1 = require("./permissions");
+const CommandErrors_1 = __importDefault(require("./enums/CommandErrors"));
+const Events_1 = __importDefault(require("./enums/Events"));
+class CommandHandler {
+    _commands = new Map();
+    _client = null;
+    constructor(instance, client, dir, disabledDefaultCommands) {
         this._client = client;
         // Register built in commands
-        for (var _i = 0, _a = get_all_files_1.default(path_1.default.join(__dirname, 'commands')); _i < _a.length; _i++) {
-            var _b = _a[_i], file = _b[0], fileName = _b[1];
+        for (const [file, fileName] of get_all_files_1.default(path_1.default.join(__dirname, 'commands'))) {
             if (disabledDefaultCommands.includes(fileName)) {
                 continue;
             }
@@ -70,20 +47,18 @@ var CommandHandler = /** @class */ (function () {
         }
         if (dir) {
             if (!fs_1.default.existsSync(dir)) {
-                throw new Error("Commands directory \"" + dir + "\" doesn't exist!");
+                throw new Error(`Commands directory "${dir}" doesn't exist!`);
             }
-            var files = get_all_files_1.default(dir);
-            var amount = files.length;
-            console.log("WOKCommands > Loaded " + amount + " command" + (amount === 1 ? '' : 's') + ".");
-            for (var _c = 0, files_1 = files; _c < files_1.length; _c++) {
-                var _d = files_1[_c], file = _d[0], fileName = _d[1];
+            const files = get_all_files_1.default(dir);
+            const amount = files.length;
+            console.log(`WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`);
+            for (const [file, fileName] of files) {
                 this.registerCommand(instance, client, file, fileName);
             }
-            client.on('messageCreate', function (message) {
-                var _a;
-                var guild = message.guild;
-                var content = message.content;
-                var prefix = instance.getPrefix(guild).toLowerCase();
+            client.on('messageCreate', (message) => {
+                const guild = message.guild;
+                let content = message.content;
+                const prefix = instance.getPrefix(guild).toLowerCase();
                 if (!content.toLowerCase().startsWith(prefix)) {
                     return;
                 }
@@ -92,40 +67,40 @@ var CommandHandler = /** @class */ (function () {
                 }
                 // Remove the prefix
                 content = content.substring(prefix.length);
-                var args = content.split(/ /g);
+                const args = content.split(/ /g);
                 // Remove the "command", leaving just the arguments
-                var firstElement = args.shift();
+                const firstElement = args.shift();
                 if (!firstElement) {
                     return;
                 }
                 // Ensure the user input is lower case because it is stored as lower case in the map
-                var name = firstElement.toLowerCase();
-                var command = _this._commands.get(name);
+                const name = firstElement.toLowerCase();
+                const command = this._commands.get(name);
                 if (!command) {
                     return;
                 }
-                var error = command.error, slash = command.slash;
+                const { error, slash } = command;
                 if (slash === true) {
                     return;
                 }
                 if (guild) {
-                    var isDisabled = command.isDisabled(guild.id);
+                    const isDisabled = command.isDisabled(guild.id);
                     if (isDisabled) {
                         if (error) {
                             error({
                                 error: CommandErrors_1.default.COMMAND_DISABLED,
-                                command: command,
-                                message: message,
+                                command,
+                                message,
                             });
                         }
                         else {
                             message
                                 .reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND'))
-                                .then(function (message) {
+                                .then((message) => {
                                 if (instance.delErrMsgCooldown === -1) {
                                     return;
                                 }
-                                setTimeout(function () {
+                                setTimeout(() => {
                                     message.delete();
                                 }, 1000 * instance.delErrMsgCooldown);
                             });
@@ -133,21 +108,20 @@ var CommandHandler = /** @class */ (function () {
                         return;
                     }
                 }
-                var member = message.member, user = message.author;
-                var minArgs = command.minArgs, maxArgs = command.maxArgs, expectedArgs = command.expectedArgs, requiredPermissions = command.requiredPermissions, cooldown = command.cooldown, globalCooldown = command.globalCooldown, testOnly = command.testOnly;
+                const { member, author: user } = message;
+                const { minArgs, maxArgs, expectedArgs, requiredPermissions, cooldown, globalCooldown, testOnly, } = command;
                 if (testOnly && (!guild || !instance.testServers.includes(guild.id))) {
                     return;
                 }
                 if (guild && member) {
-                    for (var _i = 0, _b = requiredPermissions || []; _i < _b.length; _i++) {
-                        var perm = _b[_i];
+                    for (const perm of requiredPermissions || []) {
                         // @ts-ignore
                         if (!member.permissions.has(perm)) {
                             if (error) {
                                 error({
                                     error: CommandErrors_1.default.MISSING_PERMISSIONS,
-                                    command: command,
-                                    message: message,
+                                    command,
+                                    message,
                                 });
                             }
                             else {
@@ -155,11 +129,11 @@ var CommandHandler = /** @class */ (function () {
                                     .reply(instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
                                     PERM: perm,
                                 }))
-                                    .then(function (message) {
+                                    .then((message) => {
                                     if (instance.delErrMsgCooldown === -1) {
                                         return;
                                     }
-                                    setTimeout(function () {
+                                    setTimeout(() => {
                                         message.delete();
                                     }, 1000 * instance.delErrMsgCooldown);
                                 });
@@ -167,25 +141,24 @@ var CommandHandler = /** @class */ (function () {
                             return;
                         }
                     }
-                    var roles = command.getRequiredRoles(guild.id);
+                    const roles = command.getRequiredRoles(guild.id);
                     if (roles && roles.length) {
-                        var missingRoles = [];
-                        var missingRolesNames = [];
-                        for (var _c = 0, roles_1 = roles; _c < roles_1.length; _c++) {
-                            var role = roles_1[_c];
+                        const missingRoles = [];
+                        const missingRolesNames = [];
+                        for (const role of roles) {
                             if (!member.roles.cache.has(role)) {
                                 missingRoles.push(role);
-                                missingRolesNames.push((_a = guild.roles.cache.get(role)) === null || _a === void 0 ? void 0 : _a.name);
+                                missingRolesNames.push(guild.roles.cache.get(role)?.name);
                             }
                         }
                         if (missingRoles.length) {
                             if (error) {
                                 error({
                                     error: CommandErrors_1.default.MISSING_ROLES,
-                                    command: command,
-                                    message: message,
+                                    command,
+                                    message,
                                     info: {
-                                        missingRoles: missingRoles,
+                                        missingRoles,
                                     },
                                 });
                             }
@@ -194,11 +167,11 @@ var CommandHandler = /** @class */ (function () {
                                     .reply(instance.messageHandler.get(guild, 'MISSING_ROLES', {
                                     ROLES: missingRolesNames.join(', '),
                                 }))
-                                    .then(function (message) {
+                                    .then((message) => {
                                     if (instance.delErrMsgCooldown === -1) {
                                         return;
                                     }
-                                    setTimeout(function () {
+                                    setTimeout(() => {
                                         message.delete();
                                     }, 1000 * instance.delErrMsgCooldown);
                                 });
@@ -210,9 +183,9 @@ var CommandHandler = /** @class */ (function () {
                 // Are the proper number of arguments provided?
                 if ((minArgs !== undefined && args.length < minArgs) ||
                     (maxArgs !== undefined && maxArgs !== -1 && args.length > maxArgs)) {
-                    var syntaxError = command.syntaxError || {};
-                    var messageHandler = instance.messageHandler;
-                    var errorMsg = syntaxError[messageHandler.getLanguage(guild)] ||
+                    const syntaxError = command.syntaxError || {};
+                    const { messageHandler } = instance;
+                    let errorMsg = syntaxError[messageHandler.getLanguage(guild)] ||
                         instance.messageHandler.get(guild, 'SYNTAX_ERROR');
                     // Replace {PREFIX} with the actual prefix
                     if (errorMsg) {
@@ -222,17 +195,17 @@ var CommandHandler = /** @class */ (function () {
                     errorMsg = errorMsg.replace(/{COMMAND}/g, name);
                     // Replace {ARGUMENTS} with the expectedArgs property from the command
                     // If one was not provided then replace {ARGUMENTS} with an empty string
-                    errorMsg = errorMsg.replace(/ {ARGUMENTS}/g, expectedArgs ? " " + expectedArgs : '');
+                    errorMsg = errorMsg.replace(/ {ARGUMENTS}/g, expectedArgs ? ` ${expectedArgs}` : '');
                     if (error) {
                         error({
                             error: CommandErrors_1.default.INVALID_ARGUMENTS,
-                            command: command,
-                            message: message,
+                            command,
+                            message,
                             info: {
-                                minArgs: minArgs,
-                                maxArgs: maxArgs,
+                                minArgs,
+                                maxArgs,
                                 length: args.length,
-                                errorMsg: errorMsg,
+                                errorMsg,
                             },
                         });
                     }
@@ -244,16 +217,16 @@ var CommandHandler = /** @class */ (function () {
                 }
                 // Check for cooldowns
                 if ((cooldown || globalCooldown) && user) {
-                    var guildId = guild ? guild.id : 'dm';
-                    var timeLeft = command.getCooldownSeconds(guildId, user.id);
+                    const guildId = guild ? guild.id : 'dm';
+                    const timeLeft = command.getCooldownSeconds(guildId, user.id);
                     if (timeLeft) {
                         if (error) {
                             error({
                                 error: CommandErrors_1.default.COOLDOWN,
-                                command: command,
-                                message: message,
+                                command,
+                                message,
                                 info: {
-                                    timeLeft: timeLeft,
+                                    timeLeft,
                                 },
                             });
                         }
@@ -268,15 +241,14 @@ var CommandHandler = /** @class */ (function () {
                 }
                 // Check for channel specific commands
                 if (guild) {
-                    var key = guild.id + "-" + command.names[0];
-                    var channels = command.requiredChannels.get(key);
+                    const key = `${guild.id}-${command.names[0]}`;
+                    const channels = command.requiredChannels.get(key);
                     if (channels &&
                         channels.length &&
                         !channels.includes(message.channel.id)) {
-                        var channelList = '';
-                        for (var _d = 0, channels_1 = channels; _d < channels_1.length; _d++) {
-                            var channel = channels_1[_d];
-                            channelList += "<#" + channel + ">, ";
+                        let channelList = '';
+                        for (const channel of channels) {
+                            channelList += `<#${channel}>, `;
                         }
                         channelList = channelList.substring(0, channelList.length - 2);
                         message.reply(instance.messageHandler.get(guild, 'ALLOWED_CHANNELS', {
@@ -292,8 +264,8 @@ var CommandHandler = /** @class */ (function () {
                     if (error) {
                         error({
                             error: CommandErrors_1.default.EXCEPTION,
-                            command: command,
-                            message: message,
+                            command,
+                            message,
                             info: {
                                 error: e,
                             },
@@ -307,206 +279,154 @@ var CommandHandler = /** @class */ (function () {
                 }
             });
             // If we cannot connect to a database then ensure all cooldowns are less than 5m
-            instance.on(Events_1.default.DATABASE_CONNECTED, function (connection, state) { return __awaiter(_this, void 0, void 0, function () {
-                var connected;
-                var _this = this;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            connected = state === 'Connected';
-                            if (!connected) {
-                                return [2 /*return*/];
-                            }
-                            // Load previously used cooldowns
-                            return [4 /*yield*/, this.fetchDisabledCommands()];
-                        case 1:
-                            // Load previously used cooldowns
-                            _a.sent();
-                            return [4 /*yield*/, this.fetchRequiredRoles()];
-                        case 2:
-                            _a.sent();
-                            return [4 /*yield*/, this.fetchChannelOnly()];
-                        case 3:
-                            _a.sent();
-                            this._commands.forEach(function (command) { return __awaiter(_this, void 0, void 0, function () {
-                                var results, _i, results_1, _a, _id, cooldown_2, _b, name_1, guildId, userId;
-                                return __generator(this, function (_c) {
-                                    switch (_c.label) {
-                                        case 0:
-                                            command.verifyDatabaseCooldowns(connected);
-                                            return [4 /*yield*/, cooldown_1.default.find({
-                                                    name: command.names[0],
-                                                    type: command.globalCooldown ? 'global' : 'per-user',
-                                                })
-                                                // @ts-ignore
-                                            ];
-                                        case 1:
-                                            results = _c.sent();
-                                            // @ts-ignore
-                                            for (_i = 0, results_1 = results; _i < results_1.length; _i++) {
-                                                _a = results_1[_i], _id = _a._id, cooldown_2 = _a.cooldown;
-                                                _b = _id.split('-'), name_1 = _b[0], guildId = _b[1], userId = _b[2];
-                                                command.setCooldown(guildId, userId, cooldown_2);
-                                            }
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); });
-                            return [2 /*return*/];
+            instance.on(Events_1.default.DATABASE_CONNECTED, async (connection, state) => {
+                const connected = state === 'Connected';
+                if (!connected) {
+                    return;
+                }
+                // Load previously used cooldowns
+                await this.fetchDisabledCommands();
+                await this.fetchRequiredRoles();
+                await this.fetchChannelOnly();
+                this._commands.forEach(async (command) => {
+                    command.verifyDatabaseCooldowns(connected);
+                    const results = await cooldown_1.default.find({
+                        name: command.names[0],
+                        type: command.globalCooldown ? 'global' : 'per-user',
+                    });
+                    // @ts-ignore
+                    for (const { _id, cooldown } of results) {
+                        const [name, guildId, userId] = _id.split('-');
+                        command.setCooldown(guildId, userId, cooldown);
                     }
                 });
-            }); });
+            });
         }
-        var decrementCountdown = function () {
-            _this._commands.forEach(function (command) {
+        const decrementCountdown = () => {
+            this._commands.forEach((command) => {
                 command.decrementCooldowns();
             });
             setTimeout(decrementCountdown, 1000);
         };
         decrementCountdown();
     }
-    CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
-        return __awaiter(this, void 0, void 0, function () {
-            var configuration, _a, name, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, callbackCounter, names, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, hasCallback, command, _e, names_1, name_3;
-            return __generator(this, function (_f) {
-                switch (_f.label) {
-                    case 0:
-                        configuration = require(file);
-                        // person is using 'export default' so we import the default instead
-                        if (configuration.default && Object.keys(configuration).length === 1) {
-                            configuration = configuration.default;
-                        }
-                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, options = configuration.options;
-                        callbackCounter = 0;
-                        if (callback)
-                            ++callbackCounter;
-                        if (execute)
-                            ++callbackCounter;
-                        if (run)
-                            ++callbackCounter;
-                        if (callbackCounter > 1) {
-                            throw new Error('Commands can have "callback", "execute", or "run" functions, but not multiple.');
-                        }
-                        names = commands || aliases || [];
-                        if (!name && (!names || names.length === 0)) {
-                            throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
-                        }
-                        if (typeof names === 'string') {
-                            names = [names];
-                        }
-                        if (typeof name !== 'string') {
-                            throw new Error("Command located at \"" + file + "\" does not have a string as a name.");
-                        }
-                        if (name && !names.includes(name.toLowerCase())) {
-                            names.unshift(name.toLowerCase());
-                        }
-                        if (requiredPermissions || permissions) {
-                            for (_i = 0, _b = requiredPermissions || permissions; _i < _b.length; _i++) {
-                                perm = _b[_i];
-                                if (!permissions_1.permissionList.includes(perm)) {
-                                    throw new Error("Command located at \"" + file + "\" has an invalid permission node: \"" + perm + "\". Permissions must be all upper case and be one of the following: \"" + __spreadArray([], permissions_1.permissionList).join('", "') + "\"");
-                                }
-                            }
-                        }
-                        missing = [];
-                        if (!category) {
-                            missing.push('Category');
-                        }
-                        if (!description) {
-                            missing.push('Description');
-                        }
-                        if (missing.length && instance.showWarns) {
-                            console.warn("WOKCommands > Command \"" + names[0] + "\" does not have the following properties: " + missing + ".");
-                        }
-                        if (testOnly && !instance.testServers.length) {
-                            console.warn("WOKCommands > Command \"" + names[0] + "\" has \"testOnly\" set to true, but no test servers are defined.");
-                        }
-                        if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
-                            throw new Error("WOKCommands > Command \"" + names[0] + "\" has a \"slash\" property that is not boolean \"true\" or string \"both\".");
-                        }
-                        if (!slash) return [3 /*break*/, 7];
-                        if (!description) {
-                            throw new Error("WOKCommands > A description is required for command \"" + names[0] + "\" because it is a slash command.");
-                        }
-                        if (minArgs !== undefined && !expectedArgs) {
-                            throw new Error("WOKCommands > Command \"" + names[0] + "\" has \"minArgs\" property defined without \"expectedArgs\" property as a slash command.");
-                        }
-                        slashCommands = instance.slashCommands;
-                        for (key in options) {
-                            name_2 = options[key].name;
-                            lowerCase = name_2.toLowerCase();
-                            if (name_2 !== lowerCase && instance.showWarns) {
-                                console.log("WOKCommands > Command \"" + names[0] + "\" has an option of \"" + name_2 + "\". All option names must be lower case for slash commands. WOKCommands will modify this for you.");
-                            }
-                            if (lowerCase.match(/\s/g)) {
-                                lowerCase = lowerCase.replace(/\s/g, '_');
-                                console.log("WOKCommands > Command \"" + names[0] + "\" has an option of \"" + name_2 + "\" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.");
-                            }
-                            options[key].name = lowerCase;
-                        }
-                        if (!testOnly) return [3 /*break*/, 5];
-                        _c = 0, _d = instance.testServers;
-                        _f.label = 1;
-                    case 1:
-                        if (!(_c < _d.length)) return [3 /*break*/, 4];
-                        id = _d[_c];
-                        return [4 /*yield*/, slashCommands.create(names[0], description, options, id)];
-                    case 2:
-                        _f.sent();
-                        _f.label = 3;
-                    case 3:
-                        _c++;
-                        return [3 /*break*/, 1];
-                    case 4: return [3 /*break*/, 7];
-                    case 5: return [4 /*yield*/, slashCommands.create(names[0], description, options)];
-                    case 6:
-                        _f.sent();
-                        _f.label = 7;
-                    case 7:
-                        hasCallback = callback || execute || run;
-                        if (hasCallback) {
-                            if (init) {
-                                init(client, instance);
-                            }
-                            command = new Command_1.default(instance, client, names, hasCallback, error, configuration);
-                            for (_e = 0, names_1 = names; _e < names_1.length; _e++) {
-                                name_3 = names_1[_e];
-                                // Ensure the alias is lower case because we read as lower case later on
-                                this._commands.set(name_3.toLowerCase(), command);
-                            }
-                        }
-                        return [2 /*return*/];
+    async registerCommand(instance, client, file, fileName) {
+        let configuration = await Promise.resolve().then(() => __importStar(require(file)));
+        // person is using 'export default' so we import the default instead
+        if (configuration.default && Object.keys(configuration).length === 1) {
+            configuration = configuration.default;
+        }
+        const { name = fileName, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, } = configuration;
+        let callbackCounter = 0;
+        if (callback)
+            ++callbackCounter;
+        if (execute)
+            ++callbackCounter;
+        if (run)
+            ++callbackCounter;
+        if (callbackCounter > 1) {
+            throw new Error('Commands can have "callback", "execute", or "run" functions, but not multiple.');
+        }
+        let names = commands || aliases || [];
+        if (!name && (!names || names.length === 0)) {
+            throw new Error(`Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`);
+        }
+        if (typeof names === 'string') {
+            names = [names];
+        }
+        if (typeof name !== 'string') {
+            throw new Error(`Command located at "${file}" does not have a string as a name.`);
+        }
+        if (name && !names.includes(name.toLowerCase())) {
+            names.unshift(name.toLowerCase());
+        }
+        if (requiredPermissions || permissions) {
+            for (const perm of requiredPermissions || permissions) {
+                if (!permissions_1.permissionList.includes(perm)) {
+                    throw new Error(`Command located at "${file}" has an invalid permission node: "${perm}". Permissions must be all upper case and be one of the following: "${[
+                        ...permissions_1.permissionList,
+                    ].join('", "')}"`);
                 }
-            });
+            }
+        }
+        const missing = [];
+        if (!category) {
+            missing.push('Category');
+        }
+        if (!description) {
+            missing.push('Description');
+        }
+        if (missing.length && instance.showWarns) {
+            console.warn(`WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`);
+        }
+        if (testOnly && !instance.testServers.length) {
+            console.warn(`WOKCommands > Command "${names[0]}" has "testOnly" set to true, but no test servers are defined.`);
+        }
+        if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
+            throw new Error(`WOKCommands > Command "${names[0]}" has a "slash" property that is not boolean "true" or string "both".`);
+        }
+        if (slash) {
+            if (!description) {
+                throw new Error(`WOKCommands > A description is required for command "${names[0]}" because it is a slash command.`);
+            }
+            if (minArgs !== undefined && !expectedArgs) {
+                throw new Error(`WOKCommands > Command "${names[0]}" has "minArgs" property defined without "expectedArgs" property as a slash command.`);
+            }
+            const slashCommands = instance.slashCommands;
+            for (const key in options) {
+                const name = options[key].name;
+                let lowerCase = name.toLowerCase();
+                if (name !== lowerCase && instance.showWarns) {
+                    console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`);
+                }
+                if (lowerCase.match(/\s/g)) {
+                    lowerCase = lowerCase.replace(/\s/g, '_');
+                    console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`);
+                }
+                options[key].name = lowerCase;
+            }
+            if (testOnly) {
+                for (const id of instance.testServers) {
+                    await slashCommands.create(names[0], description, options, id);
+                }
+            }
+            else {
+                await slashCommands.create(names[0], description, options);
+            }
+        }
+        const hasCallback = callback || execute || run;
+        if (hasCallback) {
+            if (init) {
+                init(client, instance);
+            }
+            const command = new Command_1.default(instance, client, names, hasCallback, error, configuration);
+            for (const name of names) {
+                // Ensure the alias is lower case because we read as lower case later on
+                this._commands.set(name.toLowerCase(), command);
+            }
+        }
+    }
+    get commands() {
+        const results = [];
+        const added = [];
+        this._commands.forEach(({ names, category = '', description = '', expectedArgs = '', hidden = false, testOnly = false, }) => {
+            if (!added.includes(names[0])) {
+                results.push({
+                    names: [...names],
+                    category,
+                    description,
+                    syntax: expectedArgs,
+                    hidden,
+                    testOnly,
+                });
+                added.push(names[0]);
+            }
         });
-    };
-    Object.defineProperty(CommandHandler.prototype, "commands", {
-        get: function () {
-            var results = [];
-            var added = [];
-            this._commands.forEach(function (_a) {
-                var names = _a.names, _b = _a.category, category = _b === void 0 ? '' : _b, _c = _a.description, description = _c === void 0 ? '' : _c, _d = _a.expectedArgs, expectedArgs = _d === void 0 ? '' : _d, _e = _a.hidden, hidden = _e === void 0 ? false : _e, _f = _a.testOnly, testOnly = _f === void 0 ? false : _f;
-                if (!added.includes(names[0])) {
-                    results.push({
-                        names: __spreadArray([], names),
-                        category: category,
-                        description: description,
-                        syntax: expectedArgs,
-                        hidden: hidden,
-                        testOnly: testOnly,
-                    });
-                    added.push(names[0]);
-                }
-            });
-            return results;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    CommandHandler.prototype.getCommandsByCategory = function (category, visibleOnly) {
-        var results = [];
-        for (var _i = 0, _a = this.commands; _i < _a.length; _i++) {
-            var command = _a[_i];
+        return results;
+    }
+    getCommandsByCategory(category, visibleOnly) {
+        const results = [];
+        for (const command of this.commands) {
             if (visibleOnly && command.hidden) {
                 continue;
             }
@@ -515,86 +435,49 @@ var CommandHandler = /** @class */ (function () {
             }
         }
         return results;
-    };
-    CommandHandler.prototype.getCommand = function (name) {
+    }
+    getCommand(name) {
         return this._commands.get(name);
-    };
-    CommandHandler.prototype.getICommand = function (name) {
-        return this.commands.find(function (command) { var _a; return (_a = command.names) === null || _a === void 0 ? void 0 : _a.includes(name); });
-    };
-    CommandHandler.prototype.fetchDisabledCommands = function () {
-        var _a;
-        return __awaiter(this, void 0, void 0, function () {
-            var results, _i, results_2, result, guildId, command;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, disabled_commands_1.default.find({})];
-                    case 1:
-                        results = _b.sent();
-                        for (_i = 0, results_2 = results; _i < results_2.length; _i++) {
-                            result = results_2[_i];
-                            guildId = result.guildId, command = result.command;
-                            (_a = this._commands.get(command)) === null || _a === void 0 ? void 0 : _a.disable(guildId);
-                        }
-                        return [2 /*return*/];
+    }
+    getICommand(name) {
+        return this.commands.find((command) => command.names?.includes(name));
+    }
+    async fetchDisabledCommands() {
+        const results = await disabled_commands_1.default.find({});
+        for (const result of results) {
+            const { guildId, command } = result;
+            this._commands.get(command)?.disable(guildId);
+        }
+    }
+    async fetchRequiredRoles() {
+        const results = await required_roles_1.default.find({});
+        for (const result of results) {
+            const { guildId, command, requiredRoles } = result;
+            const cmd = this._commands.get(command);
+            if (cmd) {
+                for (const roleId of requiredRoles) {
+                    cmd.addRequiredRole(guildId, roleId);
                 }
-            });
-        });
-    };
-    CommandHandler.prototype.fetchRequiredRoles = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var results, _i, results_3, result, guildId, command, requiredRoles_2, cmd, _a, requiredRoles_1, roleId;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, required_roles_1.default.find({})];
-                    case 1:
-                        results = _b.sent();
-                        for (_i = 0, results_3 = results; _i < results_3.length; _i++) {
-                            result = results_3[_i];
-                            guildId = result.guildId, command = result.command, requiredRoles_2 = result.requiredRoles;
-                            cmd = this._commands.get(command);
-                            if (cmd) {
-                                for (_a = 0, requiredRoles_1 = requiredRoles_2; _a < requiredRoles_1.length; _a++) {
-                                    roleId = requiredRoles_1[_a];
-                                    cmd.addRequiredRole(guildId, roleId);
-                                }
-                            }
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    CommandHandler.prototype.fetchChannelOnly = function () {
-        var _a;
-        return __awaiter(this, void 0, void 0, function () {
-            var results, _i, results_4, result, command, guildId, channels, cmd, guild;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4 /*yield*/, channel_commands_1.default.find({})];
-                    case 1:
-                        results = _b.sent();
-                        for (_i = 0, results_4 = results; _i < results_4.length; _i++) {
-                            result = results_4[_i];
-                            command = result.command, guildId = result.guildId, channels = result.channels;
-                            cmd = this._commands.get(command);
-                            if (!cmd) {
-                                continue;
-                            }
-                            guild = (_a = this._client) === null || _a === void 0 ? void 0 : _a.guilds.cache.get(guildId);
-                            if (!guild) {
-                                continue;
-                            }
-                            cmd.setRequiredChannels(guild, command, channels
-                                .toString()
-                                .replace(/\"\[\]/g, '')
-                                .split(','));
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return CommandHandler;
-}());
-module.exports = CommandHandler;
+            }
+        }
+    }
+    async fetchChannelOnly() {
+        const results = await channel_commands_1.default.find({});
+        for (const result of results) {
+            const { command, guildId, channels } = result;
+            const cmd = this._commands.get(command);
+            if (!cmd) {
+                continue;
+            }
+            const guild = this._client?.guilds.cache.get(guildId);
+            if (!guild) {
+                continue;
+            }
+            cmd.setRequiredChannels(guild, command, channels
+                .toString()
+                .replace(/\"\[\]/g, '')
+                .split(','));
+        }
+    }
+}
+exports.default = CommandHandler;
