@@ -283,7 +283,9 @@
     "spanish": "Este comando no se puede desactivar.",
     "portuguese": "Este comando não pode ser desabilitado.",
     "russian": "Эту команду нельзя отключить.",
-    "german": "Dieser Befehl kann nicht deaktiviert werden."
+    "german": "Dieser Befehl kann nicht deaktiviert werden.",
+    "dutch": "Deze opdracht kan niet worden uitgeschakeld.",
+    "french": "Cette commande ne peut pas être désactivée."
   },
   "HELP_MENU": {
     "TITLE": {
