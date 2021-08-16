@@ -1,5 +1,5 @@
 import disabledCommands from '../models/disabled-commands'
-import ICommandArguments from '../interfaces/ICommandArguments'
+import { ICallbackObject, ICommand } from '../..'
 
 export = {
   minArgs: 2,
@@ -9,7 +9,7 @@ export = {
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Enables or disables a command for this guild',
   category: 'Configuration',
-  callback: async (options: ICommandArguments) => {
+  callback: async (options: ICallbackObject) => {
     const { message, args, instance } = options
 
     const { guild } = message
@@ -37,6 +37,13 @@ export = {
 
     if (command) {
       const mainCommand = command.names[0]
+      if (mainCommand === 'command') {
+        message.reply(
+          instance.messageHandler.get(guild, 'CANNOT_DISABLE_THIS_COMMAND')
+        )
+        return
+      }
+
       const isDisabled = command.isDisabled(guild.id)
 
       if (newState === 'enable') {
@@ -88,4 +95,4 @@ export = {
       )
     }
   },
-}
+} as ICommand

@@ -1,22 +1,22 @@
-import { Client, Guild } from "discord.js";
-import fs from "fs";
-import WOKCommands from ".";
-import path from "path";
+import { Client, Guild } from 'discord.js'
+import fs from 'fs'
+import WOKCommands from '.'
+import path from 'path'
 
-import Command from "./Command";
-import getAllFiles from "./get-all-files";
-import ICommand from "./interfaces/ICommand";
-import disabledCommands from "./models/disabled-commands";
-import requiredRoles from "./models/required-roles";
-import cooldown from "./models/cooldown";
-import channelCommands from "./models/channel-commands";
-import { permissionList } from "./permissions";
-import CommandErrors from "./enums/CommandErrors";
-import Events from "./enums/Events";
+import Command from './Command'
+import getAllFiles from './get-all-files'
+import disabledCommands from './models/disabled-commands'
+import requiredRoles from './models/required-roles'
+import cooldown from './models/cooldown'
+import channelCommands from './models/channel-commands'
+import { permissionList } from './permissions'
+import { ICommand } from '../typings'
+import CommandErrors from './enums/CommandErrors'
+import Events from './enums/Events'
 
 class CommandHandler {
-  private _commands: Map<String, Command> = new Map();
-  private _client: Client | null = null;
+  private _commands: Map<String, Command> = new Map()
+  private _client: Client | null = null
 
   constructor(
     instance: WOKCommands,
@@ -24,79 +24,79 @@ class CommandHandler {
     dir: string,
     disabledDefaultCommands: string[]
   ) {
-    this._client = client;
+    this._client = client
 
     // Register built in commands
     for (const [file, fileName] of getAllFiles(
-      path.join(__dirname, "commands")
+      path.join(__dirname, 'commands')
     )) {
       if (disabledDefaultCommands.includes(fileName)) {
-        continue;
+        continue
       }
 
-      this.registerCommand(instance, client, file, fileName);
+      this.registerCommand(instance, client, file, fileName)
     }
 
     if (dir) {
       if (!fs.existsSync(dir)) {
-        throw new Error(`Commands directory "${dir}" doesn't exist!`);
+        throw new Error(`Commands directory "${dir}" doesn't exist!`)
       }
 
-      const files = getAllFiles(dir);
+      const files = getAllFiles(dir)
 
-      const amount = files.length;
+      const amount = files.length
       if (amount <= 0) {
-        return;
+        return
       }
 
       console.log(
-        `WOKCommands > Loaded ${amount} command${amount === 1 ? "" : "s"}.`
-      );
+        `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
+      )
 
       for (const [file, fileName] of files) {
-        this.registerCommand(instance, client, file, fileName);
+        this.registerCommand(instance, client, file, fileName)
       }
 
-      client.on("message", (message) => {
-        const guild: Guild | null = message.guild;
-        let content: string = message.content;
-        const prefix = instance.getPrefix(guild);
+      client.on('messageCreate', (message) => {
+        const guild: Guild | null = message.guild
+        let content: string = message.content
+        const prefix = instance.getPrefix(guild).toLowerCase()
 
-        if (!content.startsWith(prefix)) {
-          return;
+        if (!content.toLowerCase().startsWith(prefix)) {
+          return
         }
 
         if (instance.ignoreBots && message.author.bot) {
-          return;
+          return
         }
 
         // Remove the prefix
-        content = content.substring(prefix.length);
+        content = content.substring(prefix.length)
 
-        const args = content.split(/ /g);
+        const args = content.split(/ /g)
 
         // Remove the "command", leaving just the arguments
-        const firstElement = args.shift();
+        const firstElement = args.shift()
         if (!firstElement) {
-          return;
+          return
         }
 
         // Ensure the user input is lower case because it is stored as lower case in the map
-        const name = firstElement.toLowerCase();
+        const name = firstElement.toLowerCase()
 
-        const command = this._commands.get(name);
+        const command = this._commands.get(name)
         if (!command) {
-          return;
+          return
         }
 
-        const { error, slash } = command;
+        const { error, slash } = command
 
         if (slash === true) {
-          return;
+          return
         }
 
         if (guild) {
-          const isDisabled = command.isDisabled(guild.id);
+          const isDisabled = command.isDisabled(guild.id)
 
           if (isDisabled) {
             if (error) {
@@ -104,26 +104,25 @@ class CommandHandler {
                 error: CommandErrors.COMMAND_DISABLED,
                 command,
                 message,
-              });
+              })
             } else {
               message
-                .reply(instance.messageHandler.get(guild, "DISABLED_COMMAND"))
+                .reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND'))
                 .then((message) => {
-                  console.log(instance.del);
-                  if (instance.del === -1) {
-                    return;
+                  if (instance.delErrMsgCooldown === -1) {
+                    return
                   }
 
                   setTimeout(() => {
-                    message.delete();
-                  }, 1000 * instance.del);
-                });
+                    message.delete()
+                  }, 1000 * instance.delErrMsgCooldown)
+                })
             }
-            return;
+            return
           }
         }
 
-        const { member, author: user } = message;
+        const { member, author: user } = message
 
         const {
           minArgs,
@@ -133,53 +132,53 @@ class CommandHandler {
           cooldown,
           globalCooldown,
           testOnly,
-        } = command;
+        } = command
 
         if (testOnly && (!guild || !instance.testServers.includes(guild.id))) {
-          return;
+          return
         }
 
         if (guild && member) {
           for (const perm of requiredPermissions || []) {
             // @ts-ignore
-            if (!member.hasPermission(perm)) {
+            if (!member.permissions.has(perm)) {
               if (error) {
                 error({
                   error: CommandErrors.MISSING_PERMISSIONS,
                   command,
                   message,
-                });
+                })
               } else {
                 message
                   .reply(
-                    instance.messageHandler.get(guild, "MISSING_PERMISSION", {
+                    instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
                       PERM: perm,
                     })
                   )
                   .then((message) => {
-                    if (instance.del === -1) {
-                      return;
+                    if (instance.delErrMsgCooldown === -1) {
+                      return
                     }
 
                     setTimeout(() => {
-                      message.delete();
-                    }, 1000 * instance.del);
-                  });
+                      message.delete()
+                    }, 1000 * instance.delErrMsgCooldown)
+                  })
               }
-              return;
+              return
             }
           }
 
-          const roles = command.getRequiredRoles(guild.id);
+          const roles = command.getRequiredRoles(guild.id)
 
           if (roles && roles.length) {
-            const missingRoles = [];
-            const missingRolesNames = [];
+            const missingRoles = []
+            const missingRolesNames = []
 
             for (const role of roles) {
               if (!member.roles.cache.has(role)) {
-                missingRoles.push(role);
-                missingRolesNames.push(guild.roles.cache.get(role)?.name);
+                missingRoles.push(role)
+                missingRolesNames.push(guild.roles.cache.get(role)?.name)
               }
             }
 
@@ -192,25 +191,25 @@ class CommandHandler {
                   info: {
                     missingRoles,
                   },
-                });
+                })
               } else {
                 message
                   .reply(
-                    instance.messageHandler.get(guild, "MISSING_ROLES", {
-                      ROLES: missingRolesNames.join(", "),
+                    instance.messageHandler.get(guild, 'MISSING_ROLES', {
+                      ROLES: missingRolesNames.join(', '),
                     })
                   )
                   .then((message) => {
-                    if (instance.del === -1) {
-                      return;
+                    if (instance.delErrMsgCooldown === -1) {
+                      return
                     }
 
                     setTimeout(() => {
-                      message.delete();
-                    }, 1000 * instance.del);
-                  });
+                      message.delete()
+                    }, 1000 * instance.delErrMsgCooldown)
+                  })
               }
-              return;
+              return
             }
           }
         }
@@ -220,27 +219,27 @@ class CommandHandler {
           (minArgs !== undefined && args.length < minArgs) ||
           (maxArgs !== undefined && maxArgs !== -1 && args.length > maxArgs)
         ) {
-          const syntaxError = command.syntaxError || {};
-          const { messageHandler } = instance;
+          const syntaxError = command.syntaxError || {}
+          const { messageHandler } = instance
 
           let errorMsg =
             syntaxError[messageHandler.getLanguage(guild)] ||
-            instance.messageHandler.get(guild, "SYNTAX_ERROR");
+            instance.messageHandler.get(guild, 'SYNTAX_ERROR')
 
           // Replace {PREFIX} with the actual prefix
           if (errorMsg) {
-            errorMsg = errorMsg.replace(/{PREFIX}/g, prefix);
+            errorMsg = errorMsg.replace(/{PREFIX}/g, prefix)
           }
 
           // Replace {COMMAND} with the name of the command that was ran
-          errorMsg = errorMsg.replace(/{COMMAND}/g, name);
+          errorMsg = errorMsg.replace(/{COMMAND}/g, name)
 
           // Replace {ARGUMENTS} with the expectedArgs property from the command
           // If one was not provided then replace {ARGUMENTS} with an empty string
           errorMsg = errorMsg.replace(
             / {ARGUMENTS}/g,
-            expectedArgs ? ` ${expectedArgs}` : ""
-          );
+            expectedArgs ? ` ${expectedArgs}` : ''
+          )
 
           if (error) {
             error({
@@ -253,19 +252,19 @@ class CommandHandler {
                 length: args.length,
                 errorMsg,
               },
-            });
+            })
           } else {
             // Reply with the local or global syntax error
-            message.reply(errorMsg);
+            message.reply(errorMsg)
           }
-          return;
+          return
         }
 
         // Check for cooldowns
         if ((cooldown || globalCooldown) && user) {
-          const guildId = guild ? guild.id : "dm";
+          const guildId = guild ? guild.id : 'dm'
 
-          const timeLeft = command.getCooldownSeconds(guildId, user.id);
+          const timeLeft = command.getCooldownSeconds(guildId, user.id)
           if (timeLeft) {
             if (error) {
               error({
@@ -275,46 +274,46 @@ class CommandHandler {
                 info: {
                   timeLeft,
                 },
-              });
+              })
             } else {
               message.reply(
-                instance.messageHandler.get(guild, "COOLDOWN", {
+                instance.messageHandler.get(guild, 'COOLDOWN', {
                   COOLDOWN: timeLeft,
                 })
-              );
+              )
             }
-            return;
+            return
           }
 
-          command.setCooldown(guildId, user.id);
+          command.setCooldown(guildId, user.id)
         }
 
         // Check for channel specific commands
         if (guild) {
-          const key = `${guild.id}-${command.names[0]}`;
+          const key = `${guild.id}-${command.names[0]}`
 
-          const channels = command.requiredChannels.get(key);
+          const channels = command.requiredChannels.get(key)
           if (
             channels &&
             channels.length &&
             !channels.includes(message.channel.id)
           ) {
-            let channelList = "";
+            let channelList = ''
             for (const channel of channels) {
-              channelList += `<#${channel}>, `;
+              channelList += `<#${channel}>, `
             }
-            channelList = channelList.substring(0, channelList.length - 2);
+            channelList = channelList.substring(0, channelList.length - 2)
             message.reply(
-              instance.messageHandler.get(guild, "ALLOWED_CHANNELS", {
+              instance.messageHandler.get(guild, 'ALLOWED_CHANNELS', {
                 CHANNELS: channelList,
               })
-            );
-            return;
+            )
+            return
           }
         }
 
         try {
-          command.execute(message, args);
+          command.execute(message, args)
         } catch (e) {
           if (error) {
             error({
@@ -324,55 +323,58 @@ class CommandHandler {
               info: {
                 error: e,
               },
-            });
+            })
           } else {
-            message.reply(instance.messageHandler.get(guild, "EXCEPTION"));
-            console.error(e);
+            message.reply(instance.messageHandler.get(guild, 'EXCEPTION'))
+            console.error(e)
           }
 
-          instance.emit(Events.COMMAND_EXCEPTION, command, message, e);
+          instance.emit(Events.COMMAND_EXCEPTION, command, message, e)
         }
-      });
+      })
 
       // If we cannot connect to a database then ensure all cooldowns are less than 5m
-      instance.on(Events.DATABASE_CONNECTED, async (connection, state) => {
-        const connected = state === "Connected";
+      instance.on(
+        Events.DATABASE_CONNECTED,
+        async (connection: any, state: string) => {
+          const connected = state === 'Connected'
 
-        if (!connected) {
-          return;
-        }
-
-        // Load previously used cooldowns
-
-        await this.fetchDisabledCommands();
-        await this.fetchRequiredRoles();
-        await this.fetchChannelOnly();
-
-        this._commands.forEach(async (command) => {
-          command.verifyDatabaseCooldowns(connected);
-
-          const results = await cooldown.find({
-            name: command.names[0],
-            type: command.globalCooldown ? "global" : "per-user",
-          });
-
-          // @ts-ignore
-          for (const { _id, cooldown } of results) {
-            const [name, guildId, userId] = _id.split("-");
-            command.setCooldown(guildId, userId, cooldown);
+          if (!connected) {
+            return
           }
-        });
-      });
+
+          // Load previously used cooldowns
+
+          await this.fetchDisabledCommands()
+          await this.fetchRequiredRoles()
+          await this.fetchChannelOnly()
+
+          this._commands.forEach(async (command) => {
+            command.verifyDatabaseCooldowns(connected)
+
+            const results = await cooldown.find({
+              name: command.names[0],
+              type: command.globalCooldown ? 'global' : 'per-user',
+            })
+
+            // @ts-ignore
+            for (const { _id, cooldown } of results) {
+              const [name, guildId, userId] = _id.split('-')
+              command.setCooldown(guildId, userId, cooldown)
+            }
+          })
+        }
+      )
     }
 
     const decrementCountdown = () => {
       this._commands.forEach((command) => {
-        command.decrementCooldowns();
-      });
+        command.decrementCooldowns()
+      })
 
-      setTimeout(decrementCountdown, 1000);
-    };
-    decrementCountdown();
+      setTimeout(decrementCountdown, 1000)
+    }
+    decrementCountdown()
   }
 
   public async registerCommand(
@@ -381,11 +383,11 @@ class CommandHandler {
     file: string,
     fileName: string
   ) {
-    let configuration = require(file);
+    let configuration = require(file)
 
     // person is using 'export default' so we import the default instead
     if (configuration.default && Object.keys(configuration).length === 1) {
-      configuration = configuration.default;
+      configuration = configuration.default
     }
 
     const {
@@ -405,39 +407,40 @@ class CommandHandler {
       slash,
       expectedArgs,
       minArgs,
-    } = configuration;
+      options,
+    } = configuration
 
-    let callbackCounter = 0;
-    if (callback) ++callbackCounter;
-    if (execute) ++callbackCounter;
-    if (run) ++callbackCounter;
+    let callbackCounter = 0
+    if (callback) ++callbackCounter
+    if (execute) ++callbackCounter
+    if (run) ++callbackCounter
 
     if (callbackCounter > 1) {
       throw new Error(
         'Commands can have "callback", "execute", or "run" functions, but not multiple.'
-      );
+      )
     }
 
-    let names = commands || aliases || [];
+    let names = commands || aliases || []
 
     if (!name && (!names || names.length === 0)) {
       throw new Error(
         `Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`
-      );
+      )
     }
 
-    if (typeof names === "string") {
-      names = [names];
+    if (typeof names === 'string') {
+      names = [names]
     }
 
-    if (typeof name !== "string") {
+    if (typeof name !== 'string') {
       throw new Error(
         `Command located at "${file}" does not have a string as a name.`
-      );
+      )
     }
 
     if (name && !names.includes(name.toLowerCase())) {
-      names.unshift(name.toLowerCase());
+      names.unshift(name.toLowerCase())
     }
 
     if (requiredPermissions || permissions) {
@@ -447,86 +450,88 @@ class CommandHandler {
             `Command located at "${file}" has an invalid permission node: "${perm}". Permissions must be all upper case and be one of the following: "${[
               ...permissionList,
             ].join('", "')}"`
-          );
+          )
         }
       }
     }
 
-    const missing = [];
+    const missing = []
 
     if (!category) {
-      missing.push("Category");
+      missing.push('Category')
     }
 
     if (!description) {
-      missing.push("Description");
+      missing.push('Description')
     }
 
     if (missing.length && instance.showWarns) {
       console.warn(
         `WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`
-      );
+      )
     }
 
     if (testOnly && !instance.testServers.length) {
       console.warn(
         `WOKCommands > Command "${names[0]}" has "testOnly" set to true, but no test servers are defined.`
-      );
+      )
     }
 
-    if (slash !== undefined && typeof slash !== "boolean" && slash !== "both") {
+    if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
       throw new Error(
         `WOKCommands > Command "${names[0]}" has a "slash" property that is not boolean "true" or string "both".`
-      );
+      )
     }
 
     if (slash) {
       if (!description) {
         throw new Error(
           `WOKCommands > A description is required for command "${names[0]}" because it is a slash command.`
-        );
+        )
       }
 
       if (minArgs !== undefined && !expectedArgs) {
         throw new Error(
           `WOKCommands > Command "${names[0]}" has "minArgs" property defined without "expectedArgs" property as a slash command.`
-        );
+        )
       }
 
-      const slashCommands = instance.slashCommands;
-      const options: object[] = [];
+      const slashCommands = instance.slashCommands
 
-      if (expectedArgs) {
-        const split = expectedArgs
-          .substring(1, expectedArgs.length - 1)
-          .split(/[>\]] [<\[]/);
+      for (const key in options) {
+        const name = options[key].name
+        let lowerCase = name.toLowerCase()
 
-        for (let a = 0; a < split.length; ++a) {
-          const item = split[a];
-
-          options.push({
-            name: item.replace(/ /g, "-"),
-            description: item,
-            type: 3,
-            required: a < minArgs,
-          });
+        if (name !== lowerCase && instance.showWarns) {
+          console.log(
+            `WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`
+          )
         }
+
+        if (lowerCase.match(/\s/g)) {
+          lowerCase = lowerCase.replace(/\s/g, '_')
+          console.log(
+            `WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`
+          )
+        }
+
+        options[key].name = lowerCase
       }
 
       if (testOnly) {
         for (const id of instance.testServers) {
-          await slashCommands.create(names[0], description, options, id);
+          await slashCommands.create(names[0], description, options, id)
         }
       } else {
-        await slashCommands.create(names[0], description, options);
+        await slashCommands.create(names[0], description, options)
       }
     }
 
-    const hasCallback = callback || execute || run;
+    const hasCallback = callback || execute || run
 
     if (hasCallback) {
       if (init) {
-        init(client, instance);
+        init(client, instance)
       }
 
       const command = new Command(
@@ -536,25 +541,25 @@ class CommandHandler {
         hasCallback,
         error,
         configuration
-      );
+      )
 
       for (const name of names) {
         // Ensure the alias is lower case because we read as lower case later on
-        this._commands.set(name.toLowerCase(), command);
+        this._commands.set(name.toLowerCase(), command)
       }
     }
   }
 
   public get commands(): ICommand[] {
-    const results: ICommand[] = [];
-    const added: string[] = [];
+    const results: ICommand[] = []
+    const added: string[] = []
 
     this._commands.forEach(
       ({
         names,
-        category = "",
-        description = "",
-        expectedArgs = "",
+        category = '',
+        description = '',
+        expectedArgs = '',
         hidden = false,
         testOnly = false,
       }) => {
@@ -566,82 +571,82 @@ class CommandHandler {
             syntax: expectedArgs,
             hidden,
             testOnly,
-          });
+          })
 
-          added.push(names[0]);
+          added.push(names[0])
         }
       }
-    );
+    )
 
-    return results;
+    return results
   }
 
   public getCommandsByCategory(
     category: string,
     visibleOnly?: boolean
   ): ICommand[] {
-    const results: ICommand[] = [];
+    const results: ICommand[] = []
 
     for (const command of this.commands) {
       if (visibleOnly && command.hidden) {
-        continue;
+        continue
       }
 
       if (command.category === category) {
-        results.push(command);
+        results.push(command)
       }
     }
 
-    return results;
+    return results
   }
 
   public getCommand(name: string): Command | undefined {
-    return this._commands.get(name);
+    return this._commands.get(name)
   }
 
   public getICommand(name: string): ICommand | undefined {
-    return this.commands.find((command) => command.names.includes(name));
+    return this.commands.find((command) => command.names?.includes(name))
   }
 
   public async fetchDisabledCommands() {
-    const results: any[] = await disabledCommands.find({});
+    const results: any[] = await disabledCommands.find({})
 
     for (const result of results) {
-      const { guildId, command } = result;
+      const { guildId, command } = result
 
-      this._commands.get(command)?.disable(guildId);
+      this._commands.get(command)?.disable(guildId)
     }
   }
 
   public async fetchRequiredRoles() {
-    const results: any[] = await requiredRoles.find({});
+    const results: any[] = await requiredRoles.find({})
 
     for (const result of results) {
-      const { guildId, command, requiredRoles } = result;
+      const { guildId, command, requiredRoles } = result
 
-      const cmd = this._commands.get(command);
+      const cmd = this._commands.get(command)
       if (cmd) {
         for (const roleId of requiredRoles) {
-          cmd.addRequiredRole(guildId, roleId);
+          cmd.addRequiredRole(guildId, roleId)
         }
       }
     }
   }
 
   public async fetchChannelOnly() {
-    const results: any[] = await channelCommands.find({});
+    const results: any[] = await channelCommands.find({})
 
     for (const result of results) {
-      const { command, guildId, channels } = result;
+      const { command, guildId, channels } = result
 
-      const cmd = this._commands.get(command);
+      const cmd = this._commands.get(command)
       if (!cmd) {
-        continue;
+        continue
       }
 
-      const guild = this._client?.guilds.cache.get(guildId);
+      const guild = this._client?.guilds.cache.get(guildId)
       if (!guild) {
-        continue;
+        continue
       }
 
       cmd.setRequiredChannels(
@@ -649,11 +654,11 @@ class CommandHandler {
         command,
         channels
           .toString()
-          .replace(/\"\[\]/g, "")
-          .split(",")
-      );
+          .replace(/\"\[\]/g, '')
+          .split(',')
+      )
     }
   }
 }
 
-export = CommandHandler;
+export = CommandHandler

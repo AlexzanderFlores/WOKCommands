@@ -1,7 +1,10 @@
-import { Message, MessageEmbed } from 'discord.js'
+import { Message, MessageEmbed, PartialMessage } from 'discord.js'
 import WOKCommands from '../../'
 
-const getFirstEmbed = (message: Message, instance: WOKCommands) => {
+const getFirstEmbed = (
+  message: Message | PartialMessage,
+  instance: WOKCommands
+) => {
   const { guild, member } = message
 
   const {
@@ -20,7 +23,7 @@ const getFirstEmbed = (message: Message, instance: WOKCommands) => {
     .setDescription(
       messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY')
     )
-    .setFooter(`ID #${message.author.id}`)
+    .setFooter(`ID #${message.author?.id}`)
 
   if (instance.color) {
     embed.setColor(instance.color)
@@ -33,7 +36,7 @@ const getFirstEmbed = (message: Message, instance: WOKCommands) => {
     }
   } = {}
 
-  const isAdmin = member && member.hasPermission('ADMINISTRATOR')
+  const isAdmin = member && member.permissions.has('ADMINISTRATOR')
 
   for (const { category, testOnly } of commands) {
     if (

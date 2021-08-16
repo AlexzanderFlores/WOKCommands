@@ -1,6 +1,6 @@
 import { Client, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '../..'
-import ICommandArguments from '../../interfaces/ICommandArguments'
+import { ICallbackObject, ICommand } from '../../../typings'
 import getFirstEmbed from './!get-first-embed'
 import ReactionListener, { addReactions } from './!ReactionListener'
 
@@ -8,8 +8,8 @@ const sendHelpMenu = (message: Message, instance: WOKCommands) => {
   const { embed, reactions } = getFirstEmbed(message, instance)
 
   message.channel
-    .send('', {
-      embed,
+    .send({
+      embeds: [embed],
     })
     .then((message) => {
       addReactions(message, reactions)
@@ -27,19 +27,19 @@ module.exports = {
       new ReactionListener(instance, reaction, user)
     })
   },
-  callback: (options: ICommandArguments) => {
+  callback: (options: ICallbackObject) => {
     const { message, instance, args } = options
 
     const guild = message.guild
 
-    if (guild && !guild.me?.hasPermission('SEND_MESSAGES')) {
+    if (guild && !guild.me?.permissions.has('SEND_MESSAGES')) {
       console.warn(
         `WOKCommands > Could not send message due to no permissions in channel for ${guild.name}`
       )
       return
     }
 
-    if (guild && !guild.me?.hasPermission('ADD_REACTIONS')) {
+    if (guild && !guild.me?.permissions.has('ADD_REACTIONS')) {
       message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'))
       return
     }
@@ -79,6 +79,6 @@ module.exports = {
       embed.setColor(instance.color)
     }
 
-    message.channel.send('', { embed })
+    message.channel.send({ embeds: [embed] })
   },
-}
+} as ICommand

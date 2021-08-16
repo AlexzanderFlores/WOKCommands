@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -64,8 +64,8 @@ var _ReactionListener_1 = __importStar(require("./!ReactionListener"));
 var sendHelpMenu = function (message, instance) {
     var _a = _get_first_embed_1.default(message, instance), embed = _a.embed, reactions = _a.reactions;
     message.channel
-        .send('', {
-        embed: embed,
+        .send({
+        embeds: [embed],
     })
         .then(function (message) {
         _ReactionListener_1.addReactions(message, reactions);
@@ -89,11 +89,11 @@ module.exports = {
         var _a, _b, _c;
         var message = options.message, instance = options.instance, args = options.args;
         var guild = message.guild;
-        if (guild && !((_a = guild.me) === null || _a === void 0 ? void 0 : _a.hasPermission('SEND_MESSAGES'))) {
+        if (guild && !((_a = guild.me) === null || _a === void 0 ? void 0 : _a.permissions.has('SEND_MESSAGES'))) {
             console.warn("WOKCommands > Could not send message due to no permissions in channel for " + guild.name);
             return;
         }
-        if (guild && !((_b = guild.me) === null || _b === void 0 ? void 0 : _b.hasPermission('ADD_REACTIONS'))) {
+        if (guild && !((_b = guild.me) === null || _b === void 0 ? void 0 : _b.permissions.has('ADD_REACTIONS'))) {
             message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'));
             return;
         }
@@ -119,6 +119,6 @@ module.exports = {
         if (instance.color) {
             embed.setColor(instance.color);
         }
-        message.channel.send('', { embed: embed });
+        message.channel.send({ embeds: [embed] });
     },
 };

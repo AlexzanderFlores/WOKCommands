@@ -1,4 +1,4 @@
-import ICommandArguments from '../interfaces/ICommandArguments'
+import { ICallbackObject, ICommand } from '../..'
 import requiredRoleSchema from '../models/required-roles'
 
 export = {
@@ -10,7 +10,7 @@ export = {
   requiredPermissions: ['ADMINISTRATOR'],
   description: 'Specifies what role each command requires.',
   category: 'Configuration',
-  callback: async (options: ICommandArguments) => {
+  callback: async (options: ICallbackObject) => {
     const { message, args, instance } = options
 
     const name = (args.shift() || '').toLowerCase()
@@ -88,4 +88,4 @@ export = {
       )
     }
   },
-}
+} as ICommand

@@ -72,6 +72,10 @@ module.exports = {
                     command = instance.commandHandler.getCommand(name);
                     if (!command) return [3 /*break*/, 5];
                     mainCommand = command.names[0];
+                    if (mainCommand === 'command') {
+                        message.reply(instance.messageHandler.get(guild, 'CANNOT_DISABLE_THIS_COMMAND'));
+                        return [2 /*return*/];
+                    }
                     isDisabled = command.isDisabled(guild.id);
                     if (!(newState === 'enable')) return [3 /*break*/, 2];
                     if (!isDisabled) {

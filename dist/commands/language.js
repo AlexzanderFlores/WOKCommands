@@ -41,13 +41,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var languages_1 = __importDefault(require("../models/languages"));
 var Events_1 = __importDefault(require("../enums/Events"));
 module.exports = {
-    aliases: ["lang"],
+    aliases: ['lang'],
     maxArgs: 1,
-    cooldown: "2s",
-    expectedArgs: "[Language]",
-    requiredPermissions: ["ADMINISTRATOR"],
-    description: "Displays or sets the language for this Discord server",
-    category: "Configuration",
+    cooldown: '2s',
+    expectedArgs: '[Language]',
+    requiredPermissions: ['ADMINISTRATOR'],
+    description: 'Displays or sets the language for this Discord server',
+    category: 'Configuration',
     callback: function (options) { return __awaiter(void 0, void 0, void 0, function () {
         var message, text, instance, guild, messageHandler, lang;
         return __generator(this, function (_a) {
@@ -60,25 +60,25 @@ module.exports = {
                     }
                     messageHandler = instance.messageHandler;
                     if (!instance.isDBConnected()) {
-                        message.reply(instance.messageHandler.get(guild, "NO_DATABASE_FOUND"));
+                        message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'));
                         return [2 /*return*/];
                     }
                     lang = text.toLowerCase();
                     if (!lang) {
-                        message.reply(instance.messageHandler.get(guild, "CURRENT_LANGUAGE", {
+                        message.reply(instance.messageHandler.get(guild, 'CURRENT_LANGUAGE', {
                             LANGUAGE: instance.messageHandler.getLanguage(guild),
                         }));
                         return [2 /*return*/];
                     }
                     if (!messageHandler.languages().includes(lang)) {
-                        message.reply(messageHandler.get(guild, "LANGUAGE_NOT_SUPPORTED", {
+                        message.reply(messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
                             LANGUAGE: lang,
                         }));
                         instance.emit(Events_1.default.LANGUAGE_NOT_SUPPORTED, message, lang);
                         return [2 /*return*/];
                     }
                     instance.messageHandler.setLanguage(guild, lang);
-                    message.reply(instance.messageHandler.get(guild, "NEW_LANGUAGE", {
+                    message.reply(instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
                         LANGUAGE: lang,
                     }));
                     return [4 /*yield*/, languages_1.default.findOneAndUpdate({

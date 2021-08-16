@@ -3,8 +3,8 @@ import fs from 'fs'
 import WOKCommands from '.'
 import path from 'path'
 
-import Events from './enums/Events'
 import getAllFiles from './get-all-files'
+import Events from './enums/Events'
 
 const waitingForDB: {
   func: Function
@@ -53,13 +53,16 @@ class FeatureHandler {
         this.registerFeature(await import(file), fileName)
       }
 
-      instance.on(Events.DATABASE_CONNECTED, (connection, state) => {
-        if (state === 'Connected') {
-          for (const { func, client, instance, isEnabled } of waitingForDB) {
-            func(client, instance, isEnabled)
+      instance.on(
+        Events.DATABASE_CONNECTED,
+        (connection: any, state: string) => {
+          if (state === 'Connected') {
+            for (const { func, client, instance, isEnabled } of waitingForDB) {
+              func(client, instance, isEnabled)
+            }
           }
         }
-      })
+      )
     })()
   }
 
