@@ -14,7 +14,7 @@ import { ICommand } from '../typings'
 import CommandErrors from './enums/CommandErrors'
 import Events from './enums/Events'
 
-class CommandHandler {
+export default class CommandHandler {
   private _commands: Map<String, Command> = new Map()
   private _client: Client | null = null
 
@@ -379,7 +379,7 @@ class CommandHandler {
     file: string,
     fileName: string
   ) {
-    let configuration = require(file)
+    let configuration = await import(file)
 
     // person is using 'export default' so we import the default instead
     if (configuration.default && Object.keys(configuration).length === 1) {
@@ -656,5 +656,3 @@ class CommandHandler {
     }
   }
 }
-
-export = CommandHandler

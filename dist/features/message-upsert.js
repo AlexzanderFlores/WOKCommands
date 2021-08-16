@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-module.exports = function (client) {
-    client.on('messageCreate', function (message) {
+module.exports = (client) => {
+    client.on('messageCreate', (message) => {
         client.emit('messageUpsert', message);
     });
-    client.on('messageUpdate', function (oldMessage, newMessage) {
+    client.on('messageUpdate', (oldMessage, newMessage) => {
         client.emit('messageUpsert', newMessage, oldMessage);
     });
 };

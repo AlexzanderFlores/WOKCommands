@@ -2,7 +2,6 @@ import { Client, ColorResolvable, Guild, GuildEmoji } from 'discord.js'
 import { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
 
-import CommandHandler from './CommandHandler'
 import FeatureHandler from './FeatureHandler'
 import mongo, { getMongoConnection } from './mongo'
 import prefixes from './models/prefixes'
@@ -10,6 +9,7 @@ import MessageHandler from './message-handler'
 import SlashCommands from './SlashCommands'
 import { ICategorySetting, Options } from '..'
 import Events from './enums/Events'
+import CommandHandler from './CommandHandler'
 
 export default class WOKCommands extends EventEmitter {
   private _client: Client
@@ -62,28 +62,26 @@ export default class WOKCommands extends EventEmitter {
     this._commandsDir = commandsDir || commandDir || this._commandsDir
     this._featuresDir = featuresDir || featureDir || this._featuresDir
 
+    // this._commandsDir = path.join(__dirname, this._commandsDir)
+    // this._featuresDir = path.join(__dirname, this._featuresDir)
+
     if (showWarns && !commandsDir) {
       console.warn(
         'WOKCommands > No commands folder specified. Using "commands"'
       )
     }
 
-    // Get the directory path of the project using this package
-    // This way users don't need to use path.join(__dirname, 'dir')
-    if (module && require.main) {
-      const { path } = require.main
-      if (path) {
-        this._commandsDir = `${path}/${this._commandsDir}`
+    // // Get the directory path of the project using this package
+    // // This way users don't need to use path.join(__dirname, 'dir')
+    // this._commandsDir = `${path}/${this._commandsDir}`
 
-        if (this._featuresDir) {
-          this._featuresDir = `${path}/${this._featuresDir}`
-        }
+    // if (this._featuresDir) {
+    //   this._featuresDir = `${path}/${this._featuresDir}`
+    // }
 
-        if (messagesPath) {
-          messagesPath = `${path}/${messagesPath}`
-        }
-      }
-    }
+    // if (messagesPath) {
+    //   messagesPath = `${path}/${messagesPath}`
+    // }
 
     if (testServers) {
       if (typeof testServers === 'string') {
