@@ -62,26 +62,23 @@ export default class WOKCommands extends EventEmitter {
     this._commandsDir = commandsDir || commandDir || this._commandsDir
     this._featuresDir = featuresDir || featureDir || this._featuresDir
 
-    // this._commandsDir = path.join(__dirname, this._commandsDir)
-    // this._featuresDir = path.join(__dirname, this._featuresDir)
-
-    if (showWarns && !commandsDir) {
-      console.warn(
-        'WOKCommands > No commands folder specified. Using "commands"'
+    if (
+      this._commandsDir &&
+      !(this._commandsDir.includes('/') || this._commandsDir.includes('\\'))
+    ) {
+      throw new Error(
+        "WOKCommands > The 'commands' directory must be an absolute path. This can be done by using the 'path' module. More info: https://docs.wornoffkeys.com/setup-and-options-object"
       )
     }
 
-    // // Get the directory path of the project using this package
-    // // This way users don't need to use path.join(__dirname, 'dir')
-    // this._commandsDir = `${path}/${this._commandsDir}`
-
-    // if (this._featuresDir) {
-    //   this._featuresDir = `${path}/${this._featuresDir}`
-    // }
-
-    // if (messagesPath) {
-    //   messagesPath = `${path}/${messagesPath}`
-    // }
+    if (
+      this._featuresDir &&
+      !(this._featuresDir.includes('/') || this._featuresDir.includes('\\'))
+    ) {
+      throw new Error(
+        "WOKCommands > The 'features' directory must be an absolute path. This can be done by using the 'path' module. More info: https://docs.wornoffkeys.com/setup-and-options-object"
+      )
+    }
 
     if (testServers) {
       if (typeof testServers === 'string') {

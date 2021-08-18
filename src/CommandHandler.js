@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -43,6 +62,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
 var Command_1 = __importDefault(require("./Command"));
@@ -367,26 +387,17 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         return __awaiter(this, void 0, void 0, function () {
-            var configuration, _a, name, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, callbackCounter, names, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, hasCallback, command, _e, names_1, name_3;
+            var configuration, _a, name, category, commands, aliases, init, callback, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, names, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, command, _e, names_1, name_3;
             return __generator(this, function (_f) {
                 switch (_f.label) {
-                    case 0:
-                        configuration = require(file);
+                    case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
+                    case 1:
+                        configuration = _f.sent();
                         // person is using 'export default' so we import the default instead
                         if (configuration.default && Object.keys(configuration).length === 1) {
                             configuration = configuration.default;
                         }
-                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, execute = configuration.execute, run = configuration.run, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, options = configuration.options;
-                        callbackCounter = 0;
-                        if (callback)
-                            ++callbackCounter;
-                        if (execute)
-                            ++callbackCounter;
-                        if (run)
-                            ++callbackCounter;
-                        if (callbackCounter > 1) {
-                            throw new Error('Commands can have "callback", "execute", or "run" functions, but not multiple.');
-                        }
+                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, options = configuration.options;
                         names = commands || aliases || [];
                         if (!name && (!names || names.length === 0)) {
                             throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
@@ -424,7 +435,7 @@ var CommandHandler = /** @class */ (function () {
                         if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has a \"slash\" property that is not boolean \"true\" or string \"both\".");
                         }
-                        if (!slash) return [3 /*break*/, 7];
+                        if (!slash) return [3 /*break*/, 8];
                         if (!description) {
                             throw new Error("WOKCommands > A description is required for command \"" + names[0] + "\" because it is a slash command.");
                         }
@@ -444,31 +455,30 @@ var CommandHandler = /** @class */ (function () {
                             }
                             options[key].name = lowerCase;
                         }
-                        if (!testOnly) return [3 /*break*/, 5];
+                        if (!testOnly) return [3 /*break*/, 6];
                         _c = 0, _d = instance.testServers;
-                        _f.label = 1;
-                    case 1:
-                        if (!(_c < _d.length)) return [3 /*break*/, 4];
+                        _f.label = 2;
+                    case 2:
+                        if (!(_c < _d.length)) return [3 /*break*/, 5];
                         id = _d[_c];
                         return [4 /*yield*/, slashCommands.create(names[0], description, options, id)];
-                    case 2:
-                        _f.sent();
-                        _f.label = 3;
                     case 3:
-                        _c++;
-                        return [3 /*break*/, 1];
-                    case 4: return [3 /*break*/, 7];
-                    case 5: return [4 /*yield*/, slashCommands.create(names[0], description, options)];
-                    case 6:
                         _f.sent();
-                        _f.label = 7;
+                        _f.label = 4;
+                    case 4:
+                        _c++;
+                        return [3 /*break*/, 2];
+                    case 5: return [3 /*break*/, 8];
+                    case 6: return [4 /*yield*/, slashCommands.create(names[0], description, options)];
                     case 7:
-                        hasCallback = callback || execute || run;
-                        if (hasCallback) {
+                        _f.sent();
+                        _f.label = 8;
+                    case 8:
+                        if (callback) {
                             if (init) {
                                 init(client, instance);
                             }
-                            command = new Command_1.default(instance, client, names, hasCallback, error, configuration);
+                            command = new Command_1.default(instance, client, names, callback, error, configuration);
                             for (_e = 0, names_1 = names; _e < names_1.length; _e++) {
                                 name_3 = names_1[_e];
                                 // Ensure the alias is lower case because we read as lower case later on
@@ -597,4 +607,4 @@ var CommandHandler = /** @class */ (function () {
     };
     return CommandHandler;
 }());
-module.exports = CommandHandler;
+exports.default = CommandHandler;

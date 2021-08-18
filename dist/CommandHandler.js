@@ -316,17 +316,7 @@ class CommandHandler {
         if (configuration.default && Object.keys(configuration).length === 1) {
             configuration = configuration.default;
         }
-        const { name = fileName, category, commands, aliases, init, callback, execute, run, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, } = configuration;
-        let callbackCounter = 0;
-        if (callback)
-            ++callbackCounter;
-        if (execute)
-            ++callbackCounter;
-        if (run)
-            ++callbackCounter;
-        if (callbackCounter > 1) {
-            throw new Error('Commands can have "callback", "execute", or "run" functions, but not multiple.');
-        }
+        const { name = fileName, category, commands, aliases, init, callback, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, } = configuration;
         let names = commands || aliases || [];
         if (!name && (!names || names.length === 0)) {
             throw new Error(`Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`);
@@ -394,12 +384,11 @@ class CommandHandler {
                 await slashCommands.create(names[0], description, options);
             }
         }
-        const hasCallback = callback || execute || run;
-        if (hasCallback) {
+        if (callback) {
             if (init) {
                 init(client, instance);
             }
-            const command = new Command_1.default(instance, client, names, hasCallback, error, configuration);
+            const command = new Command_1.default(instance, client, names, callback, error, configuration);
             for (const name of names) {
                 // Ensure the alias is lower case because we read as lower case later on
                 this._commands.set(name.toLowerCase(), command);

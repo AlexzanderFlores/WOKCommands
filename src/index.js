@@ -74,13 +74,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var events_1 = require("events");
-var CommandHandler_1 = __importDefault(require("./CommandHandler"));
 var FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 var mongo_1 = __importStar(require("./mongo"));
 var prefixes_1 = __importDefault(require("./models/prefixes"));
 var message_handler_1 = __importDefault(require("./message-handler"));
 var SlashCommands_1 = __importDefault(require("./SlashCommands"));
 var Events_1 = __importDefault(require("./enums/Events"));
+var CommandHandler_1 = __importDefault(require("./CommandHandler"));
 var WOKCommands = /** @class */ (function (_super) {
     __extends(WOKCommands, _super);
     function WOKCommands(client, options) {
@@ -110,22 +110,13 @@ var WOKCommands = /** @class */ (function (_super) {
         var _a = options || {}, _b = _a.commandsDir, commandsDir = _b === void 0 ? '' : _b, _c = _a.commandDir, commandDir = _c === void 0 ? '' : _c, _d = _a.featuresDir, featuresDir = _d === void 0 ? '' : _d, _e = _a.featureDir, featureDir = _e === void 0 ? '' : _e, messagesPath = _a.messagesPath, _f = _a.showWarns, showWarns = _f === void 0 ? true : _f, _g = _a.delErrMsgCooldown, delErrMsgCooldown = _g === void 0 ? -1 : _g, _h = _a.defaultLanguage, defaultLanguage = _h === void 0 ? 'english' : _h, _j = _a.ignoreBots, ignoreBots = _j === void 0 ? true : _j, dbOptions = _a.dbOptions, testServers = _a.testServers, _k = _a.disabledDefaultCommands, disabledDefaultCommands = _k === void 0 ? [] : _k;
         _this._commandsDir = commandsDir || commandDir || _this._commandsDir;
         _this._featuresDir = featuresDir || featureDir || _this._featuresDir;
-        if (showWarns && !commandsDir) {
-            console.warn('WOKCommands > No commands folder specified. Using "commands"');
+        if (_this._commandsDir &&
+            !(_this._commandsDir.includes('/') || _this._commandsDir.includes('\\'))) {
+            throw new Error("WOKCommands > The 'commands' directory must be an absolute path. This can be done by using the 'path' module. More info: https://docs.wornoffkeys.com/setup-and-options-object");
         }
-        // Get the directory path of the project using this package
-        // This way users don't need to use path.join(__dirname, 'dir')
-        if (module && require.main) {
-            var path = require.main.path;
-            if (path) {
-                _this._commandsDir = path + "/" + _this._commandsDir;
-                if (_this._featuresDir) {
-                    _this._featuresDir = path + "/" + _this._featuresDir;
-                }
-                if (messagesPath) {
-                    messagesPath = path + "/" + messagesPath;
-                }
-            }
+        if (_this._featuresDir &&
+            !(_this._featuresDir.includes('/') || _this._featuresDir.includes('\\'))) {
+            throw new Error("WOKCommands > The 'features' directory must be an absolute path. This can be done by using the 'path' module. More info: https://docs.wornoffkeys.com/setup-and-options-object");
         }
         if (testServers) {
             if (typeof testServers === 'string') {
@@ -419,3 +410,4 @@ var WOKCommands = /** @class */ (function (_super) {
     return WOKCommands;
 }(events_1.EventEmitter));
 exports.default = WOKCommands;
+module.exports = WOKCommands;

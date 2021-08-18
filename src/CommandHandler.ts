@@ -393,8 +393,6 @@ export default class CommandHandler {
       aliases,
       init,
       callback,
-      execute,
-      run,
       error,
       description,
       requiredPermissions,
@@ -405,17 +403,6 @@ export default class CommandHandler {
       minArgs,
       options,
     } = configuration
-
-    let callbackCounter = 0
-    if (callback) ++callbackCounter
-    if (execute) ++callbackCounter
-    if (run) ++callbackCounter
-
-    if (callbackCounter > 1) {
-      throw new Error(
-        'Commands can have "callback", "execute", or "run" functions, but not multiple.'
-      )
-    }
 
     let names = commands || aliases || []
 
@@ -523,9 +510,7 @@ export default class CommandHandler {
       }
     }
 
-    const hasCallback = callback || execute || run
-
-    if (hasCallback) {
+    if (callback) {
       if (init) {
         init(client, instance)
       }
@@ -534,7 +519,7 @@ export default class CommandHandler {
         instance,
         client,
         names,
-        hasCallback,
+        callback,
         error,
         configuration
       )

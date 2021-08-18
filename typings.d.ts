@@ -165,3 +165,18 @@ export interface ICategorySetting {
   hidden?: boolean
   customEmoji?: boolean
 }
+
+export enum CommandErrors {
+  EXCEPTION = 'EXCEPTION',
+  COOLDOWN = 'COOLDOWN',
+  INVALID_ARGUMENTS = 'INVALID ARGUMENTS',
+  MISSING_PERMISSIONS = 'MISSING PERMISSIONS',
+  MISSING_ROLES = 'MISSING ROLES',
+  COMMAND_DISABLED = 'COMMAND DISABLED',
+}
+
+export enum Events {
+  DATABASE_CONNECTED = 'databaseConnected',
+  LANGUAGE_NOT_SUPPORTED = 'languageNotSupported',
+  COMMAND_EXCEPTION = 'commandException',
+}
