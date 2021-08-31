@@ -64,7 +64,7 @@ class SlashCommands {
         options.data.forEach(({ value }) => {
             args.push(String(value));
         });
-        const reply = command.callback({
+        const reply = await command.callback({
             member,
             guild,
             channel,

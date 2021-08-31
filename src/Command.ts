@@ -117,7 +117,7 @@ class Command {
     }
   }
 
-  public execute(message: Message, args: string[]) {
+  public async execute(message: Message, args: string[]) {
     if (
       this._ownerOnly &&
       !this.instance.botOwner.includes(message.author.id)
@@ -135,7 +135,7 @@ class Command {
       return
     }
 
-    const reply = this._callback({
+    const reply = await this._callback({
       message,
       channel: message.channel,
       args,

@@ -115,7 +115,7 @@ class SlashCommands {
       args.push(String(value))
     })
 
-    const reply = command.callback({
+    const reply = await command.callback({
       member,
       guild,
       channel,

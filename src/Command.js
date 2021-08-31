@@ -103,48 +103,59 @@ var Command = /** @class */ (function () {
         }
     }
     Command.prototype.execute = function (message, args) {
-        var _this = this;
-        if (this._ownerOnly &&
-            !this.instance.botOwner.includes(message.author.id)) {
-            message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
-            return;
-        }
-        if (this.guildOnly && !message.guild) {
-            message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
-            return;
-        }
-        var reply = this._callback({
-            message: message,
-            channel: message.channel,
-            args: args,
-            text: args.join(' '),
-            client: this.client,
-            prefix: this.instance.getPrefix(message.guild),
-            instance: this.instance,
-            cancelCoolDown: function () {
-                var _a;
-                _this.decrementCooldowns((_a = message.guild) === null || _a === void 0 ? void 0 : _a.id, message.author.id);
-            },
+        return __awaiter(this, void 0, void 0, function () {
+            var reply, embeds;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (this._ownerOnly &&
+                            !this.instance.botOwner.includes(message.author.id)) {
+                            message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
+                            return [2 /*return*/];
+                        }
+                        if (this.guildOnly && !message.guild) {
+                            message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, this._callback({
+                                message: message,
+                                channel: message.channel,
+                                args: args,
+                                text: args.join(' '),
+                                client: this.client,
+                                prefix: this.instance.getPrefix(message.guild),
+                                instance: this.instance,
+                                cancelCoolDown: function () {
+                                    var _a;
+                                    _this.decrementCooldowns((_a = message.guild) === null || _a === void 0 ? void 0 : _a.id, message.author.id);
+                                },
+                            })];
+                    case 1:
+                        reply = _a.sent();
+                        if (reply) {
+                            if (typeof reply === 'string') {
+                                message.reply({
+                                    content: reply,
+                                });
+                            }
+                            else {
+                                embeds = [];
+                                if (Array.isArray(reply)) {
+                                    embeds = reply;
+                                }
+                                else {
+                                    embeds.push(reply);
+                                }
+                                message.reply({
+                                    embeds: embeds,
+                                });
+                            }
+                        }
+                        return [2 /*return*/];
+                }
+            });
         });
-        if (reply) {
-            if (typeof reply === 'string') {
-                message.reply({
-                    content: reply,
-                });
-            }
-            else {
-                var embeds = [];
-                if (Array.isArray(reply)) {
-                    embeds = reply;
-                }
-                else {
-                    embeds.push(reply);
-                }
-                message.reply({
-                    embeds: embeds,
-                });
-            }
-        }
     };
     Object.defineProperty(Command.prototype, "names", {
         get: function () {
