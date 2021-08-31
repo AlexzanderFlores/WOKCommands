@@ -102,6 +102,9 @@ class Command {
     get category() {
         return this._category;
     }
+    get description() {
+        return this._description;
+    }
     get minArgs() {
         return this._minArgs;
     }
@@ -113,9 +116,6 @@ class Command {
     }
     get expectedArgs() {
         return this._expectedArgs;
-    }
-    get description() {
-        return this._description;
     }
     get requiredPermissions() {
         return this._requiredPermissions;
