@@ -122,44 +122,49 @@ var SlashCommands = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var command, args, reply, embeds;
             return __generator(this, function (_a) {
-                command = this._instance.commandHandler.getCommand(commandName);
-                if (!command || !command.callback) {
-                    return [2 /*return*/];
-                }
-                args = [];
-                options.data.forEach(function (_a) {
-                    var value = _a.value;
-                    args.push(String(value));
-                });
-                reply = command.callback({
-                    member: member,
-                    guild: guild,
-                    channel: channel,
-                    args: args,
-                    text: args.join(' '),
-                    client: this._client,
-                    instance: this._instance,
-                    interaction: interaction,
-                    options: options,
-                });
-                if (reply) {
-                    if (typeof reply === 'string') {
-                        interaction.reply({
-                            content: reply,
+                switch (_a.label) {
+                    case 0:
+                        command = this._instance.commandHandler.getCommand(commandName);
+                        if (!command || !command.callback) {
+                            return [2 /*return*/];
+                        }
+                        args = [];
+                        options.data.forEach(function (_a) {
+                            var value = _a.value;
+                            args.push(String(value));
                         });
-                    }
-                    else {
-                        embeds = [];
-                        if (Array.isArray(reply)) {
-                            embeds = reply;
+                        return [4 /*yield*/, command.callback({
+                                member: member,
+                                guild: guild,
+                                channel: channel,
+                                args: args,
+                                text: args.join(' '),
+                                client: this._client,
+                                instance: this._instance,
+                                interaction: interaction,
+                                options: options,
+                            })];
+                    case 1:
+                        reply = _a.sent();
+                        if (reply) {
+                            if (typeof reply === 'string') {
+                                interaction.reply({
+                                    content: reply,
+                                });
+                            }
+                            else {
+                                embeds = [];
+                                if (Array.isArray(reply)) {
+                                    embeds = reply;
+                                }
+                                else {
+                                    embeds.push(reply);
+                                }
+                                interaction.reply({ embeds: embeds });
+                            }
                         }
-                        else {
-                            embeds.push(reply);
-                        }
-                        interaction.reply({ embeds: embeds });
-                    }
+                        return [2 /*return*/];
                 }
-                return [2 /*return*/];
             });
         });
     };

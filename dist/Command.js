@@ -73,7 +73,7 @@ class Command {
             throw new Error(`Command "${names[0]}" has a maximum argument count less than it's minimum argument count!`);
         }
     }
-    execute(message, args) {
+    async execute(message, args) {
         if (this._ownerOnly &&
             !this.instance.botOwner.includes(message.author.id)) {
             message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
@@ -83,7 +83,7 @@ class Command {
             message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
             return;
         }
-        const reply = this._callback({
+        const reply = await this._callback({
             message,
             channel: message.channel,
             args,
