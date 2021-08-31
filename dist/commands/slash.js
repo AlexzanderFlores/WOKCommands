@@ -18,11 +18,11 @@ module.exports = {
                 channel.send('Please specify a command ID');
                 return;
             }
-            let useGuild = false;
+            let useGuild = true;
             try {
                 global?.forEach((cmd) => {
                     if (cmd.id === targetCommand) {
-                        useGuild = true;
+                        useGuild = false;
                         throw new Error('');
                     }
                 });
@@ -47,7 +47,7 @@ module.exports = {
             allSlashCommands = 'None';
         }
         const embed = new discord_js_1.MessageEmbed()
-            .addField('How to delete a slash command:', `_${instance.getPrefix(guild)}slash delete <command ID>`)
+            .addField('How to delete a slash command:', `${instance.getPrefix(guild)}slash delete <command ID>`)
             .addField('List of global slash commands:', allSlashCommands);
         if (guild) {
             const guildOnly = await slashCommands.get(guild.id);

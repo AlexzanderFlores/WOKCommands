@@ -237,12 +237,12 @@ var CommandHandler = /** @class */ (function () {
                     // Replace {PREFIX} with the actual prefix
                     if (errorMsg) {
                         errorMsg = errorMsg.replace(/{PREFIX}/g, prefix);
+                        // Replace {COMMAND} with the name of the command that was ran
+                        errorMsg = errorMsg.replace(/{COMMAND}/g, name);
+                        // Replace {ARGUMENTS} with the expectedArgs property from the command
+                        // If one was not provided then replace {ARGUMENTS} with an empty string
+                        errorMsg = errorMsg.replace(/ {ARGUMENTS}/g, expectedArgs ? " " + expectedArgs : '');
                     }
-                    // Replace {COMMAND} with the name of the command that was ran
-                    errorMsg = errorMsg.replace(/{COMMAND}/g, name);
-                    // Replace {ARGUMENTS} with the expectedArgs property from the command
-                    // If one was not provided then replace {ARGUMENTS} with an empty string
-                    errorMsg = errorMsg.replace(/ {ARGUMENTS}/g, expectedArgs ? " " + expectedArgs : '');
                     if (error) {
                         error({
                             error: CommandErrors_1.default.INVALID_ARGUMENTS,
@@ -387,7 +387,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         return __awaiter(this, void 0, void 0, function () {
-            var configuration, _a, name, category, commands, aliases, init, callback, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, names, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, command, _e, names_1, name_3;
+            var configuration, _a, name, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, errorMsg, names, errorMsg, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, command, _e, names_1, name_3;
             return __generator(this, function (_f) {
                 switch (_f.label) {
                     case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
@@ -397,10 +397,15 @@ var CommandHandler = /** @class */ (function () {
                         if (configuration.default && Object.keys(configuration).length === 1) {
                             configuration = configuration.default;
                         }
-                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, options = configuration.options;
+                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, run = configuration.run, execute = configuration.execute, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, options = configuration.options;
+                        if (run || execute) {
+                            errorMsg = "Command located at \"" + file + "\" has either a \"run\" or \"execute\" function. Please rename that function to \"callback\".";
+                            throw new Error(errorMsg);
+                        }
                         names = commands || aliases || [];
                         if (!name && (!names || names.length === 0)) {
-                            throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
+                            errorMsg = "Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.";
+                            throw new Error(errorMsg);
                         }
                         if (typeof names === 'string') {
                             names = [names];
@@ -434,6 +439,9 @@ var CommandHandler = /** @class */ (function () {
                         }
                         if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has a \"slash\" property that is not boolean \"true\" or string \"both\".");
+                        }
+                        if (!slash && options !== undefined) {
+                            throw new Error("WOKCommands > Command \"" + names[0] + "\" has an \"options\" property but is not a slash command.");
                         }
                         if (!slash) return [3 /*break*/, 8];
                         if (!description) {

@@ -130,13 +130,13 @@ export interface IErrorObject {
 export interface ICommand {
   names?: string[] | string
   category: string
+  description: string
   callback?(obj: ICallbackObject): any
   error?(obj: IErrorObject): any
   minArgs?: number
   maxArgs?: number
   syntaxError?: { [key: string]: string }
   expectedArgs?: string
-  description?: string
   syntax?: string
   requiredPermissions?: PermissionString[]
   permissions?: PermissionString[]

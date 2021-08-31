@@ -49,7 +49,7 @@ class SlashCommands {
     return this._client.application?.commands
   }
 
-  public async get(guildId?: string) {
+  public async get(guildId?: string): Promise<Map<any, any>> {
     const commands = this.getCommands(guildId)
     if (commands) {
       return commands.cache
