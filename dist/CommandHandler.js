@@ -316,7 +316,7 @@ class CommandHandler {
         if (configuration.default && Object.keys(configuration).length === 1) {
             configuration = configuration.default;
         }
-        const { name = fileName, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, } = configuration;
+        const { name = fileName, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options = [], } = configuration;
         if (run || execute) {
             throw new Error(`Command located at "${file}" has either a "run" or "execute" function. Please rename that function to "callback".`);
         }
@@ -358,7 +358,7 @@ class CommandHandler {
         if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
             throw new Error(`WOKCommands > Command "${names[0]}" has a "slash" property that is not boolean "true" or string "both".`);
         }
-        if (!slash && options !== undefined) {
+        if (!slash && options.length) {
             throw new Error(`WOKCommands > Command "${names[0]}" has an "options" property but is not a slash command.`);
         }
         if (slash) {
@@ -369,17 +369,33 @@ class CommandHandler {
                 throw new Error(`WOKCommands > Command "${names[0]}" has "minArgs" property defined without "expectedArgs" property as a slash command.`);
             }
             const slashCommands = instance.slashCommands;
-            for (const key in options) {
-                const name = options[key].name;
-                let lowerCase = name.toLowerCase();
-                if (name !== lowerCase && instance.showWarns) {
-                    console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`);
+            if (options.length) {
+                for (const key in options) {
+                    const name = options[key].name;
+                    let lowerCase = name.toLowerCase();
+                    if (name !== lowerCase && instance.showWarns) {
+                        console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`);
+                    }
+                    if (lowerCase.match(/\s/g)) {
+                        lowerCase = lowerCase.replace(/\s/g, '_');
+                        console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`);
+                    }
+                    options[key].name = lowerCase;
                 }
-                if (lowerCase.match(/\s/g)) {
-                    lowerCase = lowerCase.replace(/\s/g, '_');
-                    console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`);
+            }
+            else if (expectedArgs) {
+                const split = expectedArgs
+                    .substring(1, expectedArgs.length - 1)
+                    .split(/[>\]] [<\[]/);
+                for (let a = 0; a < split.length; ++a) {
+                    const item = split[a];
+                    options.push({
+                        name: item.replace(/ /g, '-').toLowerCase(),
+                        description: item,
+                        type: 3,
+                        required: a < minArgs,
+                    });
                 }
-                options[key].name = lowerCase;
             }
             if (testOnly) {
                 for (const id of instance.testServers) {

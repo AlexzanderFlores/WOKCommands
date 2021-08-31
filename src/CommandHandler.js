@@ -387,17 +387,17 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         return __awaiter(this, void 0, void 0, function () {
-            var configuration, _a, name, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, names, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, command, _e, names_1, name_3;
-            return __generator(this, function (_f) {
-                switch (_f.label) {
+            var configuration, _a, name, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, _b, options, names, _i, _c, perm, missing, slashCommands, key, name_2, lowerCase, split, a, item, _d, _e, id, command, _f, names_1, name_3;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
                     case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
                     case 1:
-                        configuration = _f.sent();
+                        configuration = _g.sent();
                         // person is using 'export default' so we import the default instead
                         if (configuration.default && Object.keys(configuration).length === 1) {
                             configuration = configuration.default;
                         }
-                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, run = configuration.run, execute = configuration.execute, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, options = configuration.options;
+                        _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, run = configuration.run, execute = configuration.execute, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, _b = configuration.options, options = _b === void 0 ? [] : _b;
                         if (run || execute) {
                             throw new Error("Command located at \"" + file + "\" has either a \"run\" or \"execute\" function. Please rename that function to \"callback\".");
                         }
@@ -415,8 +415,8 @@ var CommandHandler = /** @class */ (function () {
                             names.unshift(name.toLowerCase());
                         }
                         if (requiredPermissions || permissions) {
-                            for (_i = 0, _b = requiredPermissions || permissions; _i < _b.length; _i++) {
-                                perm = _b[_i];
+                            for (_i = 0, _c = requiredPermissions || permissions; _i < _c.length; _i++) {
+                                perm = _c[_i];
                                 if (!permissions_1.permissionList.includes(perm)) {
                                     throw new Error("Command located at \"" + file + "\" has an invalid permission node: \"" + perm + "\". Permissions must be all upper case and be one of the following: \"" + __spreadArray([], permissions_1.permissionList).join('", "') + "\"");
                                 }
@@ -438,7 +438,7 @@ var CommandHandler = /** @class */ (function () {
                         if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has a \"slash\" property that is not boolean \"true\" or string \"both\".");
                         }
-                        if (!slash && options !== undefined) {
+                        if (!slash && options.length) {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has an \"options\" property but is not a slash command.");
                         }
                         if (!slash) return [3 /*break*/, 8];
@@ -449,44 +449,60 @@ var CommandHandler = /** @class */ (function () {
                             throw new Error("WOKCommands > Command \"" + names[0] + "\" has \"minArgs\" property defined without \"expectedArgs\" property as a slash command.");
                         }
                         slashCommands = instance.slashCommands;
-                        for (key in options) {
-                            name_2 = options[key].name;
-                            lowerCase = name_2.toLowerCase();
-                            if (name_2 !== lowerCase && instance.showWarns) {
-                                console.log("WOKCommands > Command \"" + names[0] + "\" has an option of \"" + name_2 + "\". All option names must be lower case for slash commands. WOKCommands will modify this for you.");
+                        if (options.length) {
+                            for (key in options) {
+                                name_2 = options[key].name;
+                                lowerCase = name_2.toLowerCase();
+                                if (name_2 !== lowerCase && instance.showWarns) {
+                                    console.log("WOKCommands > Command \"" + names[0] + "\" has an option of \"" + name_2 + "\". All option names must be lower case for slash commands. WOKCommands will modify this for you.");
+                                }
+                                if (lowerCase.match(/\s/g)) {
+                                    lowerCase = lowerCase.replace(/\s/g, '_');
+                                    console.log("WOKCommands > Command \"" + names[0] + "\" has an option of \"" + name_2 + "\" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.");
+                                }
+                                options[key].name = lowerCase;
                             }
-                            if (lowerCase.match(/\s/g)) {
-                                lowerCase = lowerCase.replace(/\s/g, '_');
-                                console.log("WOKCommands > Command \"" + names[0] + "\" has an option of \"" + name_2 + "\" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.");
+                        }
+                        else if (expectedArgs) {
+                            split = expectedArgs
+                                .substring(1, expectedArgs.length - 1)
+                                .split(/[>\]] [<\[]/);
+                            for (a = 0; a < split.length; ++a) {
+                                item = split[a];
+                                options.push({
+                                    name: item.replace(/ /g, '-').toLowerCase(),
+                                    description: item,
+                                    type: 3,
+                                    required: a < minArgs,
+                                });
                             }
-                            options[key].name = lowerCase;
                         }
                         if (!testOnly) return [3 /*break*/, 6];
-                        _c = 0, _d = instance.testServers;
-                        _f.label = 2;
+                        _d = 0, _e = instance.testServers;
+                        _g.label = 2;
                     case 2:
-                        if (!(_c < _d.length)) return [3 /*break*/, 5];
-                        id = _d[_c];
+                        if (!(_d < _e.length)) return [3 /*break*/, 5];
+                        id = _e[_d];
                         return [4 /*yield*/, slashCommands.create(names[0], description, options, id)];
                     case 3:
-                        _f.sent();
-                        _f.label = 4;
+                        _g.sent();
+                        _g.label = 4;
                     case 4:
-                        _c++;
+                        _d++;
                         return [3 /*break*/, 2];
                     case 5: return [3 /*break*/, 8];
                     case 6: return [4 /*yield*/, slashCommands.create(names[0], description, options)];
                     case 7:
-                        _f.sent();
-                        _f.label = 8;
+                        _g.sent();
+                        _g.label = 8;
                     case 8:
                         if (callback) {
                             if (init) {
                                 init(client, instance);
                             }
                             command = new Command_1.default(instance, client, names, callback, error, configuration);
-                            for (_e = 0, names_1 = names; _e < names_1.length; _e++) {
-                                name_3 = names_1[_e];
+                            for (_f = 0, names_1 = names; _f < names_1.length; _f++) {
+                                name_3 = names_1[_f];
                                 // Ensure the alias is lower case because we read as lower case later on
                                 this._commands.set(name_3.toLowerCase(), command);
                             }
