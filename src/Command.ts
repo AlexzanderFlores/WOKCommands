@@ -135,7 +135,7 @@ class Command {
       return
     }
 
-    this._callback({
+    const reply = this._callback({
       message,
       channel: message.channel,
       args,
@@ -147,6 +147,26 @@ class Command {
         this.decrementCooldowns(message.guild?.id, message.author.id)
       },
     })
+
+    if (reply) {
+      if (typeof reply === 'string') {
+        message.reply({
+          content: reply,
+        })
+      } else {
+        let embeds = []
+
+        if (Array.isArray(reply)) {
+          embeds = reply
+        } else {
+          embeds.push(reply)
+        }
+
+        message.reply({
+          embeds,
+        })
+      }
+    }
   }
 
   public get names(): string[] {

@@ -120,7 +120,7 @@ var SlashCommands = /** @class */ (function () {
     };
     SlashCommands.prototype.invokeCommand = function (interaction, commandName, options, member, guild, channel) {
         return __awaiter(this, void 0, void 0, function () {
-            var command, args;
+            var command, args, reply, embeds;
             return __generator(this, function (_a) {
                 command = this._instance.commandHandler.getCommand(commandName);
                 if (!command || !command.callback) {
@@ -131,7 +131,7 @@ var SlashCommands = /** @class */ (function () {
                     var value = _a.value;
                     args.push(String(value));
                 });
-                command.callback({
+                reply = command.callback({
                     member: member,
                     guild: guild,
                     channel: channel,
@@ -142,6 +142,23 @@ var SlashCommands = /** @class */ (function () {
                     interaction: interaction,
                     options: options,
                 });
+                if (reply) {
+                    if (typeof reply === 'string') {
+                        interaction.reply({
+                            content: reply,
+                        });
+                    }
+                    else {
+                        embeds = [];
+                        if (Array.isArray(reply)) {
+                            embeds = reply;
+                        }
+                        else {
+                            embeds.push(reply);
+                        }
+                        interaction.reply({ embeds: embeds });
+                    }
+                }
                 return [2 /*return*/];
             });
         });

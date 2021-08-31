@@ -387,7 +387,7 @@ var CommandHandler = /** @class */ (function () {
     }
     CommandHandler.prototype.registerCommand = function (instance, client, file, fileName) {
         return __awaiter(this, void 0, void 0, function () {
-            var configuration, _a, name, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, errorMsg, names, errorMsg, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, command, _e, names_1, name_3;
+            var configuration, _a, name, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, names, _i, _b, perm, missing, slashCommands, key, name_2, lowerCase, _c, _d, id, command, _e, names_1, name_3;
             return __generator(this, function (_f) {
                 switch (_f.label) {
                     case 0: return [4 /*yield*/, Promise.resolve().then(function () { return __importStar(require(file)); })];
@@ -399,13 +399,11 @@ var CommandHandler = /** @class */ (function () {
                         }
                         _a = configuration.name, name = _a === void 0 ? fileName : _a, category = configuration.category, commands = configuration.commands, aliases = configuration.aliases, init = configuration.init, callback = configuration.callback, run = configuration.run, execute = configuration.execute, error = configuration.error, description = configuration.description, requiredPermissions = configuration.requiredPermissions, permissions = configuration.permissions, testOnly = configuration.testOnly, slash = configuration.slash, expectedArgs = configuration.expectedArgs, minArgs = configuration.minArgs, options = configuration.options;
                         if (run || execute) {
-                            errorMsg = "Command located at \"" + file + "\" has either a \"run\" or \"execute\" function. Please rename that function to \"callback\".";
-                            throw new Error(errorMsg);
+                            throw new Error("Command located at \"" + file + "\" has either a \"run\" or \"execute\" function. Please rename that function to \"callback\".");
                         }
                         names = commands || aliases || [];
                         if (!name && (!names || names.length === 0)) {
-                            errorMsg = "Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.";
-                            throw new Error(errorMsg);
+                            throw new Error("Command located at \"" + file + "\" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.");
                         }
                         if (typeof names === 'string') {
                             names = [names];
