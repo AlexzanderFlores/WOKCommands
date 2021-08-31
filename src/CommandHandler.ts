@@ -403,7 +403,7 @@ export default class CommandHandler {
       slash,
       expectedArgs,
       minArgs,
-      options,
+      options = [],
     } = configuration
 
     if (run || execute) {
@@ -474,7 +474,7 @@ export default class CommandHandler {
       )
     }
 
-    if (!slash && options !== undefined) {
+    if (!slash && options.length) {
       throw new Error(
         `WOKCommands > Command "${names[0]}" has an "options" property but is not a slash command.`
       )
@@ -495,24 +495,41 @@ export default class CommandHandler {
 
       const slashCommands = instance.slashCommands
 
-      for (const key in options) {
-        const name = options[key].name
-        let lowerCase = name.toLowerCase()
+      if (options.length) {
+        for (const key in options) {
+          const name = options[key].name
+          let lowerCase = name.toLowerCase()
 
-        if (name !== lowerCase && instance.showWarns) {
-          console.log(
-            `WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`
-          )
+          if (name !== lowerCase && instance.showWarns) {
+            console.log(
+              `WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`
+            )
+          }
+
+          if (lowerCase.match(/\s/g)) {
+            lowerCase = lowerCase.replace(/\s/g, '_')
+            console.log(
+              `WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`
+            )
+          }
+
+          options[key].name = lowerCase
         }
+      } else if (expectedArgs) {
+        const split = expectedArgs
+          .substring(1, expectedArgs.length - 1)
+          .split(/[>\]] [<\[]/)
 
-        if (lowerCase.match(/\s/g)) {
-          lowerCase = lowerCase.replace(/\s/g, '_')
-          console.log(
-            `WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`
-          )
+        for (let a = 0; a < split.length; ++a) {
+          const item = split[a]
+
+          options.push({
+            name: item.replace(/ /g, '-').toLowerCase(),
+            description: item,
+            type: 3,
+            required: a < minArgs,
+          })
         }
-
-        options[key].name = lowerCase
       }
 
       if (testOnly) {
