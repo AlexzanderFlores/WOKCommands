@@ -23,12 +23,12 @@ export = {
         return
       }
 
-      let useGuild = false
+      let useGuild = true
 
       try {
         global?.forEach((cmd: ApplicationCommand) => {
           if (cmd.id === targetCommand) {
-            useGuild = true
+            useGuild = false
             throw new Error('')
           }
         })
@@ -61,7 +61,7 @@ export = {
     const embed = new MessageEmbed()
       .addField(
         'How to delete a slash command:',
-        `_${instance.getPrefix(guild)}slash delete <command ID>`
+        `${instance.getPrefix(guild)}slash delete <command ID>`
       )
       .addField('List of global slash commands:', allSlashCommands)
 

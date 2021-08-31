@@ -157,6 +157,10 @@ class Command {
     return this._category
   }
 
+  public get description(): string | undefined {
+    return this._description
+  }
+
   public get minArgs(): number {
     return this._minArgs
   }
@@ -171,10 +175,6 @@ class Command {
 
   public get expectedArgs(): string | undefined {
     return this._expectedArgs
-  }
-
-  public get description(): string | undefined {
-    return this._description
   }
 
   public get requiredPermissions(): permissions | undefined {

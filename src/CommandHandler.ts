@@ -225,17 +225,17 @@ export default class CommandHandler {
           // Replace {PREFIX} with the actual prefix
           if (errorMsg) {
             errorMsg = errorMsg.replace(/{PREFIX}/g, prefix)
+
+            // Replace {COMMAND} with the name of the command that was ran
+            errorMsg = errorMsg.replace(/{COMMAND}/g, name)
+
+            // Replace {ARGUMENTS} with the expectedArgs property from the command
+            // If one was not provided then replace {ARGUMENTS} with an empty string
+            errorMsg = errorMsg.replace(
+              / {ARGUMENTS}/g,
+              expectedArgs ? ` ${expectedArgs}` : ''
+            )
           }
-
-          // Replace {COMMAND} with the name of the command that was ran
-          errorMsg = errorMsg.replace(/{COMMAND}/g, name)
-
-          // Replace {ARGUMENTS} with the expectedArgs property from the command
-          // If one was not provided then replace {ARGUMENTS} with an empty string
-          errorMsg = errorMsg.replace(
-            / {ARGUMENTS}/g,
-            expectedArgs ? ` ${expectedArgs}` : ''
-          )
 
           if (error) {
             error({
@@ -393,6 +393,8 @@ export default class CommandHandler {
       aliases,
       init,
       callback,
+      run,
+      execute,
       error,
       description,
       requiredPermissions,
@@ -404,12 +406,16 @@ export default class CommandHandler {
       options,
     } = configuration
 
+    if (run || execute) {
+      const errorMsg = `Command located at "${file}" has either a "run" or "execute" function. Please rename that function to "callback".`
+      throw new Error(errorMsg)
+    }
+
     let names = commands || aliases || []
 
     if (!name && (!names || names.length === 0)) {
-      throw new Error(
-        `Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`
-      )
+      const errorMsg = `Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`
+      throw new Error(errorMsg)
     }
 
     if (typeof names === 'string') {
@@ -463,6 +469,15 @@ export default class CommandHandler {
     if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
       throw new Error(
         `WOKCommands > Command "${names[0]}" has a "slash" property that is not boolean "true" or string "both".`
+      )
+    }
+
+    console.log(slash)
+    console.log(options)
+
+    if (!slash && options !== undefined) {
+      throw new Error(
+        `WOKCommands > Command "${names[0]}" has an "options" property but is not a slash command.`
       )
     }
 
