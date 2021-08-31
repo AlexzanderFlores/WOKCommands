@@ -318,13 +318,11 @@ class CommandHandler {
         }
         const { name = fileName, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, testOnly, slash, expectedArgs, minArgs, options, } = configuration;
         if (run || execute) {
-            const errorMsg = `Command located at "${file}" has either a "run" or "execute" function. Please rename that function to "callback".`;
-            throw new Error(errorMsg);
+            throw new Error(`Command located at "${file}" has either a "run" or "execute" function. Please rename that function to "callback".`);
         }
         let names = commands || aliases || [];
         if (!name && (!names || names.length === 0)) {
-            const errorMsg = `Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`;
-            throw new Error(errorMsg);
+            throw new Error(`Command located at "${file}" does not have a name, commands array, or aliases array set. Please set at lease one property to specify the command name.`);
         }
         if (typeof names === 'string') {
             names = [names];

@@ -115,7 +115,7 @@ class SlashCommands {
       args.push(String(value))
     })
 
-    command.callback({
+    const reply = command.callback({
       member,
       guild,
       channel,
@@ -126,6 +126,24 @@ class SlashCommands {
       interaction,
       options,
     })
+
+    if (reply) {
+      if (typeof reply === 'string') {
+        interaction.reply({
+          content: reply,
+        })
+      } else {
+        let embeds = []
+
+        if (Array.isArray(reply)) {
+          embeds = reply
+        } else {
+          embeds.push(reply)
+        }
+
+        interaction.reply({ embeds })
+      }
+    }
   }
 }
 

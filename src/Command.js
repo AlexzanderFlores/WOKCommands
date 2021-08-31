@@ -113,7 +113,7 @@ var Command = /** @class */ (function () {
             message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
             return;
         }
-        this._callback({
+        var reply = this._callback({
             message: message,
             channel: message.channel,
             args: args,
@@ -126,6 +126,25 @@ var Command = /** @class */ (function () {
                 _this.decrementCooldowns((_a = message.guild) === null || _a === void 0 ? void 0 : _a.id, message.author.id);
             },
         });
+        if (reply) {
+            if (typeof reply === 'string') {
+                message.reply({
+                    content: reply,
+                });
+            }
+            else {
+                var embeds = [];
+                if (Array.isArray(reply)) {
+                    embeds = reply;
+                }
+                else {
+                    embeds.push(reply);
+                }
+                message.reply({
+                    embeds: embeds,
+                });
+            }
+        }
     };
     Object.defineProperty(Command.prototype, "names", {
         get: function () {
@@ -137,6 +156,13 @@ var Command = /** @class */ (function () {
     Object.defineProperty(Command.prototype, "category", {
         get: function () {
             return this._category;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Command.prototype, "description", {
+        get: function () {
+            return this._description;
         },
         enumerable: false,
         configurable: true
@@ -165,13 +191,6 @@ var Command = /** @class */ (function () {
     Object.defineProperty(Command.prototype, "expectedArgs", {
         get: function () {
             return this._expectedArgs;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Command.prototype, "description", {
-        get: function () {
-            return this._description;
         },
         enumerable: false,
         configurable: true
