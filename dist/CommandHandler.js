@@ -360,8 +360,6 @@ class CommandHandler {
         if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
             throw new Error(`WOKCommands > Command "${names[0]}" has a "slash" property that is not boolean "true" or string "both".`);
         }
-        console.log(slash);
-        console.log(options);
         if (!slash && options !== undefined) {
             throw new Error(`WOKCommands > Command "${names[0]}" has an "options" property but is not a slash command.`);
         }

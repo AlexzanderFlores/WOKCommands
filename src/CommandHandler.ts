@@ -472,9 +472,6 @@ export default class CommandHandler {
       )
     }
 
-    console.log(slash)
-    console.log(options)
-
     if (!slash && options !== undefined) {
       throw new Error(
         `WOKCommands > Command "${names[0]}" has an "options" property but is not a slash command.`
