@@ -59,7 +59,7 @@ class WOKCommands extends events_1.EventEmitter {
             throw new Error('No Discord JS Client provided as first argument!');
         }
         this._client = client;
-        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, disabledDefaultCommands = [], } = options || {};
+        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, disabledDefaultCommands = [], typeScript = false, } = options || {};
         this._commandsDir = commandsDir || commandDir || this._commandsDir;
         this._featuresDir = featuresDir || featureDir || this._featuresDir;
         if (this._commandsDir &&
@@ -84,8 +84,8 @@ class WOKCommands extends events_1.EventEmitter {
             disabledDefaultCommands = [disabledDefaultCommands];
         }
         this._slashCommand = new SlashCommands_1.default(this);
-        this._commandHandler = new CommandHandler_1.default(this, client, this._commandsDir, disabledDefaultCommands);
-        this._featureHandler = new FeatureHandler_1.default(client, this, this._featuresDir);
+        this._commandHandler = new CommandHandler_1.default(this, client, this._commandsDir, disabledDefaultCommands, typeScript);
+        this._featureHandler = new FeatureHandler_1.default(client, this, this._featuresDir, typeScript);
         this._messageHandler = new message_handler_1.default(this, messagesPath || '');
         this.setCategorySettings([
             {

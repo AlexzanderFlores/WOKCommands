@@ -30,7 +30,7 @@ class FeatureHandler {
     _features = new Map(); // <Feature name, Disabled GuildIDs>
     _client;
     _instance;
-    constructor(client, instance, dir) {
+    constructor(client, instance, dir, typeScript = false) {
         this._client = client;
         this._instance = instance;
         (async () => {
@@ -45,7 +45,7 @@ class FeatureHandler {
         if (!fs_1.default.existsSync(dir)) {
             throw new Error(`Listeners directory "${dir}" doesn't exist!`);
         }
-        const files = get_all_files_1.default(dir);
+        const files = get_all_files_1.default(dir, typeScript ? '.ts' : '');
         const amount = files.length;
         if (amount === 0) {
             return;

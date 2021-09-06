@@ -57,6 +57,7 @@ export default class WOKCommands extends EventEmitter {
       dbOptions,
       testServers,
       disabledDefaultCommands = [],
+      typeScript = false,
     } = options || {}
 
     this._commandsDir = commandsDir || commandDir || this._commandsDir
@@ -103,9 +104,15 @@ export default class WOKCommands extends EventEmitter {
       this,
       client,
       this._commandsDir,
-      disabledDefaultCommands
+      disabledDefaultCommands,
+      typeScript
     )
-    this._featureHandler = new FeatureHandler(client, this, this._featuresDir)
+    this._featureHandler = new FeatureHandler(
+      client,
+      this,
+      this._featuresDir,
+      typeScript
+    )
 
     this._messageHandler = new MessageHandler(this, messagesPath || '')
 

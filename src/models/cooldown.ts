@@ -1,11 +1,11 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const reqString = {
   type: String,
   required: true,
 }
 
-const cooldownSchema = new mongoose.Schema({
+const schema = new Schema({
   // Command-GuildID or Command-GuildID-UserID
   _id: reqString,
   name: reqString,
@@ -16,4 +16,6 @@ const cooldownSchema = new mongoose.Schema({
   },
 })
 
-export = mongoose.model('wokcommands-cooldowns', cooldownSchema)
+const name = 'wokcommands-cooldowns'
+
+export = mongoose.models[name] || mongoose.model(name, schema, name)

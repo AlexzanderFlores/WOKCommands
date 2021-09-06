@@ -36,7 +36,7 @@ const Events_1 = __importDefault(require("./enums/Events"));
 class CommandHandler {
     _commands = new Map();
     _client = null;
-    constructor(instance, client, dir, disabledDefaultCommands) {
+    constructor(instance, client, dir, disabledDefaultCommands, typeScript = false) {
         this._client = client;
         // Register built in commands
         for (const [file, fileName] of get_all_files_1.default(path_1.default.join(__dirname, 'commands'))) {
@@ -49,7 +49,7 @@ class CommandHandler {
             if (!fs_1.default.existsSync(dir)) {
                 throw new Error(`Commands directory "${dir}" doesn't exist!`);
             }
-            const files = get_all_files_1.default(dir);
+            const files = get_all_files_1.default(dir, typeScript ? '.ts' : '');
             const amount = files.length;
             console.log(`WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`);
             for (const [file, fileName] of files) {

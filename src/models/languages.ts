@@ -1,14 +1,16 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const reqString = {
   type: String,
   required: true,
 }
 
-const languageSchema = new mongoose.Schema({
+const schema = new Schema({
   // GuildID
   _id: reqString,
   language: reqString,
 })
 
-export = mongoose.model('wokcommands-languages', languageSchema)
+const name = 'wokcommands-languages'
+
+export = mongoose.models[name] || mongoose.model(name, schema, name)
