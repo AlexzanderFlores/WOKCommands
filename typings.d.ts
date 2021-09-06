@@ -88,6 +88,7 @@ interface OptionsWithS {
   dbOptions?: {}
   testServers?: string | string[]
   disabledDefaultCommands?: string | string[]
+  typeScript?: boolean
 }
 
 interface OptionsWithoutS {
@@ -104,6 +105,7 @@ interface OptionsWithoutS {
   dbOptions?: {}
   testServers?: string | string[]
   disabledDefaultCommands?: string | string[]
+  typeScript?: boolean
 }
 export type Options = OptionsWithS | OptionsWithoutS
 

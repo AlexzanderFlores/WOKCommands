@@ -22,7 +22,8 @@ export default class CommandHandler {
     instance: WOKCommands,
     client: Client,
     dir: string,
-    disabledDefaultCommands: string[]
+    disabledDefaultCommands: string[],
+    typeScript = false
   ) {
     this._client = client
 
@@ -42,7 +43,7 @@ export default class CommandHandler {
         throw new Error(`Commands directory "${dir}" doesn't exist!`)
       }
 
-      const files = getAllFiles(dir)
+      const files = getAllFiles(dir, typeScript ? '.ts' : '')
       const amount = files.length
 
       console.log(

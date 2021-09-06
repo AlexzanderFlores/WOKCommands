@@ -18,7 +18,12 @@ class FeatureHandler {
   private _client: Client
   private _instance: WOKCommands
 
-  constructor(client: Client, instance: WOKCommands, dir: string) {
+  constructor(
+    client: Client,
+    instance: WOKCommands,
+    dir: string,
+    typeScript = false
+  ) {
     this._client = client
     this._instance = instance
     ;(async () => {
@@ -38,7 +43,7 @@ class FeatureHandler {
       throw new Error(`Listeners directory "${dir}" doesn't exist!`)
     }
 
-    const files = getAllFiles(dir)
+    const files = getAllFiles(dir, typeScript ? '.ts' : '')
 
     const amount = files.length
     if (amount === 0) {

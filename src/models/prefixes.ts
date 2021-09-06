@@ -1,14 +1,16 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 
 const reqString = {
   type: String,
   required: true,
 }
 
-const prefixSchema = new mongoose.Schema({
+const schema = new Schema({
   // Guild ID
   _id: reqString,
   prefix: reqString,
 })
 
-export = mongoose.model('wokcommands-prefixes', prefixSchema)
+const name = 'wokcommands-prefixes'
+
+export = mongoose.models[name] || mongoose.model(name, schema, name)
