@@ -6,17 +6,57 @@ import {
   CommandInteraction,
   CommandInteractionOptionResolver,
   Guild,
+  MessageEmbed,
 } from 'discord.js'
+import path from 'path'
 
+import getAllFiles from './get-all-files'
 import WOKCommands from '.'
+import slashCommands from './models/slash-commands'
 
 class SlashCommands {
   private _client: Client
   private _instance: WOKCommands
+  private _commandChecks: Map<String, Function> = new Map()
 
   constructor(instance: WOKCommands, listen = true) {
     this._instance = instance
     this._client = instance.client
+
+    for (const [file, fileName] of getAllFiles(
+      path.join(__dirname, 'command-checks')
+    )) {
+      this._commandChecks.set(fileName, require(file))
+    }
+
+    const replyFromCheck = async (
+      reply: string | MessageEmbed | MessageEmbed[],
+      interaction: CommandInteraction
+    ) => {
+      if (!reply) {
+        return new Promise((resolve) => {
+          resolve('No reply provided.')
+        })
+      }
+
+      if (typeof reply === 'string') {
+        return interaction.reply({
+          content: reply,
+        })
+      } else {
+        let embeds = []
+
+        if (Array.isArray(reply)) {
+          embeds = reply
+        } else {
+          embeds.push(reply)
+        }
+
+        return interaction.reply({
+          embeds,
+        })
+      }
+    }
 
     if (listen) {
       this._client.on('interactionCreate', async (interaction) => {
@@ -24,15 +64,45 @@ class SlashCommands {
           return
         }
 
-        const { member, commandName, options, guildId, channelId } = interaction
-
-        const command = commandName
-        const guild = this._client.guilds.cache.get(guildId || '') || null
+        const { member, user, commandName, options, guild, channelId } =
+          interaction
+        const command = instance.commandHandler.getCommand(commandName)
         const channel = guild?.channels.cache.get(channelId) || null
+
+        const args: string[] = []
+
+        options.data.forEach(({ value }) => {
+          args.push(String(value))
+        })
+
+        for (const [
+          checkName,
+          checkFunction,
+        ] of this._commandChecks.entries()) {
+          if (
+            !(await checkFunction(
+              guild,
+              command,
+              instance,
+              member,
+              user,
+              (reply: string | MessageEmbed) => {
+                return replyFromCheck(reply, interaction)
+              },
+              args,
+              commandName,
+              channel
+            ))
+          ) {
+            return
+          }
+        }
+
         this.invokeCommand(
           interaction,
-          command,
+          commandName,
           options,
+          args,
           member,
           guild,
           channel
@@ -64,20 +134,43 @@ class SlashCommands {
     options: ApplicationCommandOptionData[],
     guildId?: string
   ): Promise<ApplicationCommand<{}> | undefined> {
+    // @ts-ignore
+    const nameAndClient = `${name}-${this._client.user.id}`
     let commands
 
     if (guildId) {
       commands = this._client.guilds.cache.get(guildId)?.commands
     } else {
       commands = this._client.application?.commands
+
+      if (this._instance.isDBConnected()) {
+        const alreadyCreated = await slashCommands.findOne({ nameAndClient })
+        if (alreadyCreated) {
+          try {
+            await commands?.fetch(alreadyCreated._id)
+          } catch (e) {
+            await slashCommands.deleteOne({ nameAndClient })
+          }
+          return
+        }
+      }
     }
 
     if (commands) {
-      return await commands.create({
+      const newCommand = await commands.create({
         name,
         description,
         options,
       })
+
+      if (!guildId) {
+        await new slashCommands({
+          _id: newCommand.id,
+          nameAndClient,
+        }).save()
+      }
+
+      return newCommand
     }
 
     return Promise.resolve(undefined)
@@ -99,6 +192,7 @@ class SlashCommands {
     interaction: CommandInteraction,
     commandName: string,
     options: CommandInteractionOptionResolver,
+    args: string[],
     member: any,
     guild: Guild | null,
     channel: Channel | null
@@ -108,12 +202,6 @@ class SlashCommands {
     if (!command || !command.callback) {
       return
     }
-
-    const args: string[] = []
-
-    options.data.forEach(({ value }) => {
-      args.push(String(value))
-    })
 
     const reply = await command.callback({
       member,

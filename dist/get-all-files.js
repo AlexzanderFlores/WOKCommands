@@ -10,7 +10,7 @@ const getAllFiles = (dir, extension) => {
     let jsFiles = [];
     for (const file of files) {
         if (file.isDirectory()) {
-            jsFiles = [...jsFiles, ...getAllFiles(`${dir}/${file.name}`)];
+            jsFiles = [...jsFiles, ...getAllFiles(`${dir}/${file.name}`, extension)];
         }
         else if (file.name.endsWith(extension || '.js') &&
             !file.name.startsWith('!')) {

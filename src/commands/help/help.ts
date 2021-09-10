@@ -17,20 +17,23 @@ const sendHelpMenu = (message: Message, instance: WOKCommands) => {
 }
 
 module.exports = {
-  aliases: 'commands',
-  maxArgs: 1,
-  expectedArgs: '[command]',
   description: "Displays this bot's commands",
   category: 'Help',
+
+  aliases: 'commands',
+
+  maxArgs: 1,
+  expectedArgs: '[command]',
+
   init: (client: Client, instance: WOKCommands) => {
     client.on('messageReactionAdd', async (reaction, user) => {
       new ReactionListener(instance, reaction, user)
     })
   },
   callback: (options: ICallbackObject) => {
-    const { message, instance, args } = options
+    const { message, channel, instance, args } = options
 
-    const guild = message.guild
+    const { guild } = channel
 
     if (guild && !guild.me?.permissions.has('SEND_MESSAGES')) {
       console.warn(
@@ -40,8 +43,7 @@ module.exports = {
     }
 
     if (guild && !guild.me?.permissions.has('ADD_REACTIONS')) {
-      message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'))
-      return
+      return instance.messageHandler.get(guild, 'NO_REACT_PERMS')
     }
 
     // Typical "!help" syntax for the menu
@@ -56,12 +58,9 @@ module.exports = {
 
     const command = instance.commandHandler.getICommand(arg)
     if (!command) {
-      message.reply(
-        instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
-          COMMAND: arg,
-        })
-      )
-      return
+      return instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+        COMMAND: arg,
+      })
     }
 
     const description = ReactionListener.getHelp(command, instance, guild)
@@ -79,6 +78,6 @@ module.exports = {
       embed.setColor(instance.color)
     }
 
-    message.channel.send({ embeds: [embed] })
+    return embed
   },
 } as ICommand

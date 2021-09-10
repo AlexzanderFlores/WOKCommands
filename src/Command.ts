@@ -118,23 +118,6 @@ class Command {
   }
 
   public async execute(message: Message, args: string[]) {
-    if (
-      this._ownerOnly &&
-      !this.instance.botOwner.includes(message.author.id)
-    ) {
-      message.reply(
-        this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY')
-      )
-      return
-    }
-
-    if (this.guildOnly && !message.guild) {
-      message.reply(
-        this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND')
-      )
-      return
-    }
-
     const reply = await this._callback({
       message,
       channel: message.channel,
@@ -148,24 +131,26 @@ class Command {
       },
     })
 
-    if (reply) {
-      if (typeof reply === 'string') {
-        message.reply({
-          content: reply,
-        })
+    if (!reply) {
+      return
+    }
+
+    if (typeof reply === 'string') {
+      message.reply({
+        content: reply,
+      })
+    } else {
+      let embeds = []
+
+      if (Array.isArray(reply)) {
+        embeds = reply
       } else {
-        let embeds = []
-
-        if (Array.isArray(reply)) {
-          embeds = reply
-        } else {
-          embeds.push(reply)
-        }
-
-        message.reply({
-          embeds,
-        })
+        embeds.push(reply)
       }
+
+      message.reply({
+        embeds,
+      })
     }
   }
 
@@ -299,6 +284,10 @@ class Command {
 
   public get guildOnly(): boolean {
     return this._guildOnly
+  }
+
+  public get ownerOnly(): boolean {
+    return this._ownerOnly
   }
 
   public verifyDatabaseCooldowns(connected: boolean) {

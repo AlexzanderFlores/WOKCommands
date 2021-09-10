@@ -35,14 +35,13 @@ class WOKCommands extends events_1.EventEmitter {
     _defaultPrefix = '!';
     _commandsDir = 'commands';
     _featuresDir = '';
-    _mongo = '';
     _mongoConnection = null;
     _displayName = '';
     _prefixes = {};
     _categories = new Map(); // <Category Name, Emoji Icon>
     _hiddenCategories = [];
     _color = null;
-    _commandHandler;
+    _commandHandler = null;
     _featureHandler = null;
     _tagPeople = true;
     _showWarns = true;
@@ -51,15 +50,33 @@ class WOKCommands extends events_1.EventEmitter {
     _botOwner = [];
     _testServers = [];
     _defaultLanguage = 'english';
-    _messageHandler;
-    _slashCommand;
+    _messageHandler = null;
+    _slashCommand = null;
     constructor(client, options) {
         super();
+        this._client = client;
+        this.setUp(client, options);
+    }
+    async setUp(client, options) {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        this._client = client;
-        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, disabledDefaultCommands = [], typeScript = false, } = options || {};
+        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, mongoUri, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, disabledDefaultCommands = [], typeScript = false, } = options || {};
+        if (mongoUri) {
+            await mongo_1.default(mongoUri, this, dbOptions);
+            this._mongoConnection = mongo_1.getMongoConnection();
+            const results = await prefixes_1.default.find({});
+            for (const result of results) {
+                const { _id, prefix } = result;
+                this._prefixes[_id] = prefix;
+            }
+        }
+        else {
+            if (showWarns) {
+                console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://docs.wornoffkeys.com/databases/mongodb');
+            }
+            this.emit(Events_1.default.DATABASE_CONNECTED, null, '');
+        }
         this._commandsDir = commandsDir || commandDir || this._commandsDir;
         this._featuresDir = featuresDir || featureDir || this._featuresDir;
         if (this._commandsDir &&
@@ -97,29 +114,9 @@ class WOKCommands extends events_1.EventEmitter {
                 emoji: '❓',
             },
         ]);
-        setTimeout(async () => {
-            if (this._mongo) {
-                await mongo_1.default(this._mongo, this, dbOptions);
-                this._mongoConnection = mongo_1.getMongoConnection();
-                const results = await prefixes_1.default.find({});
-                for (const result of results) {
-                    const { _id, prefix } = result;
-                    this._prefixes[_id] = prefix;
-                }
-            }
-            else {
-                if (showWarns) {
-                    console.warn('WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://docs.wornoffkeys.com/setup-and-options-object');
-                }
-                this.emit(Events_1.default.DATABASE_CONNECTED, null, '');
-            }
-        }, 500);
-    }
-    get mongoPath() {
-        return this._mongo || '';
     }
     setMongoPath(mongoPath) {
-        this._mongo = mongoPath || '';
+        console.warn('WOKCommands > .setMongoPath() no longer works as expected. Please pass in your mongo URI as a "mongoUri" property using the options object. For more information: https://docs.wornoffkeys.com/databases/mongodb');
         return this;
     }
     get client() {

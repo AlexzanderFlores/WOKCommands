@@ -36,6 +36,7 @@ const Events_1 = __importDefault(require("./enums/Events"));
 class CommandHandler {
     _commands = new Map();
     _client = null;
+    _commandChecks = new Map();
     constructor(instance, client, dir, disabledDefaultCommands, typeScript = false) {
         this._client = client;
         // Register built in commands
@@ -44,6 +45,9 @@ class CommandHandler {
                 continue;
             }
             this.registerCommand(instance, client, file, fileName);
+        }
+        for (const [file, fileName] of get_all_files_1.default(path_1.default.join(__dirname, 'command-checks'))) {
+            this._commandChecks.set(fileName, require(file));
         }
         if (dir) {
             if (!fs_1.default.existsSync(dir)) {
@@ -55,7 +59,31 @@ class CommandHandler {
             for (const [file, fileName] of files) {
                 this.registerCommand(instance, client, file, fileName);
             }
-            client.on('messageCreate', (message) => {
+            const replyFromCheck = async (reply, message) => {
+                if (!reply) {
+                    return new Promise((resolve) => {
+                        resolve('No reply provided.');
+                    });
+                }
+                if (typeof reply === 'string') {
+                    return message.reply({
+                        content: reply,
+                    });
+                }
+                else {
+                    let embeds = [];
+                    if (Array.isArray(reply)) {
+                        embeds = reply;
+                    }
+                    else {
+                        embeds.push(reply);
+                    }
+                    return message.reply({
+                        embeds,
+                    });
+                }
+            };
+            client.on('messageCreate', async (message) => {
                 const guild = message.guild;
                 let content = message.content;
                 const prefix = instance.getPrefix(guild).toLowerCase();
@@ -67,7 +95,7 @@ class CommandHandler {
                 }
                 // Remove the prefix
                 content = content.substring(prefix.length);
-                const args = content.split(/ /g);
+                const args = content.split(/[ ]+/g);
                 // Remove the "command", leaving just the arguments
                 const firstElement = args.shift();
                 if (!firstElement) {
@@ -83,177 +111,11 @@ class CommandHandler {
                 if (slash === true) {
                     return;
                 }
-                if (guild) {
-                    const isDisabled = command.isDisabled(guild.id);
-                    if (isDisabled) {
-                        if (error) {
-                            error({
-                                error: CommandErrors_1.default.COMMAND_DISABLED,
-                                command,
-                                message,
-                            });
-                        }
-                        else {
-                            message
-                                .reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND'))
-                                .then((message) => {
-                                if (instance.delErrMsgCooldown === -1) {
-                                    return;
-                                }
-                                setTimeout(() => {
-                                    message.delete();
-                                }, 1000 * instance.delErrMsgCooldown);
-                            });
-                        }
-                        return;
-                    }
-                }
-                const { member, author: user } = message;
-                const { minArgs, maxArgs, expectedArgs, requiredPermissions, cooldown, globalCooldown, testOnly, } = command;
-                if (testOnly && (!guild || !instance.testServers.includes(guild.id))) {
-                    return;
-                }
-                if (guild && member) {
-                    for (const perm of requiredPermissions || []) {
-                        // @ts-ignore
-                        if (!member.permissions.has(perm)) {
-                            if (error) {
-                                error({
-                                    error: CommandErrors_1.default.MISSING_PERMISSIONS,
-                                    command,
-                                    message,
-                                });
-                            }
-                            else {
-                                message
-                                    .reply(instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
-                                    PERM: perm,
-                                }))
-                                    .then((message) => {
-                                    if (instance.delErrMsgCooldown === -1) {
-                                        return;
-                                    }
-                                    setTimeout(() => {
-                                        message.delete();
-                                    }, 1000 * instance.delErrMsgCooldown);
-                                });
-                            }
-                            return;
-                        }
-                    }
-                    const roles = command.getRequiredRoles(guild.id);
-                    if (roles && roles.length) {
-                        const missingRoles = [];
-                        const missingRolesNames = [];
-                        for (const role of roles) {
-                            if (!member.roles.cache.has(role)) {
-                                missingRoles.push(role);
-                                missingRolesNames.push(guild.roles.cache.get(role)?.name);
-                            }
-                        }
-                        if (missingRoles.length) {
-                            if (error) {
-                                error({
-                                    error: CommandErrors_1.default.MISSING_ROLES,
-                                    command,
-                                    message,
-                                    info: {
-                                        missingRoles,
-                                    },
-                                });
-                            }
-                            else {
-                                message
-                                    .reply(instance.messageHandler.get(guild, 'MISSING_ROLES', {
-                                    ROLES: missingRolesNames.join(', '),
-                                }))
-                                    .then((message) => {
-                                    if (instance.delErrMsgCooldown === -1) {
-                                        return;
-                                    }
-                                    setTimeout(() => {
-                                        message.delete();
-                                    }, 1000 * instance.delErrMsgCooldown);
-                                });
-                            }
-                            return;
-                        }
-                    }
-                }
-                // Are the proper number of arguments provided?
-                if ((minArgs !== undefined && args.length < minArgs) ||
-                    (maxArgs !== undefined && maxArgs !== -1 && args.length > maxArgs)) {
-                    const syntaxError = command.syntaxError || {};
-                    const { messageHandler } = instance;
-                    let errorMsg = syntaxError[messageHandler.getLanguage(guild)] ||
-                        instance.messageHandler.get(guild, 'SYNTAX_ERROR');
-                    // Replace {PREFIX} with the actual prefix
-                    if (errorMsg) {
-                        errorMsg = errorMsg.replace(/{PREFIX}/g, prefix);
-                        // Replace {COMMAND} with the name of the command that was ran
-                        errorMsg = errorMsg.replace(/{COMMAND}/g, name);
-                        // Replace {ARGUMENTS} with the expectedArgs property from the command
-                        // If one was not provided then replace {ARGUMENTS} with an empty string
-                        errorMsg = errorMsg.replace(/ {ARGUMENTS}/g, expectedArgs ? ` ${expectedArgs}` : '');
-                    }
-                    if (error) {
-                        error({
-                            error: CommandErrors_1.default.INVALID_ARGUMENTS,
-                            command,
-                            message,
-                            info: {
-                                minArgs,
-                                maxArgs,
-                                length: args.length,
-                                errorMsg,
-                            },
-                        });
-                    }
-                    else {
-                        // Reply with the local or global syntax error
-                        message.reply(errorMsg);
-                    }
-                    return;
-                }
-                // Check for cooldowns
-                if ((cooldown || globalCooldown) && user) {
-                    const guildId = guild ? guild.id : 'dm';
-                    const timeLeft = command.getCooldownSeconds(guildId, user.id);
-                    if (timeLeft) {
-                        if (error) {
-                            error({
-                                error: CommandErrors_1.default.COOLDOWN,
-                                command,
-                                message,
-                                info: {
-                                    timeLeft,
-                                },
-                            });
-                        }
-                        else {
-                            message.reply(instance.messageHandler.get(guild, 'COOLDOWN', {
-                                COOLDOWN: timeLeft,
-                            }));
-                        }
-                        return;
-                    }
-                    command.setCooldown(guildId, user.id);
-                }
-                // Check for channel specific commands
-                if (guild) {
-                    const key = `${guild.id}-${command.names[0]}`;
-                    const channels = command.requiredChannels.get(key);
-                    if (channels &&
-                        channels.length &&
-                        !channels.includes(message.channel.id)) {
-                        let channelList = '';
-                        for (const channel of channels) {
-                            channelList += `<#${channel}>, `;
-                        }
-                        channelList = channelList.substring(0, channelList.length - 2);
-                        message.reply(instance.messageHandler.get(guild, 'ALLOWED_CHANNELS', {
-                            CHANNELS: channelList,
-                        }));
+                const { member, author: user, channel } = message;
+                for (const [checkName, checkFunction,] of this._commandChecks.entries()) {
+                    if (!(await checkFunction(guild, command, instance, member, user, (reply) => {
+                        return replyFromCheck(reply, message);
+                    }, args, name, channel))) {
                         return;
                     }
                 }

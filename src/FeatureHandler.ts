@@ -57,17 +57,6 @@ class FeatureHandler {
       for (const [file, fileName] of files) {
         this.registerFeature(await import(file), fileName)
       }
-
-      instance.on(
-        Events.DATABASE_CONNECTED,
-        (connection: any, state: string) => {
-          if (state === 'Connected') {
-            for (const { func, client, instance, isEnabled } of waitingForDB) {
-              func(client, instance, isEnabled)
-            }
-          }
-        }
-      )
     })()
   }
 
@@ -109,13 +98,16 @@ class FeatureHandler {
     }
 
     if (config && config.loadDBFirst === true) {
-      waitingForDB.push({
-        func,
-        client: this._client,
-        instance: this._instance,
-        isEnabled,
-      })
-      return
+      console.warn(
+        `WOKCommands > config.loadDBFirst in features is no longer required. MongoDB is now connected to before any features or commands are loaded.`
+      )
+      // waitingForDB.push({
+      //   func,
+      //   client: this._client,
+      //   instance: this._instance,
+      //   isEnabled,
+      // })
+      // return
     }
 
     func(this._client, this._instance, isEnabled)
