@@ -74,15 +74,6 @@ class Command {
         }
     }
     async execute(message, args) {
-        if (this._ownerOnly &&
-            !this.instance.botOwner.includes(message.author.id)) {
-            message.reply(this.instance.messageHandler.get(message.guild, 'BOT_OWNERS_ONLY'));
-            return;
-        }
-        if (this.guildOnly && !message.guild) {
-            message.reply(this.instance.messageHandler.get(message.guild, 'GUILD_ONLY_COMMAND'));
-            return;
-        }
         const reply = await this._callback({
             message,
             channel: message.channel,
@@ -95,24 +86,25 @@ class Command {
                 this.decrementCooldowns(message.guild?.id, message.author.id);
             },
         });
-        if (reply) {
-            if (typeof reply === 'string') {
-                message.reply({
-                    content: reply,
-                });
+        if (!reply) {
+            return;
+        }
+        if (typeof reply === 'string') {
+            message.reply({
+                content: reply,
+            });
+        }
+        else {
+            let embeds = [];
+            if (Array.isArray(reply)) {
+                embeds = reply;
             }
             else {
-                let embeds = [];
-                if (Array.isArray(reply)) {
-                    embeds = reply;
-                }
-                else {
-                    embeds.push(reply);
-                }
-                message.reply({
-                    embeds,
-                });
+                embeds.push(reply);
             }
+            message.reply({
+                embeds,
+            });
         }
     }
     get names() {
@@ -198,6 +190,9 @@ class Command {
     }
     get guildOnly() {
         return this._guildOnly;
+    }
+    get ownerOnly() {
+        return this._ownerOnly;
     }
     verifyDatabaseCooldowns(connected) {
         if (this._cooldownChar === 'd' ||

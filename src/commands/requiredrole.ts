@@ -1,40 +1,38 @@
+import DiscordJS from 'discord.js'
 import { ICallbackObject, ICommand } from '../..'
 import requiredRoleSchema from '../models/required-roles'
 
 export = {
-  aliases: ['requiredroles', 'requirerole', 'requireroles'],
-  minArgs: 2,
-  maxArgs: 2,
-  cooldown: '2s',
-  expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
-  requiredPermissions: ['ADMINISTRATOR'],
   description: 'Specifies what role each command requires.',
   category: 'Configuration',
+
+  permissions: ['ADMINISTRATOR'],
+  names: ['requiredroles', 'requirerole', 'requireroles'],
+
+  minArgs: 2,
+  maxArgs: 2,
+  expectedArgs: '<command> <none-or-roleid>',
+
+  cooldown: '2s',
+
+  slash: 'both',
+
   callback: async (options: ICallbackObject) => {
-    const { message, args, instance } = options
+    const { channel, args, instance } = options
 
     const name = (args.shift() || '').toLowerCase()
-    let roleId =
-      message.mentions.roles.first() || (args.shift() || '').toLowerCase()
+    const roleId = (args.shift() || '').toLowerCase()
 
-    if (typeof roleId !== 'string') {
-      roleId = roleId.id
-    }
-
-    const { guild } = message
+    const { guild } = channel
     if (!guild) {
-      message.reply(
-        instance.messageHandler.get(
-          guild,
-          'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS'
-        )
+      return instance.messageHandler.get(
+        guild,
+        'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS'
       )
-      return
     }
 
     if (!instance.isDBConnected()) {
-      message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'))
-      return
+      return instance.messageHandler.get(guild, 'NO_DATABASE_FOUND')
     }
 
     const command = instance.commandHandler.getCommand(name)
@@ -48,44 +46,42 @@ export = {
           command: command.names[0],
         })
 
-        message.reply(
-          instance.messageHandler.get(guild, 'REMOVED_ALL_REQUIRED_ROLES', {
+        return instance.messageHandler.get(
+          guild,
+          'REMOVED_ALL_REQUIRED_ROLES',
+          {
             COMMAND: command.names[0],
-          })
-        )
-      } else {
-        command.addRequiredRole(guild.id, roleId)
-
-        await requiredRoleSchema.findOneAndUpdate(
-          {
-            guildId: guild.id,
-            command: command.names[0],
-          },
-          {
-            guildId: guild.id,
-            command: command.names[0],
-            $addToSet: {
-              requiredRoles: roleId,
-            },
-          },
-          {
-            upsert: true,
           }
         )
-
-        message.reply(
-          instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
-            ROLE: roleId,
-            COMMAND: command.names[0],
-          })
-        )
       }
-    } else {
-      message.reply(
-        instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
-          COMMAND: name,
-        })
+
+      command.addRequiredRole(guild.id, roleId)
+
+      await requiredRoleSchema.findOneAndUpdate(
+        {
+          guildId: guild.id,
+          command: command.names[0],
+        },
+        {
+          guildId: guild.id,
+          command: command.names[0],
+          $addToSet: {
+            requiredRoles: roleId,
+          },
+        },
+        {
+          upsert: true,
+        }
       )
+
+      return instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
+        ROLE: roleId,
+        COMMAND: command.names[0],
+      })
     }
+
+    return instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+      COMMAND: name,
+    })
   },
 } as ICommand

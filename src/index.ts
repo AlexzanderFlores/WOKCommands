@@ -16,14 +16,13 @@ export default class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
   private _featuresDir = ''
-  private _mongo: string | undefined = ''
   private _mongoConnection: Connection | null = null
   private _displayName = ''
   private _prefixes: { [name: string]: string } = {}
   private _categories: Map<String, String | GuildEmoji> = new Map() // <Category Name, Emoji Icon>
   private _hiddenCategories: string[] = []
   private _color: ColorResolvable | null = null
-  private _commandHandler: CommandHandler
+  private _commandHandler: CommandHandler | null = null
   private _featureHandler: FeatureHandler | null = null
   private _tagPeople = true
   private _showWarns = true
@@ -32,17 +31,21 @@ export default class WOKCommands extends EventEmitter {
   private _botOwner: string[] = []
   private _testServers: string[] = []
   private _defaultLanguage = 'english'
-  private _messageHandler: MessageHandler
-  private _slashCommand: SlashCommands
+  private _messageHandler: MessageHandler | null = null
+  private _slashCommand: SlashCommands | null = null
 
   constructor(client: Client, options?: Options) {
     super()
 
+    this._client = client
+
+    this.setUp(client, options)
+  }
+
+  private async setUp(client: Client, options?: Options) {
     if (!client) {
       throw new Error('No Discord JS Client provided as first argument!')
     }
-
-    this._client = client
 
     let {
       commandsDir = '',
@@ -50,6 +53,7 @@ export default class WOKCommands extends EventEmitter {
       featuresDir = '',
       featureDir = '',
       messagesPath,
+      mongoUri,
       showWarns = true,
       delErrMsgCooldown = -1,
       defaultLanguage = 'english',
@@ -59,6 +63,28 @@ export default class WOKCommands extends EventEmitter {
       disabledDefaultCommands = [],
       typeScript = false,
     } = options || {}
+
+    if (mongoUri) {
+      await mongo(mongoUri, this, dbOptions)
+
+      this._mongoConnection = getMongoConnection()
+
+      const results: any[] = await prefixes.find({})
+
+      for (const result of results) {
+        const { _id, prefix } = result
+
+        this._prefixes[_id] = prefix
+      }
+    } else {
+      if (showWarns) {
+        console.warn(
+          'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://docs.wornoffkeys.com/databases/mongodb'
+        )
+      }
+
+      this.emit(Events.DATABASE_CONNECTED, null, '')
+    }
 
     this._commandsDir = commandsDir || commandDir || this._commandsDir
     this._featuresDir = featuresDir || featureDir || this._featuresDir
@@ -126,38 +152,12 @@ export default class WOKCommands extends EventEmitter {
         emoji: '❓',
       },
     ])
-
-    setTimeout(async () => {
-      if (this._mongo) {
-        await mongo(this._mongo, this, dbOptions)
-
-        this._mongoConnection = getMongoConnection()
-
-        const results: any[] = await prefixes.find({})
-
-        for (const result of results) {
-          const { _id, prefix } = result
-
-          this._prefixes[_id] = prefix
-        }
-      } else {
-        if (showWarns) {
-          console.warn(
-            'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://docs.wornoffkeys.com/setup-and-options-object'
-          )
-        }
-
-        this.emit(Events.DATABASE_CONNECTED, null, '')
-      }
-    }, 500)
-  }
-
-  public get mongoPath(): string {
-    return this._mongo || ''
   }
 
   public setMongoPath(mongoPath: string | undefined): WOKCommands {
-    this._mongo = mongoPath || ''
+    console.warn(
+      'WOKCommands > .setMongoPath() no longer works as expected. Please pass in your mongo URI as a "mongoUri" property using the options object. For more information: https://docs.wornoffkeys.com/databases/mongodb'
+    )
     return this
   }
 
@@ -287,7 +287,7 @@ export default class WOKCommands extends EventEmitter {
   }
 
   public get commandHandler(): CommandHandler {
-    return this._commandHandler
+    return this._commandHandler!
   }
 
   public get mongoConnection(): Connection | null {
@@ -346,11 +346,11 @@ export default class WOKCommands extends EventEmitter {
   }
 
   public get messageHandler(): MessageHandler {
-    return this._messageHandler
+    return this._messageHandler!
   }
 
   public get slashCommands(): SlashCommands {
-    return this._slashCommand
+    return this._slashCommand!
   }
 }
 

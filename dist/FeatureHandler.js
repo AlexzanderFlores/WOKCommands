@@ -24,7 +24,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const get_all_files_1 = __importDefault(require("./get-all-files"));
-const Events_1 = __importDefault(require("./enums/Events"));
 const waitingForDB = [];
 class FeatureHandler {
     _features = new Map(); // <Feature name, Disabled GuildIDs>
@@ -55,13 +54,6 @@ class FeatureHandler {
             for (const [file, fileName] of files) {
                 this.registerFeature(await Promise.resolve().then(() => __importStar(require(file))), fileName);
             }
-            instance.on(Events_1.default.DATABASE_CONNECTED, (connection, state) => {
-                if (state === 'Connected') {
-                    for (const { func, client, instance, isEnabled } of waitingForDB) {
-                        func(client, instance, isEnabled);
-                    }
-                }
-            });
         })();
     }
     registerFeature = (file, fileName) => {
@@ -94,13 +86,14 @@ class FeatureHandler {
             return this.isEnabled(guildId, file);
         };
         if (config && config.loadDBFirst === true) {
-            waitingForDB.push({
-                func,
-                client: this._client,
-                instance: this._instance,
-                isEnabled,
-            });
-            return;
+            console.warn(`WOKCommands > config.loadDBFirst in features is no longer required. MongoDB is now connected to before any features or commands are loaded.`);
+            // waitingForDB.push({
+            //   func,
+            //   client: this._client,
+            //   instance: this._instance,
+            //   isEnabled,
+            // })
+            // return
         }
         func(this._client, this._instance, isEnabled);
     };

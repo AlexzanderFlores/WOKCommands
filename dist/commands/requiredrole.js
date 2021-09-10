@@ -4,29 +4,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const required_roles_1 = __importDefault(require("../models/required-roles"));
 module.exports = {
-    aliases: ['requiredroles', 'requirerole', 'requireroles'],
-    minArgs: 2,
-    maxArgs: 2,
-    cooldown: '2s',
-    expectedArgs: '<Command Name> <"none" | Tagged Role | Role ID String>',
-    requiredPermissions: ['ADMINISTRATOR'],
     description: 'Specifies what role each command requires.',
     category: 'Configuration',
+    permissions: ['ADMINISTRATOR'],
+    names: ['requiredroles', 'requirerole', 'requireroles'],
+    minArgs: 2,
+    maxArgs: 2,
+    expectedArgs: '<command> <none-or-roleid>',
+    cooldown: '2s',
+    slash: 'both',
     callback: async (options) => {
-        const { message, args, instance } = options;
+        const { channel, args, instance } = options;
         const name = (args.shift() || '').toLowerCase();
-        let roleId = message.mentions.roles.first() || (args.shift() || '').toLowerCase();
-        if (typeof roleId !== 'string') {
-            roleId = roleId.id;
-        }
-        const { guild } = message;
+        const roleId = (args.shift() || '').toLowerCase();
+        const { guild } = channel;
         if (!guild) {
-            message.reply(instance.messageHandler.get(guild, 'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS'));
-            return;
+            return instance.messageHandler.get(guild, 'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS');
         }
         if (!instance.isDBConnected()) {
-            message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'));
-            return;
+            return instance.messageHandler.get(guild, 'NO_DATABASE_FOUND');
         }
         const command = instance.commandHandler.getCommand(name);
         if (command) {
@@ -36,34 +32,30 @@ module.exports = {
                     guildId: guild.id,
                     command: command.names[0],
                 });
-                message.reply(instance.messageHandler.get(guild, 'REMOVED_ALL_REQUIRED_ROLES', {
+                return instance.messageHandler.get(guild, 'REMOVED_ALL_REQUIRED_ROLES', {
                     COMMAND: command.names[0],
-                }));
-            }
-            else {
-                command.addRequiredRole(guild.id, roleId);
-                await required_roles_1.default.findOneAndUpdate({
-                    guildId: guild.id,
-                    command: command.names[0],
-                }, {
-                    guildId: guild.id,
-                    command: command.names[0],
-                    $addToSet: {
-                        requiredRoles: roleId,
-                    },
-                }, {
-                    upsert: true,
                 });
-                message.reply(instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
-                    ROLE: roleId,
-                    COMMAND: command.names[0],
-                }));
             }
+            command.addRequiredRole(guild.id, roleId);
+            await required_roles_1.default.findOneAndUpdate({
+                guildId: guild.id,
+                command: command.names[0],
+            }, {
+                guildId: guild.id,
+                command: command.names[0],
+                $addToSet: {
+                    requiredRoles: roleId,
+                },
+            }, {
+                upsert: true,
+            });
+            return instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
+                ROLE: roleId,
+                COMMAND: command.names[0],
+            });
         }
-        else {
-            message.reply(instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
-                COMMAND: name,
-            }));
-        }
+        return instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+            COMMAND: name,
+        });
     },
 };

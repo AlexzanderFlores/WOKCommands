@@ -81,6 +81,7 @@ interface OptionsWithS {
   commandsDir: string
   featuresDir?: string
   messagesPath?: string
+  mongoUri?: string
   showWarns?: boolean
   delErrMsgCooldown?: number
   defaultLanguage?: string
@@ -98,6 +99,7 @@ interface OptionsWithoutS {
   commandDir: string
   featureDir?: string
   messagesPath?: string
+  mongoUri?: string
   showWarns?: boolean
   delErrMsgCooldown?: number
   defaultLanguage?: string
@@ -150,6 +152,7 @@ export interface ICommand {
   testOnly?: boolean
   slash?: boolean | 'both'
   options?: ApplicationCommandOptionData[]
+  delete?: boolean
 }
 
 export interface ISlashCommand {

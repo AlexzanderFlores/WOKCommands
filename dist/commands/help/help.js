@@ -36,26 +36,25 @@ const sendHelpMenu = (message, instance) => {
     });
 };
 module.exports = {
+    description: "Displays this bot's commands",
+    category: 'Help',
     aliases: 'commands',
     maxArgs: 1,
     expectedArgs: '[command]',
-    description: "Displays this bot's commands",
-    category: 'Help',
     init: (client, instance) => {
         client.on('messageReactionAdd', async (reaction, user) => {
             new _ReactionListener_1.default(instance, reaction, user);
         });
     },
     callback: (options) => {
-        const { message, instance, args } = options;
-        const guild = message.guild;
+        const { message, channel, instance, args } = options;
+        const { guild } = channel;
         if (guild && !guild.me?.permissions.has('SEND_MESSAGES')) {
             console.warn(`WOKCommands > Could not send message due to no permissions in channel for ${guild.name}`);
             return;
         }
         if (guild && !guild.me?.permissions.has('ADD_REACTIONS')) {
-            message.reply(instance.messageHandler.get(guild, 'NO_REACT_PERMS'));
-            return;
+            return instance.messageHandler.get(guild, 'NO_REACT_PERMS');
         }
         // Typical "!help" syntax for the menu
         if (args.length === 0) {
@@ -67,10 +66,9 @@ module.exports = {
         const arg = args.shift()?.toLowerCase();
         const command = instance.commandHandler.getICommand(arg);
         if (!command) {
-            message.reply(instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+            return instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
                 COMMAND: arg,
-            }));
-            return;
+            });
         }
         const description = _ReactionListener_1.default.getHelp(command, instance, guild);
         const embed = new discord_js_1.MessageEmbed()
@@ -79,6 +77,6 @@ module.exports = {
         if (instance.color) {
             embed.setColor(instance.color);
         }
-        message.channel.send({ embeds: [embed] });
+        return embed;
     },
 };

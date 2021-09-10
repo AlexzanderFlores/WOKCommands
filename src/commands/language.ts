@@ -3,17 +3,23 @@ import { ICallbackObject, ICommand } from '../..'
 import Events from '../enums/Events'
 
 export = {
-  aliases: ['lang'],
-  maxArgs: 1,
-  cooldown: '2s',
-  expectedArgs: '[Language]',
-  requiredPermissions: ['ADMINISTRATOR'],
   description: 'Displays or sets the language for this Discord server',
   category: 'Configuration',
-  callback: async (options: ICallbackObject) => {
-    const { message, text, instance } = options
 
-    const { guild } = message
+  aliases: ['lang'],
+  permissions: ['ADMINISTRATOR'],
+
+  maxArgs: 1,
+  expectedArgs: '[language]',
+
+  cooldown: '2s',
+
+  slash: 'both',
+
+  callback: async (options: ICallbackObject) => {
+    const { channel, text, instance } = options
+
+    const { guild } = channel
     if (!guild) {
       return
     }
@@ -21,39 +27,26 @@ export = {
     const { messageHandler } = instance
 
     if (!instance.isDBConnected()) {
-      message.reply(instance.messageHandler.get(guild, 'NO_DATABASE_FOUND'))
-      return
+      return instance.messageHandler.get(guild, 'NO_DATABASE_FOUND')
     }
 
     const lang = text.toLowerCase()
 
     if (!lang) {
-      message.reply(
-        instance.messageHandler.get(guild, 'CURRENT_LANGUAGE', {
-          LANGUAGE: instance.messageHandler.getLanguage(guild),
-        })
-      )
-      return
+      return instance.messageHandler.get(guild, 'CURRENT_LANGUAGE', {
+        LANGUAGE: instance.messageHandler.getLanguage(guild),
+      })
     }
 
     if (!messageHandler.languages().includes(lang)) {
-      message.reply(
-        messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
-          LANGUAGE: lang,
-        })
-      )
+      instance.emit(Events.LANGUAGE_NOT_SUPPORTED, guild, lang)
 
-      instance.emit(Events.LANGUAGE_NOT_SUPPORTED, message, lang)
-
-      return
+      return messageHandler.get(guild, 'LANGUAGE_NOT_SUPPORTED', {
+        LANGUAGE: lang,
+      })
     }
 
     instance.messageHandler.setLanguage(guild, lang)
-    message.reply(
-      instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
-        LANGUAGE: lang,
-      })
-    )
 
     await languageSchema.findOneAndUpdate(
       {
@@ -67,5 +60,9 @@ export = {
         upsert: true,
       }
     )
+
+    return instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
+      LANGUAGE: lang,
+    })
   },
 } as ICommand
