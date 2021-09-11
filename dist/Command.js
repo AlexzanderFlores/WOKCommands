@@ -230,7 +230,7 @@ class Command {
     }
     async updateDatabaseCooldowns(_id, cooldown) {
         // Only update every 20s
-        if (cooldown % 20 === 0) {
+        if (cooldown % 20 === 0 && this.instance.isDBConnected()) {
             const type = this.globalCooldown ? 'global' : 'per-user';
             if (cooldown <= 0) {
                 await cooldown_1.default.deleteOne({ _id, name: this.names[0], type });

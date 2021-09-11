@@ -34,6 +34,9 @@ module.exports = {
         const { messageHandler } = instance;
         let commandName = (args.shift() || '').toLowerCase();
         const command = instance.commandHandler.getICommand(commandName);
+        if (!instance.isDBConnected()) {
+            return messageHandler.get(guild, 'NO_DATABASE_FOUND');
+        }
         if (!command || !command.names) {
             return messageHandler.get(guild, 'UNKNOWN_COMMAND', {
                 COMMAND: commandName,
