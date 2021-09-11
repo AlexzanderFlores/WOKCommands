@@ -6,6 +6,7 @@ import {
   Message,
   PermissionString,
   TextChannel,
+  CommandInteractionOptionResolver,
 } from 'discord.js'
 import { EventEmitter } from 'events'
 import WOKCommands from './src'
@@ -151,7 +152,7 @@ export interface ICommand {
   guildOnly?: boolean
   testOnly?: boolean
   slash?: boolean | 'both'
-  options?: ApplicationCommandOptionData[]
+  options?: CommandInteractionOptionResolver
   delete?: boolean
 }
 
