@@ -13,7 +13,7 @@ export = (
   name: string,
   channel: GuildChannel
 ) => {
-  if (!guild) {
+  if (!guild || !command) {
     return true
   }
 

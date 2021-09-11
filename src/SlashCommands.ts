@@ -163,7 +163,7 @@ class SlashCommands {
         options,
       })
 
-      if (!guildId) {
+      if (!guildId && this._instance.isDBConnected()) {
         await new slashCommands({
           _id: newCommand.id,
           nameAndClient,

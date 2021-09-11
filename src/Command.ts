@@ -334,7 +334,7 @@ class Command {
 
   public async updateDatabaseCooldowns(_id: String, cooldown: number) {
     // Only update every 20s
-    if (cooldown % 20 === 0) {
+    if (cooldown % 20 === 0 && this.instance.isDBConnected()) {
       const type = this.globalCooldown ? 'global' : 'per-user'
 
       if (cooldown <= 0) {

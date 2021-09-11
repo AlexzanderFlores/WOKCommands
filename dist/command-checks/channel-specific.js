@@ -1,6 +1,6 @@
 "use strict";
 module.exports = (guild, command, instance, member, user, reply, args, name, channel) => {
-    if (!guild) {
+    if (!guild || !command) {
         return true;
     }
     const key = `${guild.id}-${command.names[0]}`;
