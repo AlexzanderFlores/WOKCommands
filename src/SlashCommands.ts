@@ -42,6 +42,7 @@ class SlashCommands {
       if (typeof reply === 'string') {
         return interaction.reply({
           content: reply,
+          ephemeral: instance.ephemeral,
         })
       } else {
         let embeds = []
@@ -54,6 +55,7 @@ class SlashCommands {
 
         return interaction.reply({
           embeds,
+          ephemeral: instance.ephemeral,
         })
       }
     }
@@ -75,7 +77,7 @@ class SlashCommands {
               guild,
               'INVALID_SLASH_COMMAND'
             ),
-            ephemeral: true,
+            ephemeral: instance.ephemeral,
           })
           return
         }
@@ -224,6 +226,7 @@ class SlashCommands {
       instance: this._instance,
       interaction,
       options,
+      buttonClicked: this._instance.commandHandler.buttonClicked,
     })
 
     if (reply) {

@@ -296,6 +296,15 @@
     "dutch": "Deze slash-opdracht is niet correct geregistreerd.",
     "french": "Cette commande slash n'est pas correctement enregistrée."
   },
+  "CANNOT_INTERACT_BUTTON": {
+    "english": "You cannot interact with this button.",
+    "spanish": "No puede interactuar con este botón.",
+    "portuguese": "Você não pode interagir com este botão.",
+    "russian": "Вы не можете взаимодействовать с этой кнопкой.",
+    "german": "Sie können mit dieser Schaltfläche nicht interagieren.",
+    "dutch": "U kunt niet communiceren met deze knop.",
+    "french": "Vous ne pouvez pas interagir avec ce bouton."
+  },
   "HELP_MENU": {
     "TITLE": {
       "english": "Help Menu",
