@@ -458,8 +458,6 @@ export default class CommandHandler {
   }
 
   public getCommand(name: string): Command | undefined {
-    console.log(`Fetching command "${name}"`)
-    console.log('Valid commands:', this._commands.keys())
     return this._commands.get(name)
   }
 

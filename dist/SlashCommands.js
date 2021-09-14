@@ -45,8 +45,12 @@ class SlashCommands {
                     return;
                 }
                 const { member, user, commandName, options, guild, channelId } = interaction;
-                const command = instance.commandHandler.getCommand(commandName);
                 const channel = guild?.channels.cache.get(channelId) || null;
+                const command = instance.commandHandler.getCommand(commandName);
+                if (!command) {
+                    console.log(`Unknown slash command command "${commandName}"`);
+                    return;
+                }
                 const args = [];
                 options.data.forEach(({ value }) => {
                     args.push(String(value));
