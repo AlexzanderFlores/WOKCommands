@@ -70,7 +70,13 @@ class SlashCommands {
         const command = instance.commandHandler.getCommand(commandName)
 
         if (!command) {
-          console.log(`Unknown slash command command "${commandName}"`)
+          interaction.reply({
+            content: instance.messageHandler.get(
+              guild,
+              'INVALID_SLASH_COMMAND'
+            ),
+            ephemeral: true,
+          })
           return
         }
 

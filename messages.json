@@ -287,6 +287,15 @@
     "dutch": "Deze opdracht kan niet worden uitgeschakeld.",
     "french": "Cette commande ne peut pas être désactivée."
   },
+  "INVALID_SLASH_COMMAND": {
+    "english": "This slash command is not properly registered.",
+    "spanish": "Este comando de barra no está registrado correctamente.",
+    "portuguese": "Este comando de barra não está registrado corretamente.",
+    "russian": "Эта команда косой черты не зарегистрирована должным образом.",
+    "german": "Dieser Schrägstrichbefehl ist nicht richtig registriert.",
+    "dutch": "Deze slash-opdracht is niet correct geregistreerd.",
+    "french": "Cette commande slash n'est pas correctement enregistrée."
+  },
   "HELP_MENU": {
     "TITLE": {
       "english": "Help Menu",
