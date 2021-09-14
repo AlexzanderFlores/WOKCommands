@@ -81,6 +81,7 @@ class WOKCommands extends events_1.EventEmitter {
         }
         this._commandsDir = commandsDir || commandDir || this._commandsDir;
         this._featuresDir = featuresDir || featureDir || this._featuresDir;
+        this._ephemeral = ephemeral;
         if (this._commandsDir &&
             !(this._commandsDir.includes('/') || this._commandsDir.includes('\\'))) {
             throw new Error("WOKCommands > The 'commands' directory must be an absolute path. This can be done by using the 'path' module. More info: https://docs.wornoffkeys.com/setup-and-options-object");

@@ -91,6 +91,7 @@ export default class WOKCommands extends EventEmitter {
 
     this._commandsDir = commandsDir || commandDir || this._commandsDir
     this._featuresDir = featuresDir || featureDir || this._featuresDir
+    this._ephemeral = ephemeral
 
     if (
       this._commandsDir &&
