@@ -10,7 +10,7 @@ export = (
   user: User,
   reply: Function
 ) => {
-  const { guildOnly = false } = command
+  const { guildOnly } = command
 
   // If this command doesn't care if it's in a guild or not then just simply return true
   if (!guildOnly) {

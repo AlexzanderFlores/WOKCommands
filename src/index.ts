@@ -16,6 +16,7 @@ export default class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
   private _featuresDir = ''
+  private _buttonsDir = ''
   private _mongoConnection: Connection | null = null
   private _displayName = ''
   private _prefixes: { [name: string]: string } = {}
@@ -31,6 +32,7 @@ export default class WOKCommands extends EventEmitter {
   private _botOwner: string[] = []
   private _testServers: string[] = []
   private _defaultLanguage = 'english'
+  private _ephemeral = true
   private _messageHandler: MessageHandler | null = null
   private _slashCommand: SlashCommands | null = null
 
@@ -62,6 +64,7 @@ export default class WOKCommands extends EventEmitter {
       testServers,
       disabledDefaultCommands = [],
       typeScript = false,
+      ephemeral = true,
     } = options || {}
 
     if (mongoUri) {
@@ -139,7 +142,6 @@ export default class WOKCommands extends EventEmitter {
       this._featuresDir,
       typeScript
     )
-
     this._messageHandler = new MessageHandler(this, messagesPath || '')
 
     this.setCategorySettings([
@@ -343,6 +345,10 @@ export default class WOKCommands extends EventEmitter {
   public setDefaultLanguage(defaultLanguage: string): WOKCommands {
     this._defaultLanguage = defaultLanguage
     return this
+  }
+
+  public get ephemeral(): boolean {
+    return this._ephemeral
   }
 
   public get messageHandler(): MessageHandler {

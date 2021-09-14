@@ -24,6 +24,7 @@ class SlashCommands {
             if (typeof reply === 'string') {
                 return interaction.reply({
                     content: reply,
+                    ephemeral: instance.ephemeral,
                 });
             }
             else {
@@ -36,6 +37,7 @@ class SlashCommands {
                 }
                 return interaction.reply({
                     embeds,
+                    ephemeral: instance.ephemeral,
                 });
             }
         };
@@ -45,8 +47,15 @@ class SlashCommands {
                     return;
                 }
                 const { member, user, commandName, options, guild, channelId } = interaction;
-                const command = instance.commandHandler.getCommand(commandName);
                 const channel = guild?.channels.cache.get(channelId) || null;
+                const command = instance.commandHandler.getCommand(commandName);
+                if (!command) {
+                    interaction.reply({
+                        content: instance.messageHandler.get(guild, 'INVALID_SLASH_COMMAND'),
+                        ephemeral: instance.ephemeral,
+                    });
+                    return;
+                }
                 const args = [];
                 options.data.forEach(({ value }) => {
                     args.push(String(value));
@@ -135,6 +144,7 @@ class SlashCommands {
             instance: this._instance,
             interaction,
             options,
+            buttonClicked: this._instance.commandHandler.buttonClicked,
         });
         if (reply) {
             if (typeof reply === 'string') {

@@ -90,6 +90,7 @@ interface OptionsWithS {
   testServers?: string | string[]
   disabledDefaultCommands?: string | string[]
   typeScript?: boolean
+  ephemeral?: boolean
 }
 
 interface OptionsWithoutS {
@@ -108,6 +109,7 @@ interface OptionsWithoutS {
   testServers?: string | string[]
   disabledDefaultCommands?: string | string[]
   typeScript?: boolean
+  ephemeral?: boolean
 }
 export type Options = OptionsWithS | OptionsWithoutS
 
@@ -122,6 +124,11 @@ export interface ICallbackObject {
   interaction: CommandInteraction
   options: ApplicationCommandOptionData[]
   cancelCoolDown(): any
+  buttonClicked(
+    interaction: MessageInteraction,
+    userOnly: boolean,
+    callback: Function
+  ): any
 }
 
 export interface IErrorObject {

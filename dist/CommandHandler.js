@@ -33,10 +33,35 @@ const channel_commands_1 = __importDefault(require("./models/channel-commands"))
 const permissions_1 = require("./permissions");
 const CommandErrors_1 = __importDefault(require("./enums/CommandErrors"));
 const Events_1 = __importDefault(require("./enums/Events"));
+const replyFromCheck = async (reply, message) => {
+    if (!reply) {
+        return new Promise((resolve) => {
+            resolve('No reply provided.');
+        });
+    }
+    if (typeof reply === 'string') {
+        return message.reply({
+            content: reply,
+        });
+    }
+    else {
+        let embeds = [];
+        if (Array.isArray(reply)) {
+            embeds = reply;
+        }
+        else {
+            embeds.push(reply);
+        }
+        return message.reply({
+            embeds,
+        });
+    }
+};
 class CommandHandler {
     _commands = new Map();
     _client = null;
     _commandChecks = new Map();
+    _buttonCallbacks = new Map();
     constructor(instance, client, dir, disabledDefaultCommands, typeScript = false) {
         this._client = client;
         // Register built in commands
@@ -59,30 +84,6 @@ class CommandHandler {
             for (const [file, fileName] of files) {
                 this.registerCommand(instance, client, file, fileName);
             }
-            const replyFromCheck = async (reply, message) => {
-                if (!reply) {
-                    return new Promise((resolve) => {
-                        resolve('No reply provided.');
-                    });
-                }
-                if (typeof reply === 'string') {
-                    return message.reply({
-                        content: reply,
-                    });
-                }
-                else {
-                    let embeds = [];
-                    if (Array.isArray(reply)) {
-                        embeds = reply;
-                    }
-                    else {
-                        embeds.push(reply);
-                    }
-                    return message.reply({
-                        embeds,
-                    });
-                }
-            };
             client.on('messageCreate', async (message) => {
                 const guild = message.guild;
                 let content = message.content;
@@ -120,7 +121,7 @@ class CommandHandler {
                     }
                 }
                 try {
-                    command.execute(message, args);
+                    command.execute(message, args, this.buttonClicked);
                 }
                 catch (e) {
                     if (error) {
@@ -164,6 +165,42 @@ class CommandHandler {
                 });
             });
         }
+        client.on('interactionCreate', async (interaction) => {
+            if (!interaction.isButton()) {
+                return;
+            }
+            const btnInt = interaction;
+            const msgInt = btnInt.message.interaction;
+            const { userOnly, callback } = this._buttonCallbacks.get(msgInt.id);
+            if (callback) {
+                if (userOnly && btnInt.user.id !== msgInt.user.id) {
+                    btnInt.reply({
+                        content: instance.messageHandler.get(btnInt.guild, 'CANNOT_INTERACT_BUTTON'),
+                        ephemeral: instance.ephemeral,
+                    });
+                    return;
+                }
+                const reply = await callback(btnInt.customId, btnInt);
+                if (reply) {
+                    if (typeof reply === 'string') {
+                        btnInt.reply({
+                            content: reply,
+                            ephemeral: instance.ephemeral,
+                        });
+                    }
+                    else {
+                        let embeds = [];
+                        if (Array.isArray(reply)) {
+                            embeds = reply;
+                        }
+                        else {
+                            embeds.push(reply);
+                        }
+                        btnInt.reply({ embeds, ephemeral: instance.ephemeral });
+                    }
+                }
+            }
+        });
         const decrementCountdown = () => {
             this._commands.forEach((command) => {
                 command.decrementCooldowns();
@@ -172,6 +209,9 @@ class CommandHandler {
         };
         decrementCountdown();
     }
+    buttonClicked = async (msgInteraction, userOnly, callback) => {
+        this._buttonCallbacks.set(msgInteraction.id, { userOnly, callback });
+    };
     async registerCommand(instance, client, file, fileName) {
         let configuration = await Promise.resolve().then(() => __importStar(require(file)));
         // person is using 'export default' so we import the default instead

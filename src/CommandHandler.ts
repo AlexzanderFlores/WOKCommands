@@ -1,4 +1,12 @@
-import { Client, Guild, Message, MessageEmbed } from 'discord.js'
+import {
+  ButtonInteraction,
+  Client,
+  Guild,
+  Interaction,
+  Message,
+  MessageEmbed,
+  MessageInteraction,
+} from 'discord.js'
 import fs from 'fs'
 import WOKCommands from '.'
 import path from 'path'
@@ -14,10 +22,43 @@ import { ICommand } from '../typings'
 import CommandErrors from './enums/CommandErrors'
 import Events from './enums/Events'
 
+const replyFromCheck = async (
+  reply: string | MessageEmbed | MessageEmbed[],
+  message: Message
+) => {
+  if (!reply) {
+    return new Promise((resolve) => {
+      resolve('No reply provided.')
+    })
+  }
+
+  if (typeof reply === 'string') {
+    return message.reply({
+      content: reply,
+    })
+  } else {
+    let embeds = []
+
+    if (Array.isArray(reply)) {
+      embeds = reply
+    } else {
+      embeds.push(reply)
+    }
+
+    return message.reply({
+      embeds,
+    })
+  }
+}
+
 export default class CommandHandler {
   private _commands: Map<String, Command> = new Map()
   private _client: Client | null = null
   private _commandChecks: Map<String, Function> = new Map()
+  private _buttonCallbacks: Map<
+    string,
+    { userOnly: boolean; callback: Function }
+  > = new Map()
 
   constructor(
     instance: WOKCommands,
@@ -59,35 +100,6 @@ export default class CommandHandler {
 
       for (const [file, fileName] of files) {
         this.registerCommand(instance, client, file, fileName)
-      }
-
-      const replyFromCheck = async (
-        reply: string | MessageEmbed | MessageEmbed[],
-        message: Message
-      ) => {
-        if (!reply) {
-          return new Promise((resolve) => {
-            resolve('No reply provided.')
-          })
-        }
-
-        if (typeof reply === 'string') {
-          return message.reply({
-            content: reply,
-          })
-        } else {
-          let embeds = []
-
-          if (Array.isArray(reply)) {
-            embeds = reply
-          } else {
-            embeds.push(reply)
-          }
-
-          return message.reply({
-            embeds,
-          })
-        }
       }
 
       client.on('messageCreate', async (message) => {
@@ -154,7 +166,7 @@ export default class CommandHandler {
         }
 
         try {
-          command.execute(message, args)
+          command.execute(message, args, this.buttonClicked)
         } catch (e) {
           if (error) {
             error({
@@ -208,6 +220,50 @@ export default class CommandHandler {
       )
     }
 
+    client.on('interactionCreate', async (interaction: Interaction) => {
+      if (!interaction.isButton()) {
+        return
+      }
+
+      const btnInt = interaction as ButtonInteraction
+      const msgInt = btnInt.message.interaction as MessageInteraction
+
+      const { userOnly, callback } = this._buttonCallbacks.get(msgInt.id)!
+      if (callback) {
+        if (userOnly && btnInt.user.id !== msgInt.user.id) {
+          btnInt.reply({
+            content: instance.messageHandler.get(
+              btnInt.guild,
+              'CANNOT_INTERACT_BUTTON'
+            ),
+            ephemeral: instance.ephemeral,
+          })
+          return
+        }
+
+        const reply = await callback(btnInt.customId, btnInt)
+
+        if (reply) {
+          if (typeof reply === 'string') {
+            btnInt.reply({
+              content: reply,
+              ephemeral: instance.ephemeral,
+            })
+          } else {
+            let embeds = []
+
+            if (Array.isArray(reply)) {
+              embeds = reply
+            } else {
+              embeds.push(reply)
+            }
+
+            btnInt.reply({ embeds, ephemeral: instance.ephemeral })
+          }
+        }
+      }
+    })
+
     const decrementCountdown = () => {
       this._commands.forEach((command) => {
         command.decrementCooldowns()
@@ -216,6 +272,14 @@ export default class CommandHandler {
       setTimeout(decrementCountdown, 1000)
     }
     decrementCountdown()
+  }
+
+  public buttonClicked = async (
+    msgInteraction: MessageInteraction,
+    userOnly: boolean,
+    callback: Function
+  ) => {
+    this._buttonCallbacks.set(msgInteraction.id, { userOnly, callback })
   }
 
   public async registerCommand(

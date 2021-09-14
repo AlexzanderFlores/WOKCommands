@@ -42,6 +42,7 @@ class SlashCommands {
       if (typeof reply === 'string') {
         return interaction.reply({
           content: reply,
+          ephemeral: instance.ephemeral,
         })
       } else {
         let embeds = []
@@ -54,6 +55,7 @@ class SlashCommands {
 
         return interaction.reply({
           embeds,
+          ephemeral: instance.ephemeral,
         })
       }
     }
@@ -66,8 +68,19 @@ class SlashCommands {
 
         const { member, user, commandName, options, guild, channelId } =
           interaction
-        const command = instance.commandHandler.getCommand(commandName)
         const channel = guild?.channels.cache.get(channelId) || null
+        const command = instance.commandHandler.getCommand(commandName)
+
+        if (!command) {
+          interaction.reply({
+            content: instance.messageHandler.get(
+              guild,
+              'INVALID_SLASH_COMMAND'
+            ),
+            ephemeral: instance.ephemeral,
+          })
+          return
+        }
 
         const args: string[] = []
 
@@ -213,6 +226,7 @@ class SlashCommands {
       instance: this._instance,
       interaction,
       options,
+      buttonClicked: this._instance.commandHandler.buttonClicked,
     })
 
     if (reply) {

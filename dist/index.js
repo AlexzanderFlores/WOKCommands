@@ -35,6 +35,7 @@ class WOKCommands extends events_1.EventEmitter {
     _defaultPrefix = '!';
     _commandsDir = 'commands';
     _featuresDir = '';
+    _buttonsDir = '';
     _mongoConnection = null;
     _displayName = '';
     _prefixes = {};
@@ -50,6 +51,7 @@ class WOKCommands extends events_1.EventEmitter {
     _botOwner = [];
     _testServers = [];
     _defaultLanguage = 'english';
+    _ephemeral = true;
     _messageHandler = null;
     _slashCommand = null;
     constructor(client, options) {
@@ -61,7 +63,7 @@ class WOKCommands extends events_1.EventEmitter {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, mongoUri, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, disabledDefaultCommands = [], typeScript = false, } = options || {};
+        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, mongoUri, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, disabledDefaultCommands = [], typeScript = false, ephemeral = true, } = options || {};
         if (mongoUri) {
             await mongo_1.default(mongoUri, this, dbOptions);
             this._mongoConnection = mongo_1.getMongoConnection();
@@ -259,6 +261,9 @@ class WOKCommands extends events_1.EventEmitter {
     setDefaultLanguage(defaultLanguage) {
         this._defaultLanguage = defaultLanguage;
         return this;
+    }
+    get ephemeral() {
+        return this._ephemeral;
     }
     get messageHandler() {
         return this._messageHandler;
