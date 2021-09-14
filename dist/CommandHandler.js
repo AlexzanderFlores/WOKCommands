@@ -61,7 +61,6 @@ class CommandHandler {
     _commands = new Map();
     _client = null;
     _commandChecks = new Map();
-    _buttonCallbacks = new Map();
     constructor(instance, client, dir, disabledDefaultCommands, typeScript = false) {
         this._client = client;
         // Register built in commands
@@ -121,7 +120,7 @@ class CommandHandler {
                     }
                 }
                 try {
-                    command.execute(message, args, this.buttonClicked);
+                    command.execute(message, args);
                 }
                 catch (e) {
                     if (error) {
@@ -165,42 +164,6 @@ class CommandHandler {
                 });
             });
         }
-        client.on('interactionCreate', async (interaction) => {
-            if (!interaction.isButton()) {
-                return;
-            }
-            const btnInt = interaction;
-            const msgInt = btnInt.message.interaction;
-            const { userOnly, callback } = this._buttonCallbacks.get(msgInt.id);
-            if (callback) {
-                if (userOnly && btnInt.user.id !== msgInt.user.id) {
-                    btnInt.reply({
-                        content: instance.messageHandler.get(btnInt.guild, 'CANNOT_INTERACT_BUTTON'),
-                        ephemeral: instance.ephemeral,
-                    });
-                    return;
-                }
-                const reply = await callback(btnInt.customId, btnInt);
-                if (reply) {
-                    if (typeof reply === 'string') {
-                        btnInt.reply({
-                            content: reply,
-                            ephemeral: instance.ephemeral,
-                        });
-                    }
-                    else {
-                        let embeds = [];
-                        if (Array.isArray(reply)) {
-                            embeds = reply;
-                        }
-                        else {
-                            embeds.push(reply);
-                        }
-                        btnInt.reply({ embeds, ephemeral: instance.ephemeral });
-                    }
-                }
-            }
-        });
         const decrementCountdown = () => {
             this._commands.forEach((command) => {
                 command.decrementCooldowns();
@@ -209,9 +172,6 @@ class CommandHandler {
         };
         decrementCountdown();
     }
-    buttonClicked = async (msgInteraction, userOnly, callback) => {
-        this._buttonCallbacks.set(msgInteraction.id, { userOnly, callback });
-    };
     async registerCommand(instance, client, file, fileName) {
         let configuration = await Promise.resolve().then(() => __importStar(require(file)));
         // person is using 'export default' so we import the default instead

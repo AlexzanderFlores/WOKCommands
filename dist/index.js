@@ -35,7 +35,6 @@ class WOKCommands extends events_1.EventEmitter {
     _defaultPrefix = '!';
     _commandsDir = 'commands';
     _featuresDir = '';
-    _buttonsDir = '';
     _mongoConnection = null;
     _displayName = '';
     _prefixes = {};
