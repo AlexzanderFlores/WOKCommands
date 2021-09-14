@@ -51,12 +51,17 @@ class SlashCommands {
                 options.data.forEach(({ value }) => {
                     args.push(String(value));
                 });
-                for (const [checkName, checkFunction,] of this._commandChecks.entries()) {
-                    if (!(await checkFunction(guild, command, instance, member, user, (reply) => {
-                        return replyFromCheck(reply, interaction);
-                    }, args, commandName, channel))) {
-                        return;
+                if (command) {
+                    for (const [checkName, checkFunction,] of this._commandChecks.entries()) {
+                        if (!(await checkFunction(guild, command, instance, member, user, (reply) => {
+                            return replyFromCheck(reply, interaction);
+                        }, args, commandName, channel))) {
+                            return;
+                        }
                     }
+                }
+                else {
+                    console.log(`UNKNOWN COMMAND OBJECT FOR "${commandName}"`);
                 }
                 this.invokeCommand(interaction, commandName, options, args, member, guild, channel);
             });
