@@ -1,4 +1,4 @@
-import { ButtonInteraction, Client, Guild, Message } from 'discord.js'
+import { Client, Guild, Message } from 'discord.js'
 import WOKCommands from '.'
 
 import permissions from './permissions'
@@ -117,11 +117,7 @@ class Command {
     }
   }
 
-  public async execute(
-    message: Message,
-    args: string[],
-    buttonClicked: Function
-  ) {
+  public async execute(message: Message, args: string[]) {
     const reply = await this._callback({
       message,
       channel: message.channel,
@@ -133,7 +129,6 @@ class Command {
       cancelCoolDown: () => {
         this.decrementCooldowns(message.guild?.id, message.author.id)
       },
-      buttonClicked,
     })
 
     if (!reply) {

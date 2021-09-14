@@ -73,7 +73,7 @@ class Command {
             throw new Error(`Command "${names[0]}" has a maximum argument count less than it's minimum argument count!`);
         }
     }
-    async execute(message, args, buttonClicked) {
+    async execute(message, args) {
         const reply = await this._callback({
             message,
             channel: message.channel,
@@ -85,7 +85,6 @@ class Command {
             cancelCoolDown: () => {
                 this.decrementCooldowns(message.guild?.id, message.author.id);
             },
-            buttonClicked,
         });
         if (!reply) {
             return;

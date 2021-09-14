@@ -124,11 +124,6 @@ export interface ICallbackObject {
   interaction: CommandInteraction
   options: ApplicationCommandOptionData[]
   cancelCoolDown(): any
-  buttonClicked(
-    interaction: MessageInteraction,
-    userOnly: boolean,
-    callback: Function
-  ): any
 }
 
 export interface IErrorObject {

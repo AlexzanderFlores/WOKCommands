@@ -144,7 +144,6 @@ class SlashCommands {
             instance: this._instance,
             interaction,
             options,
-            buttonClicked: this._instance.commandHandler.buttonClicked,
         });
         if (reply) {
             if (typeof reply === 'string') {
