@@ -1,15 +1,18 @@
-import { MessageEmbed } from 'discord.js';
-import getFirstEmbed from './!get-first-embed';
-import ReactionListener, { addReactions } from './!ReactionListener';
-const sendHelpMenu = (interaction, instance) => {
-    const { embed, reactions } = _get_first_embed_1.default(interaction, instance);
+import { Client, Message, MessageEmbed } from 'discord.js'
+import WOKCommands from '../..'
+import { ICallbackObject, ICommand } from '../../../typings'
+import getFirstEmbed from './!get-first-embed'
+import ReactionListener, { addReactions } from './!ReactionListener'
+
+const sendHelpMenu = (interaction: any, instance: WOKCommands) => {
+    const { embed, reactions } = getFirstEmbed.default(interaction, instance);
     interaction
         .reply({
         embeds: [embed],
         fetchReply: true,
     })
-        .then((msg) => {
-        _ReactionListener_1.addReactions(msg, reactions);
+        .then((msg: any) => {
+            getFirstEmbed.addReactions(msg, reactions);
     });
 };
 module.exports = {
@@ -28,12 +31,12 @@ module.exports = {
           required: false
         },
     ],
-    init: (client, instance) => {
+    init: (client: Client, instance: WOKCommands) => {
         client.on('messageReactionAdd', async (reaction, user) => {
-            new _ReactionListener_1.default(instance, reaction, user);
-        });
+            new ReactionListener(instance, reaction, user)
+        })
     },
-    callback: (options) => {
+    callback: (options: ICallbackObject) => {
         const { interaction, channel, instance, args } = options;
         const { guild } = channel;
         if (guild && !guild.me?.permissions.has('SEND_MESSAGES')) {
@@ -50,12 +53,13 @@ module.exports = {
         }
         // If the user is looking for info on a specific command
         // Ex: "/help prefix"
-        const arg = args.shift()?.toLowerCase();
-        const command = instance.commandHandler.getICommand(arg);
+        const arg = args.shift()?.toLowerCase()!
+
+        const command = instance.commandHandler.getICommand(arg)
         if (!command) {
-            return instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
-                COMMAND: arg,
-            });
+          return instance.messageHandler.get(guild, 'UNKNOWN_COMMAND', {
+            COMMAND: arg,
+          })
         }
         const description = ReactionListener.getHelp(command, instance, guild);
         const embed = new MessageEmbed()

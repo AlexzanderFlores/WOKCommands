@@ -1,13 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
-const getFirstEmbed = (message, instance) => {
-    const { guild, member } = message;
+import { MessageEmbed } from 'discord.js';
+const getFirstEmbed = (interaction, instance) => {
+    var _a;
+    const { guild, member } = interaction;
     const { commandHandler: { commands }, messageHandler, } = instance;
-    const embed = new discord_js_1.MessageEmbed()
+    const embed = new MessageEmbed()
         .setTitle(`${instance.displayName} ${messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE')}`)
         .setDescription(messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY'))
-        .setFooter(`ID #${message.author?.id}`);
+        .setFooter(`ID ##${interaction.user?.id}`);
     if (instance.color) {
         embed.setColor(instance.color);
     }
@@ -53,4 +52,4 @@ const getFirstEmbed = (message, instance) => {
         reactions,
     };
 };
-exports.default = getFirstEmbed;
+export default getFirstEmbed;
