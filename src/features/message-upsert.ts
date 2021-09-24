@@ -1,6 +1,6 @@
 import { Client } from 'discord.js'
 
-module.exports = (client: Client) => {
+export default (client: Client) => {
   client.on('messageCreate', (message) => {
     client.emit('messageUpsert', message)
   })
@@ -10,7 +10,7 @@ module.exports = (client: Client) => {
   })
 }
 
-module.exports.config = {
+export const config = {
   displayName: 'Message Upsert',
   dbName: 'MESSAGE-UPSERT',
 }
