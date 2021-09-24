@@ -4,14 +4,6 @@ import WOKCommands from '.'
 import path from 'path'
 
 import getAllFiles from './get-all-files'
-import Events from './enums/Events'
-
-const waitingForDB: {
-  func: Function
-  client: Client
-  instance: WOKCommands
-  isEnabled: Function
-}[] = []
 
 class FeatureHandler {
   private _features: Map<String, String[]> = new Map() // <Feature name, Disabled GuildIDs>
@@ -26,14 +18,17 @@ class FeatureHandler {
   ) {
     this._client = client
     this._instance = instance
-    ;(async () => {
-      // Register built in features
-      for (const [file, fileName] of getAllFiles(
-        path.join(__dirname, 'features')
-      )) {
-        this.registerFeature(await import(file), fileName)
-      }
-    })()
+    this.setup(dir, typeScript)
+  }
+
+  private setup = async (dir: string, typeScript: boolean) => {
+    // Register built in features
+    for (const [file, fileName] of getAllFiles(
+      path.join(__dirname, 'features'),
+      typeScript ? '.ts' : ''
+    )) {
+      this.registerFeature(require(file), fileName)
+    }
 
     if (!dir) {
       return
@@ -46,18 +41,28 @@ class FeatureHandler {
     const files = getAllFiles(dir, typeScript ? '.ts' : '')
 
     const amount = files.length
-    if (amount === 0) {
-      return
-    }
 
-    console.log(
-      `WOKCommands > Loaded ${amount} listener${amount === 1 ? '' : 's'}.`
-    )
-    ;(async () => {
+    if (amount > 0) {
+      console.log(
+        `WOKCommands > Loading ${amount} listener${amount === 1 ? '' : 's'}...`
+      )
+
       for (const [file, fileName] of files) {
-        this.registerFeature(await import(file), fileName)
+        const debug = `WOKCommands DEBUG > Feature "${fileName}" load time`
+
+        if (this._instance.debug) {
+          console.time(debug)
+        }
+        this.registerFeature(require(file), fileName)
+        if (this._instance.debug) {
+          console.timeEnd(debug)
+        }
       }
-    })()
+    } else {
+      console.log(
+        `WOKCommands > Loaded ${amount} listener${amount === 1 ? '' : 's'}.`
+      )
+    }
   }
 
   private registerFeature = (file: any, fileName: string) => {
@@ -101,13 +106,6 @@ class FeatureHandler {
       console.warn(
         `WOKCommands > config.loadDBFirst in features is no longer required. MongoDB is now connected to before any features or commands are loaded.`
       )
-      // waitingForDB.push({
-      //   func,
-      //   client: this._client,
-      //   instance: this._instance,
-      //   isEnabled,
-      // })
-      // return
     }
 
     func(this._client, this._instance, isEnabled)

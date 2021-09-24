@@ -59,7 +59,8 @@ export default class CommandHandler {
 
     // Register built in commands
     for (const [file, fileName] of getAllFiles(
-      path.join(__dirname, 'commands')
+      path.join(__dirname, 'commands'),
+      typeScript ? '.ts' : ''
     )) {
       if (disabledDefaultCommands.includes(fileName)) {
         continue
