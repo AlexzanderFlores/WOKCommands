@@ -1,4 +1,4 @@
-import { Client, Guild, Message } from 'discord.js'
+import { Client, Guild, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '.'
 
 import permissions from './permissions'
@@ -126,6 +126,9 @@ class Command {
       client: this.client,
       prefix: this.instance.getPrefix(message.guild),
       instance: this.instance,
+      user: message.author,
+      member: message.member,
+      guild: message.guild,
       cancelCoolDown: () => {
         this.decrementCooldowns(message.guild?.id, message.author.id)
       },
@@ -139,18 +142,22 @@ class Command {
       message.reply({
         content: reply,
       })
-    } else {
-      let embeds = []
-
-      if (Array.isArray(reply)) {
-        embeds = reply
+    } else if (typeof reply === 'object') {
+      if (reply.custom) {
+        message.reply(reply)
       } else {
-        embeds.push(reply)
-      }
+        let embeds = []
 
-      message.reply({
-        embeds,
-      })
+        if (Array.isArray(reply)) {
+          embeds = reply
+        } else {
+          embeds.push(reply)
+        }
+
+        message.reply({
+          embeds,
+        })
+      }
     }
   }
 

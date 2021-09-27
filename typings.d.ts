@@ -2,10 +2,13 @@ import {
   ApplicationCommandOptionData,
   Client,
   CommandInteraction,
+  Guild,
+  GuildMember,
   Interaction,
   Message,
   PermissionString,
   TextChannel,
+  User,
 } from 'discord.js'
 import { EventEmitter } from 'events'
 import WOKCommands from './src'
@@ -91,6 +94,7 @@ interface OptionsWithS {
   disabledDefaultCommands?: string | string[]
   typeScript?: boolean
   ephemeral?: boolean
+  debug?: boolean
 }
 
 interface OptionsWithoutS {
@@ -110,6 +114,7 @@ interface OptionsWithoutS {
   disabledDefaultCommands?: string | string[]
   typeScript?: boolean
   ephemeral?: boolean
+  debug?: boolean
 }
 export type Options = OptionsWithS | OptionsWithoutS
 
@@ -123,6 +128,9 @@ export interface ICallbackObject {
   instance: WOKCommands
   interaction: CommandInteraction
   options: ApplicationCommandOptionData[]
+  user: User
+  member: GuildMember
+  guild: Guild | null
   cancelCoolDown(): any
 }
 
@@ -135,6 +143,7 @@ export interface IErrorObject {
 
 export interface ICommand {
   names?: string[] | string
+  aliases?: string[] | string
   category: string
   description: string
   callback?(obj: ICallbackObject): any

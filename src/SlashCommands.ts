@@ -6,6 +6,7 @@ import {
   CommandInteraction,
   CommandInteractionOptionResolver,
   Guild,
+  GuildMember,
   MessageEmbed,
 } from 'discord.js'
 import path from 'path'
@@ -66,8 +67,8 @@ class SlashCommands {
           return
         }
 
-        const { member, user, commandName, options, guild, channelId } =
-          interaction
+        const { user, commandName, options, guild, channelId } = interaction
+        const member = interaction.member as GuildMember
         const channel = guild?.channels.cache.get(channelId) || null
         const command = instance.commandHandler.getCommand(commandName)
 
@@ -206,7 +207,7 @@ class SlashCommands {
     commandName: string,
     options: CommandInteractionOptionResolver,
     args: string[],
-    member: any,
+    member: GuildMember,
     guild: Guild | null,
     channel: Channel | null
   ) {
@@ -226,6 +227,7 @@ class SlashCommands {
       instance: this._instance,
       interaction,
       options,
+      user: member.user,
     })
 
     if (reply) {
@@ -233,16 +235,20 @@ class SlashCommands {
         interaction.reply({
           content: reply,
         })
-      } else {
-        let embeds = []
-
-        if (Array.isArray(reply)) {
-          embeds = reply
+      } else if (typeof reply === 'object') {
+        if (reply.custom) {
+          interaction.reply(reply)
         } else {
-          embeds.push(reply)
-        }
+          let embeds = []
 
-        interaction.reply({ embeds })
+          if (Array.isArray(reply)) {
+            embeds = reply
+          } else {
+            embeds.push(reply)
+          }
+
+          interaction.reply({ embeds })
+        }
       }
     }
   }
