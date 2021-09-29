@@ -20,12 +20,17 @@ class SlashCommands {
   private _instance: WOKCommands
   private _commandChecks: Map<String, Function> = new Map()
 
-  constructor(instance: WOKCommands, listen = true) {
+  constructor(instance: WOKCommands, listen: boolean, typeScript?: boolean) {
     this._instance = instance
     this._client = instance.client
 
+    this.setUp(listen, typeScript)
+  }
+
+  private async setUp(listen: boolean, typeScript = false) {
     for (const [file, fileName] of getAllFiles(
-      path.join(__dirname, 'command-checks')
+      path.join(__dirname, 'command-checks'),
+      typeScript ? '.ts' : '.js'
     )) {
       this._commandChecks.set(fileName, require(file))
     }
@@ -43,7 +48,7 @@ class SlashCommands {
       if (typeof reply === 'string') {
         return interaction.reply({
           content: reply,
-          ephemeral: instance.ephemeral,
+          ephemeral: this._instance.ephemeral,
         })
       } else {
         let embeds = []
@@ -56,7 +61,7 @@ class SlashCommands {
 
         return interaction.reply({
           embeds,
-          ephemeral: instance.ephemeral,
+          ephemeral: this._instance.ephemeral,
         })
       }
     }
@@ -70,15 +75,15 @@ class SlashCommands {
         const { user, commandName, options, guild, channelId } = interaction
         const member = interaction.member as GuildMember
         const channel = guild?.channels.cache.get(channelId) || null
-        const command = instance.commandHandler.getCommand(commandName)
+        const command = this._instance.commandHandler.getCommand(commandName)
 
         if (!command) {
           interaction.reply({
-            content: instance.messageHandler.get(
+            content: this._instance.messageHandler.get(
               guild,
               'INVALID_SLASH_COMMAND'
             ),
-            ephemeral: instance.ephemeral,
+            ephemeral: this._instance.ephemeral,
           })
           return
         }
@@ -97,7 +102,7 @@ class SlashCommands {
             !(await checkFunction(
               guild,
               command,
-              instance,
+              this._instance,
               member,
               user,
               (reply: string | MessageEmbed) => {
@@ -148,41 +153,93 @@ class SlashCommands {
     options: ApplicationCommandOptionData[],
     guildId?: string
   ): Promise<ApplicationCommand<{}> | undefined> {
+    if (!this._instance.isDBConnected()) {
+      console.log(
+        `WOKCommands > Cannot register slash command "${name}" without a database connection.`
+      )
+      return
+    }
+
     // @ts-ignore
     const nameAndClient = `${name}-${this._client.user.id}`
+    const query = { nameAndClient } as { [key: string]: string }
     let commands
 
     if (guildId) {
       commands = this._client.guilds.cache.get(guildId)?.commands
+      query.guild = guildId
     } else {
       commands = this._client.application?.commands
+    }
 
-      if (this._instance.isDBConnected()) {
-        const alreadyCreated = await slashCommands.findOne({ nameAndClient })
-        if (alreadyCreated) {
-          try {
-            await commands?.fetch(alreadyCreated._id)
-          } catch (e) {
-            await slashCommands.deleteOne({ nameAndClient })
-          }
-          return
+    const alreadyCreated = await slashCommands.findOne(query)
+    if (alreadyCreated) {
+      try {
+        const cmd = (await commands?.fetch(
+          alreadyCreated._id
+        )) as ApplicationCommand
+
+        if (
+          cmd.description !== description ||
+          cmd.options.length !== options.length
+        ) {
+          console.log(
+            `WOKCommands > Updating${
+              guildId ? ' guild' : ''
+            } slash command "${name}"`
+          )
+
+          await slashCommands.findOneAndUpdate(
+            {
+              _id: cmd.id,
+            },
+            {
+              description,
+              options: cmd.options,
+            }
+          )
+
+          return commands?.edit(cmd.id, {
+            name,
+            description,
+            options,
+          })
         }
+
+        return Promise.resolve(cmd)
+      } catch (e) {
+        console.error(e)
+        await slashCommands.deleteOne({ nameAndClient })
       }
+
+      return Promise.resolve(undefined)
     }
 
     if (commands) {
+      console.log(
+        `WOKCommands > Creating${
+          guildId ? ' guild' : ''
+        } slash command "${name}"`
+      )
+
       const newCommand = await commands.create({
         name,
         description,
         options,
       })
 
-      if (!guildId && this._instance.isDBConnected()) {
-        await new slashCommands({
-          _id: newCommand.id,
-          nameAndClient,
-        }).save()
+      const data = {
+        _id: newCommand.id,
+        nameAndClient,
+        description,
+        options,
+      } as { [key: string]: string | object }
+
+      if (guildId) {
+        data.guild = guildId
       }
+
+      await new slashCommands(data).save()
 
       return newCommand
     }
@@ -194,6 +251,10 @@ class SlashCommands {
     commandId: string,
     guildId?: string
   ): Promise<ApplicationCommand<{}> | undefined> {
+    console.log(
+      `WOKCommands > Deleting${guildId ? ' guild' : ''} slash command "${name}"`
+    )
+
     const commands = this.getCommands(guildId)
     if (commands) {
       return await commands.cache.get(commandId)?.delete()

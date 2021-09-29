@@ -163,7 +163,6 @@ export interface ICommand {
   testOnly?: boolean
   slash?: boolean | 'both'
   options?: ApplicationCommandOptionData[]
-  delete?: boolean
 }
 
 export interface ISlashCommand {
