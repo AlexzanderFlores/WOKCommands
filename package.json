@@ -1,6 +1,6 @@
 {
   "name": "wokcommands",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "main": "dist/index.js",
   "typings": "./typings.d.ts",
   "scripts": {

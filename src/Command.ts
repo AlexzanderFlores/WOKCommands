@@ -32,6 +32,7 @@ class Command {
   private _guildOnly = false
   private _testOnly = false
   private _slash: boolean | string = false
+  private _requireRoles = false
   private _requiredChannels: Map<String, String[]> = new Map() // <GuildID-Command, Channel IDs>
 
   constructor(
@@ -56,6 +57,7 @@ class Command {
       guildOnly = false,
       testOnly = false,
       slash = false,
+      requireRoles = false,
     }: ICommand
   ) {
     this.instance = instance
@@ -77,6 +79,7 @@ class Command {
     this._callback = callback
     this._error = error
     this._slash = slash
+    this._requireRoles = requireRoles
 
     if (this.cooldown && this.globalCooldown) {
       throw new Error(
@@ -485,6 +488,10 @@ class Command {
 
   public get slash(): boolean | string {
     return this._slash
+  }
+
+  public get doesRequireRoles(): boolean {
+    return this._requireRoles
   }
 
   public get requiredChannels(): Map<String, String[]> {

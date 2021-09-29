@@ -163,6 +163,7 @@ export interface ICommand {
   testOnly?: boolean
   slash?: boolean | 'both'
   options?: ApplicationCommandOptionData[]
+  requireRoles?: boolean
 }
 
 export interface ISlashCommand {
