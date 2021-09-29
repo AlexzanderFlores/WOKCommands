@@ -130,8 +130,6 @@ export default class WOKCommands extends EventEmitter {
       disabledDefaultCommands = [disabledDefaultCommands]
     }
 
-    this._slashCommand = new SlashCommands(this)
-
     this._commandHandler = new CommandHandler(
       this,
       client,
@@ -139,6 +137,7 @@ export default class WOKCommands extends EventEmitter {
       disabledDefaultCommands,
       typeScript
     )
+    this._slashCommand = new SlashCommands(this, true, typeScript)
     this._messageHandler = new MessageHandler(this, messagesPath || '')
 
     this.setCategorySettings([

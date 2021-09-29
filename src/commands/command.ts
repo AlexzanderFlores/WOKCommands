@@ -1,4 +1,3 @@
-import DiscordJS from 'discord.js'
 import disabledCommands from '../models/disabled-commands'
 import { ICallbackObject, ICommand } from '../..'
 
@@ -21,7 +20,7 @@ export = {
       name: 'action',
       description: 'Either "enable" or "disable"',
       required: true,
-      type: DiscordJS.Constants.ApplicationCommandOptionTypes.STRING,
+      type: 'STRING',
       choices: [
         {
           name: 'Enable',
@@ -34,7 +33,7 @@ export = {
       name: 'command',
       description: 'The name of the command',
       required: true,
-      type: DiscordJS.Constants.ApplicationCommandOptionTypes.STRING,
+      type: 'STRING',
     },
   ],
 

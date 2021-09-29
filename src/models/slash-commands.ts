@@ -8,6 +8,9 @@ const reqString = {
 const schema = new Schema({
   _id: reqString,
   nameAndClient: reqString,
+  guild: reqString,
+  description: String,
+  options: Object,
 })
 
 const name = 'wokcommands-slash-commands'
