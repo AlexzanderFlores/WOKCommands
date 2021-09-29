@@ -141,6 +141,18 @@ export interface IErrorObject {
   info: object
 }
 
+export type optionTypes =
+  | 'SUB_COMMAND'
+  | 'SUB_COMMAND_GROUP'
+  | 'STRING'
+  | 'INTEGER'
+  | 'BOOLEAN'
+  | 'USER'
+  | 'CHANNEL'
+  | 'ROLE'
+  | 'MENTIONABLE'
+  | 'NUMBER'
+
 export interface ICommand {
   names?: string[] | string
   aliases?: string[] | string
@@ -152,6 +164,7 @@ export interface ICommand {
   maxArgs?: number
   syntaxError?: { [key: string]: string }
   expectedArgs?: string
+  expectedArgsTypes?: optionTypes[]
   syntax?: string
   requiredPermissions?: PermissionString[]
   permissions?: PermissionString[]

@@ -79,9 +79,9 @@ export default class CommandHandler {
       await this.registerCommand(instance, client, file, fileName, true)
     }
 
+    // Do not pass in TS here because this should always compiled to JS
     for (const [file, fileName] of getAllFiles(
-      path.join(__dirname, 'command-checks'),
-      typeScript ? '.ts' : '.js'
+      path.join(__dirname, 'command-checks')
     )) {
       this._commandChecks.set(fileName, require(file))
     }
@@ -244,6 +244,7 @@ export default class CommandHandler {
       permissions,
       slash,
       expectedArgs,
+      expectedArgsTypes,
       minArgs,
       options = [],
     } = configuration
@@ -373,7 +374,10 @@ export default class CommandHandler {
           options.push({
             name: item.replace(/ /g, '-').toLowerCase(),
             description: item,
-            type: 3,
+            type:
+              expectedArgsTypes && expectedArgsTypes.length >= a
+                ? expectedArgsTypes[a]
+                : 'STRING',
             required: a < minArgs,
           })
         }
