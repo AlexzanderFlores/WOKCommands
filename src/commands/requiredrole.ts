@@ -1,4 +1,3 @@
-import DiscordJS from 'discord.js'
 import { ICallbackObject, ICommand } from '../..'
 import requiredRoleSchema from '../models/required-roles'
 
