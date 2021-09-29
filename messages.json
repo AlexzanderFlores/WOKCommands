@@ -296,6 +296,15 @@
     "dutch": "Deze slash-opdracht is niet correct geregistreerd.",
     "french": "Cette commande slash n'est pas correctement enregistrée."
   },
+  "REQUIRE_ROLES": {
+    "english": "You must specify what roles can use this command with `{PREFIX}requiredroles {COMMAND} <role ID>`.",
+    "spanish": "Debe especificar qué roles pueden usar este comando con `{PREFIX} requiredroles {COMMAND} <ID de rol>`.",
+    "portuguese": "Você deve especificar quais funções podem usar este comando com `{PREFIX} funções necessárias {COMANDO} <ID da função>`.",
+    "russian": "Вы должны указать, какие роли могут использовать эту команду с `{PREFIX} requiredroles {COMMAND} <role ID>`.",
+    "german": "Sie müssen mit `{PREFIX}requiredroles {COMMAND} <Rollen-ID>` angeben, welche Rollen diesen Befehl verwenden können.",
+    "dutch": "Je moet specificeren welke rollen dit commando kunnen gebruiken met `{PREFIX}requiredroles {COMMAND} <role ID>`.",
+    "french": "Vous devez spécifier quels rôles peuvent utiliser cette commande avec `{PREFIX}requiredroles {COMMAND} <role ID>`."
+  },
   "HELP_MENU": {
     "TITLE": {
       "english": "Help Menu",
