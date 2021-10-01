@@ -501,7 +501,7 @@ class Command {
   public setRequiredChannels(
     guild: Guild | null,
     command: string,
-    channels: string[]
+    channels: String[]
   ) {
     if (!guild) {
       return

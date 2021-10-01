@@ -38,7 +38,7 @@ export = {
     const { messageHandler } = instance
 
     let commandName = (args.shift() || '').toLowerCase()
-    const command = instance.commandHandler.getICommand(commandName)
+    const command = instance.commandHandler.getCommand(commandName)
 
     if (!instance.isDBConnected()) {
       return messageHandler.get(guild, 'NO_DATABASE_FOUND')
@@ -77,7 +77,7 @@ export = {
       channels = [interaction.options.getChannel('channel')]
     }
 
-    await channelCommandSchema.findOneAndUpdate(
+    const results = await channelCommandSchema.findOneAndUpdate(
       {
         guildId: guild?.id,
         command: commandName,
@@ -91,8 +91,13 @@ export = {
       },
       {
         upsert: true,
+        new: true,
       }
     )
+
+    if (results) {
+      command.setRequiredChannels(guild, commandName, results.channels)
+    }
 
     return messageHandler.get(guild, 'NOW_CHANNEL_COMMAND', {
       COMMAND: commandName,

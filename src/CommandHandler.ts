@@ -101,9 +101,11 @@ export default class CommandHandler {
         await this.registerCommand(instance, client, file, fileName)
       }
 
-      await this.fetchDisabledCommands()
-      await this.fetchRequiredRoles()
-      await this.fetchChannelOnly()
+      if (instance.isDBConnected()) {
+        await this.fetchDisabledCommands()
+        await this.fetchRequiredRoles()
+        await this.fetchChannelOnly()
+      }
 
       this._commands.forEach(async (command) => {
         command.verifyDatabaseCooldowns()
