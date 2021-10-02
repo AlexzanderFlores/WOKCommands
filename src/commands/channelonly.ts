@@ -62,6 +62,8 @@ export = {
         return messageHandler.get(guild, 'NOT_CHANNEL_COMMAND')
       }
 
+      command.setRequiredChannels(guild, commandName, [])
+
       return messageHandler.get(guild, 'NO_LONGER_CHANNEL_COMMAND')
     }
 
