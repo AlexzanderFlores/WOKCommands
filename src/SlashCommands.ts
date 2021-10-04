@@ -170,6 +170,7 @@ class SlashCommands {
       query.guild = guildId
     } else {
       commands = this._client.application?.commands
+      query.guild = 'global'
     }
 
     const alreadyCreated = await slashCommands.findOne(query)
@@ -231,13 +232,10 @@ class SlashCommands {
       const data = {
         _id: newCommand.id,
         nameAndClient,
+        guild: guildId || 'global',
         description,
         options,
       } as { [key: string]: string | object }
-
-      if (guildId) {
-        data.guild = guildId
-      }
 
       await new slashCommands(data).save()
 
@@ -251,13 +249,21 @@ class SlashCommands {
     commandId: string,
     guildId?: string
   ): Promise<ApplicationCommand<{}> | undefined> {
-    console.log(
-      `WOKCommands > Deleting${guildId ? ' guild' : ''} slash command "${name}"`
-    )
-
     const commands = this.getCommands(guildId)
     if (commands) {
-      return await commands.cache.get(commandId)?.delete()
+      const cmd = commands.cache.get(commandId)
+      if (cmd) {
+        console.log(
+          `WOKCommands > Deleting${guildId ? ' guild' : ''} slash command "${
+            cmd.name
+          }"`
+        )
+
+        cmd.delete()
+        await slashCommands.deleteOne({
+          _id: cmd.id,
+        })
+      }
     }
 
     return Promise.resolve(undefined)

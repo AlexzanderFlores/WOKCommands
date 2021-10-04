@@ -110,14 +110,16 @@ export default class CommandHandler {
       this._commands.forEach(async (command) => {
         command.verifyDatabaseCooldowns()
 
-        const results = await cooldown.find({
-          name: command.names[0],
-          type: command.globalCooldown ? 'global' : 'per-user',
-        })
+        if (instance.isDBConnected()) {
+          const results = await cooldown.find({
+            name: command.names[0],
+            type: command.globalCooldown ? 'global' : 'per-user',
+          })
 
-        for (const { _id, cooldown } of results) {
-          const [name, guildId, userId] = _id.split('-')
-          command.setCooldown(guildId, userId, cooldown)
+          for (const { _id, cooldown } of results) {
+            const [name, guildId, userId] = _id.split('-')
+            command.setCooldown(guildId, userId, cooldown)
+          }
         }
       })
 
@@ -331,7 +333,7 @@ export default class CommandHandler {
       )
     }
 
-    if (slash) {
+    if (slash && !(builtIn && !instance.isDBConnected())) {
       if (!description) {
         throw new Error(
           `WOKCommands > A description is required for command "${names[0]}" because it is a slash command.`
