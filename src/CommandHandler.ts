@@ -252,12 +252,7 @@ export default class CommandHandler {
       options = [],
     } = configuration
 
-    let { testOnly } = configuration
-    if (builtIn) {
-      if (testOnly === undefined && instance.testServers.length) {
-        testOnly = true
-      }
-    }
+    const { testOnly } = configuration
 
     if (run || execute) {
       throw new Error(
