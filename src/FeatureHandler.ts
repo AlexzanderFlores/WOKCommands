@@ -66,7 +66,12 @@ class FeatureHandler {
   }
 
   private registerFeature = (file: any, fileName: string) => {
-    const { default: func, config } = file
+    let func = file
+    const { config } = file
+
+    if (file.default) {
+      func = file.default
+    }
     let testOnly = false
 
     if (config) {
