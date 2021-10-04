@@ -333,7 +333,7 @@ export default class CommandHandler {
       )
     }
 
-    if (slash) {
+    if (slash && !(builtIn && !instance.isDBConnected())) {
       if (!description) {
         throw new Error(
           `WOKCommands > A description is required for command "${names[0]}" because it is a slash command.`
