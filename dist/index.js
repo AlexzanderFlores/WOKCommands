@@ -63,7 +63,7 @@ class WOKCommands extends events_1.EventEmitter {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, mongoUri, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, disabledDefaultCommands = [], typeScript = false, ephemeral = true, debug = false, } = options || {};
+        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, mongoUri, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, botOwners, disabledDefaultCommands = [], typeScript = false, ephemeral = true, debug = false, } = options || {};
         if (mongoUri) {
             await mongo_1.default(mongoUri, this, dbOptions);
             this._mongoConnection = mongo_1.getMongoConnection();
@@ -96,6 +96,12 @@ class WOKCommands extends events_1.EventEmitter {
                 testServers = [testServers];
             }
             this._testServers = testServers;
+        }
+        if (botOwners) {
+            if (typeof botOwners === 'string') {
+                botOwners = [botOwners];
+            }
+            this._botOwner = botOwners;
         }
         this._showWarns = showWarns;
         this._delErrMsgCooldown = delErrMsgCooldown;
@@ -249,6 +255,7 @@ class WOKCommands extends events_1.EventEmitter {
         return this._botOwner;
     }
     setBotOwner(botOwner) {
+        console.log('WOKCommands > setBotOwner() is deprecated. Please specify your bot owners in the object constructor instead. See https://docs.wornoffkeys.com/setup-and-options-object');
         if (typeof botOwner === 'string') {
             botOwner = [botOwner];
         }

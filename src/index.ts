@@ -62,6 +62,7 @@ export default class WOKCommands extends EventEmitter {
       ignoreBots = true,
       dbOptions,
       testServers,
+      botOwners,
       disabledDefaultCommands = [],
       typeScript = false,
       ephemeral = true,
@@ -119,6 +120,13 @@ export default class WOKCommands extends EventEmitter {
       }
 
       this._testServers = testServers
+    }
+
+    if (botOwners) {
+      if (typeof botOwners === 'string') {
+        botOwners = [botOwners]
+      }
+      this._botOwner = botOwners
     }
 
     this._showWarns = showWarns
@@ -332,6 +340,10 @@ export default class WOKCommands extends EventEmitter {
   }
 
   public setBotOwner(botOwner: string | string[]): WOKCommands {
+    console.log(
+      'WOKCommands > setBotOwner() is deprecated. Please specify your bot owners in the object constructor instead. See https://docs.wornoffkeys.com/setup-and-options-object'
+    )
+
     if (typeof botOwner === 'string') {
       botOwner = [botOwner]
     }
