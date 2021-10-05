@@ -88,6 +88,13 @@ class SlashCommands {
         }
         return new Map();
     }
+    didOptionsChange(command, options) {
+        return (command.options?.filter((opt, index) => {
+            return (opt?.required !== options[index]?.required &&
+                opt?.name !== options[index]?.name &&
+                opt?.options?.length !== options.length);
+        }).length !== 0);
+    }
     async create(name, description, options, guildId) {
         let commands;
         if (guildId) {
@@ -103,10 +110,10 @@ class SlashCommands {
         await commands.fetch();
         const cmd = commands.cache.find((cmd) => cmd.name === name);
         if (cmd) {
-            const optionsChanged = cmd.options?.filter((opt, index) => opt?.required !== options[index]?.required);
+            const optionsChanged = this.didOptionsChange(cmd, options);
             if (cmd.description !== description ||
                 cmd.options.length !== options.length ||
-                optionsChanged.length) {
+                optionsChanged) {
                 console.log(`WOKCommands > Updating${guildId ? ' guild' : ''} slash command "${name}"`);
                 return commands?.edit(cmd.id, {
                     name,

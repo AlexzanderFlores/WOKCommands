@@ -146,6 +146,21 @@ class SlashCommands {
     return new Map()
   }
 
+  private didOptionsChange(
+    command: ApplicationCommand,
+    options: ApplicationCommandOptionData[]
+  ): boolean {
+    return (
+      command.options?.filter((opt, index) => {
+        return (
+          opt?.required !== options[index]?.required &&
+          opt?.name !== options[index]?.name &&
+          opt?.options?.length !== options.length
+        )
+      }).length !== 0
+    )
+  }
+
   public async create(
     name: string,
     description: string,
@@ -172,14 +187,12 @@ class SlashCommands {
     ) as ApplicationCommand
 
     if (cmd) {
-      const optionsChanged = cmd.options?.filter(
-        (opt, index) => opt?.required !== options[index]?.required
-      )
+      const optionsChanged = this.didOptionsChange(cmd, options)
 
       if (
         cmd.description !== description ||
         cmd.options.length !== options.length ||
-        optionsChanged.length
+        optionsChanged
       ) {
         console.log(
           `WOKCommands > Updating${
