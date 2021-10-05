@@ -159,12 +159,7 @@ class CommandHandler {
             configuration = configuration.default;
         }
         const { name = fileName, category, commands, aliases, init, callback, run, execute, error, description, requiredPermissions, permissions, slash, expectedArgs, expectedArgsTypes, minArgs, options = [], } = configuration;
-        let { testOnly } = configuration;
-        if (builtIn) {
-            if (testOnly === undefined && instance.testServers.length) {
-                testOnly = true;
-            }
-        }
+        const { testOnly } = configuration;
         if (run || execute) {
             throw new Error(`Command located at "${file}" has either a "run" or "execute" function. Please rename that function to "callback".`);
         }

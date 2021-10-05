@@ -45,7 +45,11 @@ class FeatureHandler {
         }
     };
     registerFeature = (file, fileName) => {
-        const { default: func, config } = file;
+        let func = file;
+        const { config } = file;
+        if (file.default) {
+            func = file.default;
+        }
         let testOnly = false;
         if (config) {
             const { displayName, dbName } = config;
