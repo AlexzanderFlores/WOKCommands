@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 const path_1 = __importDefault(require("path"));
 const get_all_files_1 = __importDefault(require("./get-all-files"));
-const slash_commands_1 = __importDefault(require("./models/slash-commands"));
 class SlashCommands {
     _client;
     _instance;
@@ -89,49 +88,40 @@ class SlashCommands {
         }
         return new Map();
     }
+    didOptionsChange(command, options) {
+        return (command.options?.filter((opt, index) => {
+            return (opt?.required !== options[index]?.required &&
+                opt?.name !== options[index]?.name &&
+                opt?.options?.length !== options.length);
+        }).length !== 0);
+    }
     async create(name, description, options, guildId) {
-        if (!this._instance.isDBConnected()) {
-            console.log(`WOKCommands > Cannot register slash command "${name}" without a database connection.`);
-            return;
-        }
-        // @ts-ignore
-        const nameAndClient = `${name}-${this._client.user.id}`;
-        const query = { nameAndClient };
         let commands;
         if (guildId) {
             commands = this._client.guilds.cache.get(guildId)?.commands;
-            query.guild = guildId;
         }
         else {
             commands = this._client.application?.commands;
-            query.guild = 'global';
         }
-        const alreadyCreated = await slash_commands_1.default.findOne(query);
-        if (alreadyCreated) {
-            try {
-                const cmd = (await commands?.fetch(alreadyCreated._id));
-                if (cmd.description !== description ||
-                    cmd.options.length !== options.length) {
-                    console.log(`WOKCommands > Updating${guildId ? ' guild' : ''} slash command "${name}"`);
-                    await slash_commands_1.default.findOneAndUpdate({
-                        _id: cmd.id,
-                    }, {
-                        description,
-                        options: cmd.options,
-                    });
-                    return commands?.edit(cmd.id, {
-                        name,
-                        description,
-                        options,
-                    });
-                }
-                return Promise.resolve(cmd);
+        if (!commands) {
+            return;
+        }
+        // @ts-ignore
+        await commands.fetch();
+        const cmd = commands.cache.find((cmd) => cmd.name === name);
+        if (cmd) {
+            const optionsChanged = this.didOptionsChange(cmd, options);
+            if (cmd.description !== description ||
+                cmd.options.length !== options.length ||
+                optionsChanged) {
+                console.log(`WOKCommands > Updating${guildId ? ' guild' : ''} slash command "${name}"`);
+                return commands?.edit(cmd.id, {
+                    name,
+                    description,
+                    options,
+                });
             }
-            catch (e) {
-                console.error(e);
-                await slash_commands_1.default.deleteOne({ nameAndClient });
-            }
-            return Promise.resolve(undefined);
+            return Promise.resolve(cmd);
         }
         if (commands) {
             console.log(`WOKCommands > Creating${guildId ? ' guild' : ''} slash command "${name}"`);
@@ -140,14 +130,6 @@ class SlashCommands {
                 description,
                 options,
             });
-            const data = {
-                _id: newCommand.id,
-                nameAndClient,
-                guild: guildId || 'global',
-                description,
-                options,
-            };
-            await new slash_commands_1.default(data).save();
             return newCommand;
         }
         return Promise.resolve(undefined);
@@ -159,9 +141,6 @@ class SlashCommands {
             if (cmd) {
                 console.log(`WOKCommands > Deleting${guildId ? ' guild' : ''} slash command "${cmd.name}"`);
                 cmd.delete();
-                await slash_commands_1.default.deleteOne({
-                    _id: cmd.id,
-                });
             }
         }
         return Promise.resolve(undefined);

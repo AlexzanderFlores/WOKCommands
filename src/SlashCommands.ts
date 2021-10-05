@@ -13,7 +13,6 @@ import path from 'path'
 
 import getAllFiles from './get-all-files'
 import WOKCommands from '.'
-import slashCommands from './models/slash-commands'
 
 class SlashCommands {
   private _client: Client
@@ -147,73 +146,68 @@ class SlashCommands {
     return new Map()
   }
 
+  private didOptionsChange(
+    command: ApplicationCommand,
+    options: ApplicationCommandOptionData[]
+  ): boolean {
+    return (
+      command.options?.filter((opt, index) => {
+        return (
+          opt?.required !== options[index]?.required &&
+          opt?.name !== options[index]?.name &&
+          opt?.options?.length !== options.length
+        )
+      }).length !== 0
+    )
+  }
+
   public async create(
     name: string,
     description: string,
     options: ApplicationCommandOptionData[],
     guildId?: string
   ): Promise<ApplicationCommand<{}> | undefined> {
-    if (!this._instance.isDBConnected()) {
-      console.log(
-        `WOKCommands > Cannot register slash command "${name}" without a database connection.`
-      )
-      return
-    }
-
-    // @ts-ignore
-    const nameAndClient = `${name}-${this._client.user.id}`
-    const query = { nameAndClient } as { [key: string]: string }
     let commands
 
     if (guildId) {
       commands = this._client.guilds.cache.get(guildId)?.commands
-      query.guild = guildId
     } else {
       commands = this._client.application?.commands
-      query.guild = 'global'
     }
 
-    const alreadyCreated = await slashCommands.findOne(query)
-    if (alreadyCreated) {
-      try {
-        const cmd = (await commands?.fetch(
-          alreadyCreated._id
-        )) as ApplicationCommand
+    if (!commands) {
+      return
+    }
 
-        if (
-          cmd.description !== description ||
-          cmd.options.length !== options.length
-        ) {
-          console.log(
-            `WOKCommands > Updating${
-              guildId ? ' guild' : ''
-            } slash command "${name}"`
-          )
+    // @ts-ignore
+    await commands.fetch()
 
-          await slashCommands.findOneAndUpdate(
-            {
-              _id: cmd.id,
-            },
-            {
-              description,
-              options: cmd.options,
-            }
-          )
+    const cmd = commands.cache.find(
+      (cmd) => cmd.name === name
+    ) as ApplicationCommand
 
-          return commands?.edit(cmd.id, {
-            name,
-            description,
-            options,
-          })
-        }
+    if (cmd) {
+      const optionsChanged = this.didOptionsChange(cmd, options)
 
-        return Promise.resolve(cmd)
-      } catch (e) {
-        console.error(e)
-        await slashCommands.deleteOne({ nameAndClient })
+      if (
+        cmd.description !== description ||
+        cmd.options.length !== options.length ||
+        optionsChanged
+      ) {
+        console.log(
+          `WOKCommands > Updating${
+            guildId ? ' guild' : ''
+          } slash command "${name}"`
+        )
+
+        return commands?.edit(cmd.id, {
+          name,
+          description,
+          options,
+        })
       }
 
-      return Promise.resolve(undefined)
+      return Promise.resolve(cmd)
     }
 
     if (commands) {
@@ -228,16 +222,6 @@ class SlashCommands {
         description,
         options,
       })
-
-      const data = {
-        _id: newCommand.id,
-        nameAndClient,
-        guild: guildId || 'global',
-        description,
-        options,
-      } as { [key: string]: string | object }
-
-      await new slashCommands(data).save()
 
       return newCommand
     }
@@ -260,9 +244,6 @@ class SlashCommands {
         )
 
         cmd.delete()
-        await slashCommands.deleteOne({
-          _id: cmd.id,
-        })
       }
     }
 
