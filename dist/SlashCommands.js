@@ -71,7 +71,7 @@ class SlashCommands {
                         return;
                     }
                 }
-                this.invokeCommand(interaction, commandName, options, args, member, guild, channel);
+                this.invokeCommand(interaction, commandName, options, args);
             });
         }
     }
@@ -145,22 +145,22 @@ class SlashCommands {
         }
         return Promise.resolve(undefined);
     }
-    async invokeCommand(interaction, commandName, options, args, member, guild, channel) {
+    async invokeCommand(interaction, commandName, options, args) {
         const command = this._instance.commandHandler.getCommand(commandName);
         if (!command || !command.callback) {
             return;
         }
         const reply = await command.callback({
-            member,
-            guild,
-            channel,
+            member: interaction.member,
+            guild: interaction.guild,
+            channel: interaction.channel,
             args,
             text: args.join(' '),
             client: this._client,
             instance: this._instance,
             interaction,
             options,
-            user: member.user,
+            user: interaction.user,
         });
         if (reply) {
             if (typeof reply === 'string') {
