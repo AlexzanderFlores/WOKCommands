@@ -8,6 +8,7 @@ import {
   Guild,
   GuildMember,
   MessageEmbed,
+  User,
 } from 'discord.js'
 import path from 'path'
 
@@ -116,15 +117,7 @@ class SlashCommands {
           }
         }
 
-        this.invokeCommand(
-          interaction,
-          commandName,
-          options,
-          args,
-          member,
-          guild,
-          channel
-        )
+        this.invokeCommand(interaction, commandName, options, args)
       })
     }
   }
@@ -254,10 +247,7 @@ class SlashCommands {
     interaction: CommandInteraction,
     commandName: string,
     options: CommandInteractionOptionResolver,
-    args: string[],
-    member: GuildMember,
-    guild: Guild | null,
-    channel: Channel | null
+    args: string[]
   ) {
     const command = this._instance.commandHandler.getCommand(commandName)
 
@@ -266,16 +256,16 @@ class SlashCommands {
     }
 
     const reply = await command.callback({
-      member,
-      guild,
-      channel,
+      member: interaction.member,
+      guild: interaction.guild,
+      channel: interaction.channel,
       args,
       text: args.join(' '),
       client: this._client,
       instance: this._instance,
       interaction,
       options,
-      user: member.user,
+      user: interaction.user,
     })
 
     if (reply) {
