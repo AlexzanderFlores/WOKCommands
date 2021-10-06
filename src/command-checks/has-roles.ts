@@ -1,9 +1,10 @@
 import { Guild, GuildMember, Message, User } from 'discord.js'
+
 import WOKCommands from '..'
 import Command from '../Command'
 import CommandErrors from '../enums/CommandErrors'
 
-export = (
+export = async (
   guild: Guild | null,
   command: Command,
   instance: WOKCommands,
@@ -24,9 +25,11 @@ export = (
     const missingRolesNames = []
 
     for (const role of roles) {
-      if (!member.roles.cache.has(role)) {
+      const realRole = await guild.roles.fetch(role)
+
+      if (realRole !== null && !member.roles.cache.has(role)) {
         missingRoles.push(role)
-        missingRolesNames.push(guild.roles.cache.get(role)?.name)
+        missingRolesNames.push(realRole.name)
       }
     }
 

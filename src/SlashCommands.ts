@@ -133,6 +133,8 @@ class SlashCommands {
   public async get(guildId?: string): Promise<Map<any, any>> {
     const commands = this.getCommands(guildId)
     if (commands) {
+      // @ts-ignore
+      await commands.fetch()
       return commands.cache
     }
 

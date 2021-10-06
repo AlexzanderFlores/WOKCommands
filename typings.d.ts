@@ -56,7 +56,7 @@ export default class WOKCommands extends EventEmitter {
   public getEmoji(category: string): string
   public getCategory(emoji: string): string
   public setCategorySettings(
-    category: string | [{ [key: string]: any }],
+    category: string | Array<Record<string, any>>,
     emoji?: string
   ): WOKCommands
   public isEmojiUsed(emoji: string): boolean
