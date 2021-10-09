@@ -1,5 +1,5 @@
 import { Client, ColorResolvable, Guild, GuildEmoji } from 'discord.js'
-import mongoose, { Connection } from 'mongoose'
+import { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
 
 import FeatureHandler from './FeatureHandler'
@@ -71,8 +71,6 @@ export default class WOKCommands extends EventEmitter {
 
     if (mongoUri) {
       await mongo(mongoUri, this, dbOptions)
-
-      console.log(mongoose.connections)
 
       this._mongoConnection = getMongoConnection()
 

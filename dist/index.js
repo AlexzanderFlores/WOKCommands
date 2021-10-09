@@ -22,7 +22,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
 const events_1 = require("events");
 const FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
 const mongo_1 = __importStar(require("./mongo"));
@@ -67,7 +66,6 @@ class WOKCommands extends events_1.EventEmitter {
         let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, mongoUri, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, botOwners, disabledDefaultCommands = [], typeScript = false, ephemeral = true, debug = false, } = options || {};
         if (mongoUri) {
             await mongo_1.default(mongoUri, this, dbOptions);
-            console.log(mongoose_1.default.connections);
             this._mongoConnection = mongo_1.getMongoConnection();
             const results = await prefixes_1.default.find({});
             for (const result of results) {
