@@ -47,6 +47,7 @@ module.exports = {
                 guildId: guild?.id,
                 command: commandName,
             });
+            // @ts-ignore
             if (results.n === 0) {
                 return messageHandler.get(guild, 'NOT_CHANNEL_COMMAND');
             }

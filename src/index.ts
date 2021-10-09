@@ -118,7 +118,6 @@ export default class WOKCommands extends EventEmitter {
       if (typeof testServers === 'string') {
         testServers = [testServers]
       }
-
       this._testServers = testServers
     }
 

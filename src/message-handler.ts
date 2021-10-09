@@ -32,21 +32,14 @@ export default class MessageHandler {
         )
       }
 
-      instance.on(
-        Events.DATABASE_CONNECTED,
-        async (connection: any, state: string) => {
-          if (state !== 'Connected') {
-            return
-          }
+      if (instance.isDBConnected()) {
+        const results = await languageSchema.find()
 
-          const results = await languageSchema.find()
-
-          // @ts-ignore
-          for (const { _id: guildId, language } of results) {
-            this._guildLanguages.set(guildId, language)
-          }
+        // @ts-ignore
+        for (const { _id: guildId, language } of results) {
+          this._guildLanguages.set(guildId, language)
         }
-      )
+      }
     })()
   }
 
