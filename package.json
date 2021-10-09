@@ -1,6 +1,6 @@
 {
   "name": "wokcommands",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "main": "dist/index.js",
   "typings": "./typings.d.ts",
   "scripts": {
@@ -14,7 +14,7 @@
   "dependencies": {
     "discord.js": "^13.1.0",
     "dotenv": "^8.2.0",
-    "mongoose": "^5.10.15"
+    "mongoose": "^6.0.10"
   },
   "devDependencies": {
     "@types/mongoose": "^5.10.1",

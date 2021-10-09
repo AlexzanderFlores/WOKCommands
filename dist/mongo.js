@@ -12,14 +12,12 @@ const results = {
     2: 'Connecting',
     3: 'Disconnecting',
 };
-const mongo = async (mongoPath, instance, dbOptions = {}) => {
-    await mongoose_1.default.connect(mongoPath, {
+exports.default = async (mongoPath, instance, dbOptions = {}) => {
+    const options = {
         keepAlive: true,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
         ...dbOptions,
-    });
+    };
+    await mongoose_1.default.connect(mongoPath, options);
     const { connection } = mongoose_1.default;
     const state = results[connection.readyState] || 'Unknown';
     instance.emit(Events_1.default.DATABASE_CONNECTED, connection, state);
@@ -28,4 +26,3 @@ const getMongoConnection = () => {
     return mongoose_1.default.connection;
 };
 exports.getMongoConnection = getMongoConnection;
-exports.default = mongo;

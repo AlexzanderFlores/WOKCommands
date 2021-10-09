@@ -1,5 +1,5 @@
 import { Client, ColorResolvable, Guild, GuildEmoji } from 'discord.js'
-import { Connection } from 'mongoose'
+import mongoose, { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
 
 import FeatureHandler from './FeatureHandler'
@@ -72,6 +72,8 @@ export default class WOKCommands extends EventEmitter {
     if (mongoUri) {
       await mongo(mongoUri, this, dbOptions)
 
+      console.log(mongoose.connections)
+
       this._mongoConnection = getMongoConnection()
 
       const results: any[] = await prefixes.find({})
@@ -118,7 +120,6 @@ export default class WOKCommands extends EventEmitter {
       if (typeof testServers === 'string') {
         testServers = [testServers]
       }
-
       this._testServers = testServers
     }
 
