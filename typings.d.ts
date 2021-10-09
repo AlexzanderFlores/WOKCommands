@@ -3,6 +3,7 @@ import {
   Client,
   CommandInteraction,
   Guild,
+  GuildEmoji,
   GuildMember,
   Interaction,
   Message,
@@ -11,7 +12,13 @@ import {
   User,
 } from 'discord.js'
 import { EventEmitter } from 'events'
-import WOKCommands from './src'
+import WOKCommands, {
+  SlashCommands,
+  MessageHandler,
+  CommandHandler,
+  FeatureHandler,
+} from './dist'
+import { Connection } from 'mongoose'
 
 export default class WOKCommands extends EventEmitter {
   private _client: Client
