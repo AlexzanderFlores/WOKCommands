@@ -49,16 +49,20 @@ export = {
 
     if (global.size) {
       global.forEach((cmd: ApplicationCommand) => {
-        const newString = `${cmd?.name}: ${cmd?.id}\n`
+        if (cmd && cmd.name) {
+          const newString = `${cmd.name}: ${cmd.id}\n`
 
-        if (!allSlashCommands[counter]) {
-          allSlashCommands[counter] = ''
-        }
-
-        if (allSlashCommands[counter].length + newString.length < 1024) {
-          allSlashCommands[counter] += newString
-        } else {
-          allSlashCommands[++counter] += newString
+          if (
+            (allSlashCommands[counter] || []).length + newString.length <
+            1024
+          ) {
+            allSlashCommands[counter] ??= ''
+            allSlashCommands[counter] += newString
+          } else {
+            ++counter
+            allSlashCommands[counter] ??= ''
+            allSlashCommands[counter] += newString
+          }
         }
       })
     } else {
@@ -85,16 +89,20 @@ export = {
 
       if (guildOnly.size) {
         guildOnly.forEach((cmd: ApplicationCommand) => {
-          const newString = `${cmd.name}: ${cmd.id}\n`
+          if (cmd && cmd.name) {
+            const newString = `${cmd.name}: ${cmd.id}\n`
 
-          if (!guildOnlyCommands[counter]) {
-            guildOnlyCommands[counter] = ''
-          }
-
-          if (guildOnlyCommands[counter].length + newString.length < 1024) {
-            guildOnlyCommands[counter] += newString
-          } else {
-            guildOnlyCommands[++counter] += newString
+            if (
+              (guildOnlyCommands[counter] || []).length + newString.length <
+              1024
+            ) {
+              guildOnlyCommands[counter] ??= ''
+              guildOnlyCommands[counter] += newString
+            } else {
+              ++counter
+              guildOnlyCommands[counter] ??= ''
+              guildOnlyCommands[counter] += newString
+            }
           }
         })
       } else {

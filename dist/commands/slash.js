@@ -35,15 +35,18 @@ module.exports = {
         let allSlashCommands = [];
         if (global.size) {
             global.forEach((cmd) => {
-                const newString = `${cmd?.name}: ${cmd?.id}\n`;
-                if (!allSlashCommands[counter]) {
-                    allSlashCommands[counter] = '';
-                }
-                if (allSlashCommands[counter].length + newString.length < 1024) {
-                    allSlashCommands[counter] += newString;
-                }
-                else {
-                    allSlashCommands[++counter] += newString;
+                if (cmd && cmd.name) {
+                    const newString = `${cmd.name}: ${cmd.id}\n`;
+                    if ((allSlashCommands[counter] || []).length + newString.length <
+                        1024) {
+                        allSlashCommands[counter] ??= '';
+                        allSlashCommands[counter] += newString;
+                    }
+                    else {
+                        ++counter;
+                        allSlashCommands[counter] ??= '';
+                        allSlashCommands[counter] += newString;
+                    }
                 }
             });
         }
@@ -60,15 +63,18 @@ module.exports = {
             let guildOnlyCommands = [];
             if (guildOnly.size) {
                 guildOnly.forEach((cmd) => {
-                    const newString = `${cmd.name}: ${cmd.id}\n`;
-                    if (!guildOnlyCommands[counter]) {
-                        guildOnlyCommands[counter] = '';
-                    }
-                    if (guildOnlyCommands[counter].length + newString.length < 1024) {
-                        guildOnlyCommands[counter] += newString;
-                    }
-                    else {
-                        guildOnlyCommands[++counter] += newString;
+                    if (cmd && cmd.name) {
+                        const newString = `${cmd.name}: ${cmd.id}\n`;
+                        if ((guildOnlyCommands[counter] || []).length + newString.length <
+                            1024) {
+                            guildOnlyCommands[counter] ??= '';
+                            guildOnlyCommands[counter] += newString;
+                        }
+                        else {
+                            ++counter;
+                            guildOnlyCommands[counter] ??= '';
+                            guildOnlyCommands[counter] += newString;
+                        }
                     }
                 });
             }
