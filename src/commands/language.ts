@@ -1,4 +1,4 @@
-import languageSchema from '../models/languages'
+import languageSchema from '../persistence/mongo/models/languages'
 import { ICallbackObject, ICommand } from '../..'
 import Events from '../enums/Events'
 

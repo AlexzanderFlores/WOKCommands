@@ -1,5 +1,5 @@
 import { ICallbackObject, ICommand } from '../..'
-import channelCommandSchema from '../models/channel-commands'
+import channelCommandSchema from '../persistence/mongo/models/channel-commands'
 
 export = {
   description: 'Makes a command only work in some channels.',

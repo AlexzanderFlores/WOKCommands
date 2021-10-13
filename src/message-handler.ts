@@ -1,6 +1,6 @@
 import { Guild } from 'discord.js'
 
-import languageSchema from './models/languages'
+import languageSchema from './persistence/mongo/models/languages'
 import WOKCommands from '.'
 import Events from './enums/Events'
 const defualtMessages = require('../messages.json')

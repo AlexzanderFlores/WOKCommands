@@ -10,6 +10,8 @@ import {
   TextChannel,
   User,
 } from 'discord.js'
+
+import { ConnectionOptions } from 'mongoose'
 import { EventEmitter } from 'events'
 import WOKCommands from './src'
 
@@ -84,12 +86,10 @@ interface OptionsWithS {
   commandsDir: string
   featuresDir?: string
   messagesPath?: string
-  mongoUri?: string
   showWarns?: boolean
   delErrMsgCooldown?: number
   defaultLanguage?: string
   ignoreBots?: boolean
-  dbOptions?: {}
   testServers?: string | string[]
   botOwners?: string | string[]
   disabledDefaultCommands?: string | string[]
@@ -97,20 +97,40 @@ interface OptionsWithS {
   ephemeral?: boolean
   debug?: boolean
 }
+
+enum DbConnectionStatus {
+  DISCONNECTED = 'Disconnected',
+  CONNECTED = 'Connected',
+  CONNECTING = 'Connecting',
+  DISCONNECTING = 'Disconnecting',
+  UNKNOWN = 'Unknown',
+}
+
+type DbConnectionStrategy = 'MONGOOSE' | 'GENERIC'
+type MongooseDBOptions = {
+  dbConnectionStrategy: 'MONGOOSE'
+  mongoUri?: string
+  dbOptions?: ConnectionOptions
+}
+
+type GenericDBOptions = {
+  dbConnectionStrategy: 'GENERIC'
+  isDbConnected: () => boolean
+  getDbConnectionStatus: () => DbConnectionStatus
+}
+
+type DbOptions =  MongooseDBOptions | GenericDBOptions
 
 interface OptionsWithoutS {
   commandsDir?: never
   featuresDir?: never
-
   commandDir: string
   featureDir?: string
   messagesPath?: string
-  mongoUri?: string
   showWarns?: boolean
   delErrMsgCooldown?: number
   defaultLanguage?: string
   ignoreBots?: boolean
-  dbOptions?: {}
   testServers?: string | string[]
   botOwners?: string | string[]
   disabledDefaultCommands?: string | string[]
@@ -118,7 +138,8 @@ interface OptionsWithoutS {
   ephemeral?: boolean
   debug?: boolean
 }
-export type Options = OptionsWithS | OptionsWithoutS
+
+export type Options = (OptionsWithS | OptionsWithoutS) & DbOptions
 
 export interface ICallbackObject {
   channel: TextChannel

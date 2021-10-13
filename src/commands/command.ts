@@ -1,4 +1,4 @@
-import disabledCommands from '../models/disabled-commands'
+import disabledCommands from '../persistence/mongo/models/disabled-commands'
 import { ICallbackObject, ICommand } from '../..'
 
 export = {

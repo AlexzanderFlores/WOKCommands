@@ -1,5 +1,5 @@
 import { ICallbackObject, ICommand } from '../..'
-import requiredRoleSchema from '../models/required-roles'
+import requiredRoleSchema from '../persistence/mongo/models/required-roles'
 
 export = {
   description: 'Specifies what role each command requires.',

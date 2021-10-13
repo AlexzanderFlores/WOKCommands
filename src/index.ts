@@ -1,13 +1,12 @@
 import { Client, ColorResolvable, Guild, GuildEmoji } from 'discord.js'
-import { Connection } from 'mongoose'
 import { EventEmitter } from 'events'
 
 import FeatureHandler from './FeatureHandler'
-import mongo, { getMongoConnection } from './mongo'
-import prefixes from './models/prefixes'
+import mongo, { getMongoConnection } from './persistence/mongo/connection'
+import prefixes from './persistence/mongo/models/prefixes'
 import MessageHandler from './message-handler'
 import SlashCommands from './SlashCommands'
-import { ICategorySetting, Options } from '..'
+import { DbConnectionStatus, ICategorySetting, Options } from '..'
 import Events from './enums/Events'
 import CommandHandler from './CommandHandler'
 
@@ -16,7 +15,6 @@ export default class WOKCommands extends EventEmitter {
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
   private _featuresDir = ''
-  private _mongoConnection: Connection | null = null
   private _displayName = ''
   private _prefixes: { [name: string]: string } = {}
   private _categories: Map<String, String | GuildEmoji> = new Map() // <Category Name, Emoji Icon>
@@ -35,6 +33,8 @@ export default class WOKCommands extends EventEmitter {
   private _debug = false
   private _messageHandler: MessageHandler | null = null
   private _slashCommand: SlashCommands | null = null
+  private _isDbConnected?: () => boolean
+  private _getDbConnectionStatus?: () => DbConnectionStatus
 
   constructor(client: Client, options?: Options) {
     super()
@@ -55,12 +55,10 @@ export default class WOKCommands extends EventEmitter {
       featuresDir = '',
       featureDir = '',
       messagesPath,
-      mongoUri,
       showWarns = true,
       delErrMsgCooldown = -1,
       defaultLanguage = 'english',
       ignoreBots = true,
-      dbOptions,
       testServers,
       botOwners,
       disabledDefaultCommands = [],
@@ -69,11 +67,31 @@ export default class WOKCommands extends EventEmitter {
       debug = false,
     } = options || {}
 
-    if (mongoUri) {
-      await mongo(mongoUri, this, dbOptions)
+    if (options?.dbConnectionStrategy === 'MONGOOSE' && options?.mongoUri) {
+      const { mongoUri, dbOptions } = options;
+      const connection = await mongo(mongoUri, this, dbOptions)
 
-      this._mongoConnection = getMongoConnection()
+      this._isDbConnected = () => {
+        return !!(connection && connection.readyState === 1)
+      }
 
+      this._getDbConnectionStatus = () => {
+        const results: {
+          [name: number]: string
+        } = {
+          0: 'Disconnected',
+          1: 'Connected',
+          2: 'Connecting',
+          3: 'Disconnecting',
+        }
+
+        return enumFromName(results[connection.readyState] || 'Unknown', DbConnectionStatus);
+      }
+
+      const connectionStatus = this.getDbConnectionStatus();
+      this.emit(Events.DATABASE_CONNECTED, connection, connectionStatus)
+
+      // todo: move this and warning separate repository method
       const results: any[] = await prefixes.find({})
 
       for (const result of results) {
@@ -81,6 +99,9 @@ export default class WOKCommands extends EventEmitter {
 
         this._prefixes[_id] = prefix
       }
+    } else if (options?.dbConnectionStrategy === 'GENERIC') {
+      this._isDbConnected = options.isDbConnected;
+      this._getDbConnectionStatus = options.getDbConnectionStatus;
     } else {
       if (showWarns) {
         console.warn(
@@ -166,6 +187,17 @@ export default class WOKCommands extends EventEmitter {
     )
 
     console.log('WOKCommands > Your bot is now running.')
+  }
+
+  public isDBConnected(): boolean {
+    return this._isDbConnected && this._isDbConnected()
+  }
+
+  public getDbConnectionStatus(): DbConnectionStatus {
+    if (!this._getDbConnectionStatus) {
+      return DbConnectionStatus.UNKNOWN
+    }
+    return this._getDbConnectionStatus();
   }
 
   public setMongoPath(mongoPath: string | undefined): WOKCommands {
@@ -302,15 +334,6 @@ export default class WOKCommands extends EventEmitter {
 
   public get commandHandler(): CommandHandler {
     return this._commandHandler!
-  }
-
-  public get mongoConnection(): Connection | null {
-    return this._mongoConnection
-  }
-
-  public isDBConnected(): boolean {
-    const connection = this.mongoConnection
-    return !!(connection && connection.readyState === 1)
   }
 
   public setTagPeople(tagPeople: boolean): WOKCommands {

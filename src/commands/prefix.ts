@@ -1,5 +1,5 @@
 import { ICallbackObject, ICommand } from '../..'
-import prefixes from '../models/prefixes'
+import prefixes from '../persistence/mongo/models/prefixes'
 
 export = {
   description: 'Displays or sets the prefix for the current guild',

@@ -2,7 +2,7 @@ import { Client, Guild, Message, MessageEmbed } from 'discord.js'
 import WOKCommands from '.'
 
 import permissions from './permissions'
-import cooldownSchema from './models/cooldown'
+import cooldownSchema from './persistence/mongo/models/cooldown'
 import { ICommand } from '../typings'
 
 class Command {
