@@ -1,33 +1,15 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const events_1 = require("events");
 const FeatureHandler_1 = __importDefault(require("./FeatureHandler"));
-const mongo_1 = __importStar(require("./mongo"));
-const prefixes_1 = __importDefault(require("./models/prefixes"));
+const connection_1 = __importDefault(require("./persistence/mongo/connection"));
+const prefixes_1 = __importDefault(require("./persistence/mongo/models/prefixes"));
 const message_handler_1 = __importDefault(require("./message-handler"));
 const SlashCommands_1 = __importDefault(require("./SlashCommands"));
+const __1 = require("..");
 const Events_1 = __importDefault(require("./enums/Events"));
 const CommandHandler_1 = __importDefault(require("./CommandHandler"));
 class WOKCommands extends events_1.EventEmitter {
@@ -35,7 +17,6 @@ class WOKCommands extends events_1.EventEmitter {
     _defaultPrefix = '!';
     _commandsDir = 'commands';
     _featuresDir = '';
-    _mongoConnection = null;
     _displayName = '';
     _prefixes = {};
     _categories = new Map(); // <Category Name, Emoji Icon>
@@ -54,6 +35,8 @@ class WOKCommands extends events_1.EventEmitter {
     _debug = false;
     _messageHandler = null;
     _slashCommand = null;
+    _isDbConnected;
+    _getDbConnectionStatus;
     constructor(client, options) {
         super();
         this._client = client;
@@ -63,15 +46,34 @@ class WOKCommands extends events_1.EventEmitter {
         if (!client) {
             throw new Error('No Discord JS Client provided as first argument!');
         }
-        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, mongoUri, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, dbOptions, testServers, botOwners, disabledDefaultCommands = [], typeScript = false, ephemeral = true, debug = false, } = options || {};
-        if (mongoUri) {
-            await mongo_1.default(mongoUri, this, dbOptions);
-            this._mongoConnection = mongo_1.getMongoConnection();
+        let { commandsDir = '', commandDir = '', featuresDir = '', featureDir = '', messagesPath, showWarns = true, delErrMsgCooldown = -1, defaultLanguage = 'english', ignoreBots = true, testServers, botOwners, disabledDefaultCommands = [], typeScript = false, ephemeral = true, debug = false, } = options || {};
+        if (options?.dbConnectionStrategy === 'MONGOOSE' && options?.mongoUri) {
+            const { mongoUri, dbOptions } = options;
+            const connection = await connection_1.default(mongoUri, this, dbOptions);
+            this._isDbConnected = () => {
+                return !!(connection && connection.readyState === 1);
+            };
+            this._getDbConnectionStatus = () => {
+                const results = {
+                    0: 'Disconnected',
+                    1: 'Connected',
+                    2: 'Connecting',
+                    3: 'Disconnecting',
+                };
+                return enumFromName(results[connection.readyState] || 'Unknown', __1.DbConnectionStatus);
+            };
+            const connectionStatus = this.getDbConnectionStatus();
+            this.emit(Events_1.default.DATABASE_CONNECTED, connection, connectionStatus);
+            // todo: move this and warning separate repository method
             const results = await prefixes_1.default.find({});
             for (const result of results) {
                 const { _id, prefix } = result;
                 this._prefixes[_id] = prefix;
             }
+        }
+        else if (options?.dbConnectionStrategy === 'GENERIC') {
+            this._isDbConnected = options.isDbConnected;
+            this._getDbConnectionStatus = options.getDbConnectionStatus;
         }
         else {
             if (showWarns) {
@@ -125,6 +127,15 @@ class WOKCommands extends events_1.EventEmitter {
         ]);
         this._featureHandler = new FeatureHandler_1.default(client, this, this._featuresDir, typeScript);
         console.log('WOKCommands > Your bot is now running.');
+    }
+    isDBConnected() {
+        return !!(this._isDbConnected && this._isDbConnected());
+    }
+    getDbConnectionStatus() {
+        if (!this._getDbConnectionStatus) {
+            return __1.DbConnectionStatus.UNKNOWN;
+        }
+        return this._getDbConnectionStatus();
     }
     setMongoPath(mongoPath) {
         console.warn('WOKCommands > .setMongoPath() no longer works as expected. Please pass in your mongo URI as a "mongoUri" property using the options object. For more information: https://docs.wornoffkeys.com/databases/mongodb');
@@ -227,13 +238,6 @@ class WOKCommands extends events_1.EventEmitter {
     }
     get commandHandler() {
         return this._commandHandler;
-    }
-    get mongoConnection() {
-        return this._mongoConnection;
-    }
-    isDBConnected() {
-        const connection = this.mongoConnection;
-        return !!(connection && connection.readyState === 1);
     }
     setTagPeople(tagPeople) {
         this._tagPeople = tagPeople;

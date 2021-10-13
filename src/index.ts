@@ -190,7 +190,7 @@ export default class WOKCommands extends EventEmitter {
   }
 
   public isDBConnected(): boolean {
-    return this._isDbConnected && this._isDbConnected()
+    return !!(this._isDbConnected && this._isDbConnected())
   }
 
   public getDbConnectionStatus(): DbConnectionStatus {

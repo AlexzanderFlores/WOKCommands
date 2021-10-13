@@ -2,7 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const cooldown_1 = __importDefault(require("./models/cooldown"));
+const cooldown_1 = __importDefault(require("./persistence/mongo/models/cooldown"));
 class Command {
     instance;
     client;

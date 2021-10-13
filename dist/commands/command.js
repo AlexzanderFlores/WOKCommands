@@ -2,7 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const disabled_commands_1 = __importDefault(require("../models/disabled-commands"));
+const disabled_commands_1 = __importDefault(require("../persistence/mongo/models/disabled-commands"));
 module.exports = {
     description: 'Enables or disables a command for this guild',
     category: 'Configuration',

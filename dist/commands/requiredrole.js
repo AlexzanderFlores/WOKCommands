@@ -2,7 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const required_roles_1 = __importDefault(require("../models/required-roles"));
+const required_roles_1 = __importDefault(require("../persistence/mongo/models/required-roles"));
 module.exports = {
     description: 'Specifies what role each command requires.',
     category: 'Configuration',

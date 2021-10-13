@@ -2,7 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const prefixes_1 = __importDefault(require("../models/prefixes"));
+const prefixes_1 = __importDefault(require("../persistence/mongo/models/prefixes"));
 module.exports = {
     description: 'Displays or sets the prefix for the current guild',
     category: 'Configuration',

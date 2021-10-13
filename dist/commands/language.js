@@ -2,7 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const languages_1 = __importDefault(require("../models/languages"));
+const languages_1 = __importDefault(require("../persistence/mongo/models/languages"));
 const Events_1 = __importDefault(require("../enums/Events"));
 module.exports = {
     description: 'Displays or sets the language for this Discord server',

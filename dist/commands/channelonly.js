@@ -2,7 +2,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const channel_commands_1 = __importDefault(require("../models/channel-commands"));
+const channel_commands_1 = __importDefault(require("../persistence/mongo/models/channel-commands"));
 module.exports = {
     description: 'Makes a command only work in some channels.',
     category: 'Configuration',

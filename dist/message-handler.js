@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const languages_1 = __importDefault(require("./models/languages"));
+const languages_1 = __importDefault(require("./persistence/mongo/models/languages"));
 const defualtMessages = require('../messages.json');
 class MessageHandler {
     _instance;
