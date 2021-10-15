@@ -15,15 +15,14 @@ import { ConnectionOptions } from 'mongoose'
 import { EventEmitter } from 'events'
 import WOKCommands from './src'
 
+// todo: do we need to maintain types here?
 export default class WOKCommands extends EventEmitter {
   private _client: Client
   private _defaultPrefix: string
   private _commandsDir: string
   private _featuresDir: string
-  private _mongo: string | undefined
-  private _mongoConnection: Connection | null
   private _displayName: string
-  private _prefixes: { [name: string]: string }
+  private _guildSettings: Collection<string, IGuildSettingsEntity>()
   private _categories: Map<String, String | GuildEmoji>
   private _hiddenCategories: string[]
   private _color: string
@@ -38,6 +37,8 @@ export default class WOKCommands extends EventEmitter {
   private _defaultLanguage: string
   private _messageHandler: MessageHandler
   private _slashCommand: SlashCommands
+  private _guildSettingsRepository: IGuildSettingsRepository
+  private _cooldownRepository: ICooldownRepository;
 
   constructor(client: Client, options?: Options)
 
@@ -104,6 +105,7 @@ enum DbConnectionStatus {
   CONNECTING = 'Connecting',
   DISCONNECTING = 'Disconnecting',
   UNKNOWN = 'Unknown',
+  NO_DATABASE = 'No Database'
 }
 
 type DbConnectionStrategy = 'MONGOOSE' | 'GENERIC'
@@ -117,6 +119,8 @@ type GenericDBOptions = {
   dbConnectionStrategy: 'GENERIC'
   isDbConnected: () => boolean
   getDbConnectionStatus: () => DbConnectionStatus
+  guildSettingsRepository: IGuildSettingsRepository
+  cooldownRepository: ICooldownRepository
 }
 
 type DbOptions =  MongooseDBOptions | GenericDBOptions

@@ -1,5 +1,4 @@
 import { ICallbackObject, ICommand } from '../..'
-import prefixes from '../persistence/mongo/models/prefixes'
 
 export = {
   description: 'Displays or sets the prefix for the current guild',
@@ -31,20 +30,7 @@ export = {
         return instance.messageHandler.get(guild, 'NO_DATABASE_FOUND')
       }
 
-      await prefixes.findOneAndUpdate(
-        {
-          _id: id,
-        },
-        {
-          _id: id,
-          prefix: text,
-        },
-        {
-          upsert: true,
-        }
-      )
-
-      instance.setPrefix(guild, text)
+      await instance.setPrefix(guild, text)
 
       return instance.messageHandler.get(guild, 'SET_PREFIX', {
         PREFIX: text,
