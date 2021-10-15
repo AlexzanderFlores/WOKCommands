@@ -38,7 +38,7 @@
   "DISABLED_COMMAND": {
     "english": "That command is currently disabled in this server.",
     "spanish": "Ese comando está actualmente deshabilitado en este servidor.",
-    "portuguese": "Este comando está atualmente desabilitado neste servidor.",
+    "portuguese": "Este comando está atualmente desactivado neste servidor.",
     "russian": "Эта команда в настоящее время отключена на этом сервере.",
     "german": "Dieser Befehl ist auf dem Server zurzeit deaktiviert.",
     "dutch": "Dat commando is momenteel uitgeschakeld in deze server.",
@@ -46,7 +46,7 @@
   },
   "MISSING_PERMISSION": {
     "english": "You must have the {PERM} permission in order to use this command.",
-    "spanish": "Debe tener el permiso {PERM} para poder utilizar este comando.",
+    "spanish": "Debes tener el permiso {PERM} para poder utilizar este comando.",
     "portuguese": "Você precisa ter a permissão {PERM} para utilizar este comando.",
     "russian": "У вас должно быть право {PERM}, чтобы использовать эту команду. ",
     "german": "Du benötigst die Berechtigung {PERM}, um diesen Befehl nutzen zu können.",
@@ -55,7 +55,7 @@
   },
   "MISSING_ROLES": {
     "english": "You do not have the required roles to use this command! You need one of the following: {ROLES}",
-    "spanish": "¡No tienes los roles necesarios para usar este comando! Necesita uno de los siguientes: {ROLES}",
+    "spanish": "¡No tienes los roles necesarios para usar este comando! Necesitas uno de los siguientes: {ROLES}",
     "portuguese": "Você não tem o cargo necessário para usar este comando! Você precisa de um dos seguintes: {ROLES}",
     "russian": "У вас нет необходимых ролей для использования этой команды! Вам понадобится одно из следующего: {ROLES}",
     "german": "Sie haben nicht die erforderlichen Rollen, um diesen Befehl zu verwenden! Sie benötigen eine der folgenden Möglichkeiten: {ROLES}",
@@ -64,7 +64,7 @@
   },
   "COOLDOWN": {
     "english": "You must wait {COOLDOWN} before using that command again.",
-    "spanish": "Debe esperar {COOLDOWN} antes de usar ese comando nuevamente.",
+    "spanish": "Debes esperar {COOLDOWN} antes de usar ese comando nuevamente.",
     "portuguese": "Você precisa esperar {COOLDOWN} antes de usar este comando novamente.",
     "russian": "Вы должны подождать {COOLDOWN} перед использованием данной команды снова.",
     "german": "Du musst {COOLDOWN} warten, bevor du diesen Befehl erneut nutzen kannst.",
@@ -73,7 +73,7 @@
   },
   "ENABLE_DISABLE_STATE": {
     "english": "The state must be either \"enable\" or \"disable\".",
-    "spanish": "El estado debe ser \"habilitar\" o \"deshabilitar\".",
+    "spanish": "El estado debe ser \"activar\" o \"desactivar\".",
     "portuguese": "O estado deve ser \"ativado\" ou \"desativado\".",
     "russian": "Состояние должно быть либо \"включено\", либо \"отключено\".",
     "german": "Der Zustand muss entweder \"aktiviere\" oder \"deaktiviere\" sein.",
@@ -82,7 +82,7 @@
   },
   "CANNOT_ENABLE_DISABLE_IN_DMS": {
     "english": "You cannot enable or disable commands in private messages.",
-    "spanish": "No puede habilitar o deshabilitar comandos en mensajes privados.",
+    "spanish": "No puedes activar o desactivar comandos en mensajes privados.",
     "portuguese": "Você não pode ativar ou desativar comandos em mensagens privadas.",
     "russian": "Вы не можете включать или отключать команды в личных сообщениях.",
     "german": "Du kannst keine Befehle in Privatnachrichten aktivieren oder deaktivieren.",
@@ -91,7 +91,7 @@
   },
   "COMMAND_ALREADY_ENABLED": {
     "english": "That command is already enabled!",
-    "spanish": "¡Ese comando ya está habilitado!",
+    "spanish": "¡Ese comando ya está activado!",
     "portuguese": "Este comando já está ativado!",
     "russian": "Эта команда уже включена!",
     "german": "Dieser Befehl ist bereits aktiviert!",
@@ -109,7 +109,7 @@
   },
   "COMMAND_NOW_ENABLED": {
     "english": "{COMMAND} is now enabled!",
-    "spanish": "¡{COMMAND} ahora está habilitado!",
+    "spanish": "¡{COMMAND} ahora está activado!",
     "portuguese": "{COMMAND} agora está ativado!",
     "russian": "{COMMAND} теперь включена!",
     "german": "{COMMAND} wurde aktiviert!",
@@ -118,7 +118,7 @@
   },
   "COMMAND_NOW_DISABLED": {
     "english": "{COMMAND} is now disabled!",
-    "spanish": "¡{COMMAND} ahora está deshabilitada!",
+    "spanish": "¡{COMMAND} ahora está desactivado!",
     "portuguese": "{COMMAND} agora está desativado!",
     "russian": "{COMMAND} теперь отключена!",
     "german": "{COMMAND} wurde deaktiviert!",
@@ -145,7 +145,7 @@
   },
   "SET_PREFIX": {
     "english": "Set the command prefix to {PREFIX}.",
-    "spanish": "Establezca el prefijo del comando en {PREFIX}.",
+    "spanish": "Establece el prefijo del comando en {PREFIX}.",
     "portuguese": "Prefixo definido para {PREFIX}.",
     "russian": "Установлен префикс команд на {PREFIX}.",
     "german": "Der Prefix {PREFIX} wurde festgelegt.",
@@ -154,7 +154,7 @@
   },
   "CANNOT_SET_PREFIX_IN_DMS": {
     "english": "You cannot set a prefix in a private message.",
-    "spanish": "No puede establecer un prefijo en un mensaje privado.",
+    "spanish": "No puedes establecer un prefijo en un mensaje privado.",
     "portuguese": "Você não pode definir um prefixo em uma mensagem privada",
     "russian": "Вы не можете установить префикс в личном сообщении.",
     "german": "Du kannst den Prefix nicht in Privatnachrichten festlegen.",
@@ -163,7 +163,7 @@
   },
   "CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS": {
     "english": "You cannot change required roles in private messages.",
-    "spanish": "No puede cambiar los roles requeridos en los mensajes privados.",
+    "spanish": "No puedes cambiar los roles requeridos en los mensajes privados.",
     "portuguese": "Você não pode alterar as funções necessárias em mensagens privadas",
     "russian": "Вы не можете изменить требуемые роли в личных сообщениях.",
     "german": "Du kannst die benötigen Rolen nicht in Privatnachrichten festlegen.",
@@ -190,7 +190,7 @@
   },
   "SYNTAX_ERROR": {
     "english": "Incorrect usage! Please use \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
-    "spanish": "¡Uso incorrecto! Utilice \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
+    "spanish": "¡Uso incorrecto! Utiliza \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
     "portuguese": "Uso incorreto! Utilize \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
     "russian": "Неправильное использование, пожалуйста используйте \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
     "german": "Falsche Verwendung! Bitte nutze \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
@@ -271,7 +271,7 @@
   },
   "ALLOWED_CHANNELS": {
     "english": "You can only use that command in the following: {CHANNELS}.",
-    "spanish": "Solo puede usar ese comando en lo siguiente: {CHANNELS}.",
+    "spanish": "Solo puedes usar ese comando en los siguientes canales: {CHANNELS}.",
     "portuguese": "Você só pode usar esse comando nos seguintes: {CHANNELS}.",
     "russian": "Вы можете использовать эту команду только в следующих случаях: {CHANNELS}.",
     "german": "Sie können diesen Befehl nur im Folgenden verwenden: {CHANNELS}.",
@@ -289,7 +289,7 @@
   },
   "INVALID_SLASH_COMMAND": {
     "english": "This slash command is not properly registered.",
-    "spanish": "Este comando de barra no está registrado correctamente.",
+    "spanish": "Este comando no está registrado correctamente.",
     "portuguese": "Este comando de barra não está registrado corretamente.",
     "russian": "Эта команда косой черты не зарегистрирована должным образом.",
     "german": "Dieser Schrägstrichbefehl ist nicht richtig registriert.",
@@ -317,7 +317,7 @@
     },
     "SELECT_A_CATEGORY": {
       "english": "Please select a command category by clicking it's reaction.",
-      "spanish": "Seleccione una categoría de comando haciendo clic en su reacción.",
+      "spanish": "Selecciona una categoría de comandos haciendo clic en su reacción.",
       "portuguese": "Selecione uma categoria de comando clicando em sua reação.",
       "russian": "Пожалуйста, выберите категорию команд нажатием на её реакцию.",
       "german": "Bitte wähle eine Befehlskategorie aus, indem du auf eine Reaktion klickst.",
@@ -335,7 +335,7 @@
     },
     "DESCRIPTION_FIRST_LINE": {
       "english": "Use 🚪 to return to the previous menu.",
-      "spanish": "Utilice 🚪 para volver al menú anterior.",
+      "spanish": "Utiliza 🚪 para volver al menú anterior.",
       "portuguese": "Use 🚪 para retornar ao menu anterior",
       "russian": "Используйте 🚪, что-бы вернуться в предыдущее меню.",
       "german": "Benutze 🚪, um zum vorherigen Menü zurückzukehren.",
@@ -344,7 +344,7 @@
     },
     "DESCRIPTION_SECOND_LINE": {
       "english": "Use ⬅ and ➡ to navigate between pages.",
-      "spanish": "Utilice ⬅ y ➡ para navegar entre páginas.",
+      "spanish": "Utiliza ⬅ y ➡ para navegar entre páginas.",
       "portuguese": "Use ⬅ e ➡ para navegar entre as páginas.",
       "russian": "Используйте ⬅ and ➡ для перехода между страницами.",
       "german": "Benutze ⬅ und ➡, um zwischen den Seiten hin und her zu wechseln.",
