@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose'
-import ModelNames from './ModelNames'
 
 const reqString = {
   type: String,
@@ -18,6 +17,6 @@ const schema = new Schema({
   },
 })
 
-const name = ModelNames.COOLDOWNS
+const name = 'wokcommands-cooldowns'
 
 export = mongoose.models[name] || mongoose.model(name, schema, name)
