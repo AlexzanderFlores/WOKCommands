@@ -1,5 +1,5 @@
 import { ApplicationCommand, MessageEmbed } from "discord.js";
-import { ICallbackObject, ICommand } from "../..";
+import { ICallbackObject, ICommand } from "../types";
 
 export = {
   description: "Allows the bot developers to manage existing slash commands",

@@ -1,5 +1,5 @@
-import { ICallbackObject, ICommand } from "../..";
 import requiredRoleSchema from "../models/required-roles";
+import { ICallbackObject, ICommand } from "../types";
 
 export = {
   description: "Specifies what role each command requires.",

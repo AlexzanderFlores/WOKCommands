@@ -1,81 +1,15 @@
-import {
+import type {
   ApplicationCommandOptionData,
   Client,
   CommandInteraction,
   Guild,
   GuildMember,
-  Interaction,
   Message,
   PermissionString,
   TextChannel,
   User,
-} from "discord.js";
-import { EventEmitter } from "events";
-import WOKCommands from "./src";
-
-export default class WOKCommands extends EventEmitter {
-  private _client: Client;
-  private _defaultPrefix: string;
-  private _commandsDir: string;
-  private _featuresDir: string;
-  private _mongo: string | undefined;
-  private _mongoConnection: Connection | null;
-  private _displayName: string;
-  private _prefixes: { [name: string]: string };
-  private _categories: Map<String, String | GuildEmoji>;
-  private _hiddenCategories: string[];
-  private _color: string;
-  private _commandHandler: CommandHandler;
-  private _featureHandler: FeatureHandler | null;
-  private _tagPeople: boolean;
-  private _showWarns: boolean;
-  private _delErrMsgCooldown: number;
-  private _ignoreBots: boolean;
-  private _botOwner: string[];
-  private _testServers: string[];
-  private _defaultLanguage: string;
-  private _messageHandler: MessageHandler;
-  private _slashCommand: SlashCommands;
-
-  constructor(client: Client, options?: Options);
-
-  public get mongoPath(): string;
-  public setMongoPath(mongoPath: string | undefined): WOKCommands;
-  public get client(): Client;
-  public get displayName(): string;
-  public setDisplayName(displayName: string): WOKCommands;
-  public get prefixes(): { [name: string]: string };
-  public get defaultPrefix(): string;
-  public setDefaultPrefix(defaultPrefix: string): WOKCommands;
-  public getPrefix(guild: Guild | null): string;
-  public setPrefix(guild: Guild | null, prefix: string): WOKCommands;
-  public get categories(): Map<String, String | GuildEmoji>;
-  public get hiddenCategories(): string[];
-  public get color(): string;
-  public setColor(color: string): WOKCommands;
-  public getEmoji(category: string): string;
-  public getCategory(emoji: string): string;
-  public setCategorySettings(
-    category: string | Array<Record<string, any>>,
-    emoji?: string
-  ): WOKCommands;
-  public isEmojiUsed(emoji: string): boolean;
-  public get commandHandler(): CommandHandler;
-  public get mongoConnection(): Connection | null;
-  public isDBConnected(): boolean;
-  public setTagPeople(tagPeople: boolean): WOKCommands;
-  public get tagPeople(): boolean;
-  public get showWarns(): boolean;
-  public get delErrMsgCooldown(): number;
-  public get ignoreBots(): boolean;
-  public get botOwner(): string[];
-  public setBotOwner(botOwner: string | string[]): WOKCommands;
-  public get testServers(): string[];
-  public get defaultLanguage(): string;
-  public setDefaultLanguage(defaultLanguage: string): WOKCommands;
-  public get messageHandler(): MessageHandler;
-  public get slashCommands(): SlashCommands;
-}
+} from "discord.js/typings/index.js";
+import type WOKCommands from ".";
 
 interface OptionsWithS {
   commandDir?: never;
@@ -118,6 +52,7 @@ interface OptionsWithoutS {
   ephemeral?: boolean;
   debug?: boolean;
 }
+
 export type Options = OptionsWithS | OptionsWithoutS;
 
 export interface ICallbackObject {

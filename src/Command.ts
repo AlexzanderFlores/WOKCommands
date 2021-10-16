@@ -1,9 +1,8 @@
-import { Client, Guild, Message, MessageEmbed } from "discord.js";
+import { Client, Guild, Message } from "discord.js";
 import WOKCommands from ".";
-
-import permissions from "./permissions";
 import cooldownSchema from "./models/cooldown";
-import { ICommand } from "../typings";
+import permissions from "./permissions";
+import { ICommand } from "./types";
 
 class Command {
   private instance: WOKCommands;

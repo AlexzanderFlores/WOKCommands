@@ -1,18 +1,17 @@
 import { Client, Guild, Message, MessageEmbed } from "discord.js";
 import fs from "fs";
-import WOKCommands from ".";
 import path from "path";
-
+import WOKCommands from ".";
 import Command from "./Command";
-import getAllFiles from "./get-all-files";
-import disabledCommands from "./models/disabled-commands";
-import requiredRoles from "./models/required-roles";
-import cooldown from "./models/cooldown";
-import channelCommands from "./models/channel-commands";
-import { permissionList } from "./permissions";
-import { ICommand } from "../typings";
 import CommandErrors from "./enums/CommandErrors";
 import Events from "./enums/Events";
+import getAllFiles from "./get-all-files";
+import channelCommands from "./models/channel-commands";
+import cooldown from "./models/cooldown";
+import disabledCommands from "./models/disabled-commands";
+import requiredRoles from "./models/required-roles";
+import { permissionList } from "./permissions";
+import { ICommand } from "./types";
 
 const replyFromCheck = async (
   reply: string | MessageEmbed | MessageEmbed[],

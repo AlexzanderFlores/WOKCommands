@@ -1,6 +1,6 @@
-import languageSchema from "../models/languages";
-import { ICallbackObject, ICommand } from "../..";
 import Events from "../enums/Events";
+import languageSchema from "../models/languages";
+import { ICallbackObject, ICommand } from "../types";
 
 export = {
   description: "Displays or sets the language for this Discord server",

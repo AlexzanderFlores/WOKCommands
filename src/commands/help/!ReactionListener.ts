@@ -9,7 +9,7 @@ import {
   User,
 } from "discord.js";
 import WOKCommands from "../..";
-import { ICommand } from "../../../typings";
+import { ICommand } from "../../types";
 import getFirstEmbed from "./!get-first-embed";
 
 const /**
@@ -173,9 +173,8 @@ class ReactionHandler {
       }
     }
 
-    const commands = this.instance.commandHandler.getCommandsByCategory(
-      category
-    );
+    const commands =
+      this.instance.commandHandler.getCommandsByCategory(category);
 
     return {
       length: commands.length,

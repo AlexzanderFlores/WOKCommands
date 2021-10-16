@@ -4,10 +4,12 @@
     "target": "esnext",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./src",
+    "declaration": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/**/*.ts"]
 }

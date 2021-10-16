@@ -1,5 +1,5 @@
 import disabledCommands from "../models/disabled-commands";
-import { ICallbackObject, ICommand } from "../..";
+import { ICallbackObject, ICommand } from "../types";
 
 export = {
   description: "Enables or disables a command for this guild",

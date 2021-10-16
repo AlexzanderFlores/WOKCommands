@@ -1,15 +1,14 @@
 import { Client, ColorResolvable, Guild, GuildEmoji } from "discord.js";
-import { Connection } from "mongoose";
 import { EventEmitter } from "events";
-
-import FeatureHandler from "./FeatureHandler";
-import mongo, { getMongoConnection } from "./mongo";
-import prefixes from "./models/prefixes";
-import MessageHandler from "./message-handler";
-import SlashCommands from "./SlashCommands";
-import { ICategorySetting, Options } from "..";
-import Events from "./enums/Events";
+import { Connection } from "mongoose";
 import CommandHandler from "./CommandHandler";
+import Events from "./enums/Events";
+import FeatureHandler from "./FeatureHandler";
+import MessageHandler from "./message-handler";
+import prefixes from "./models/prefixes";
+import mongo, { getMongoConnection } from "./mongo";
+import SlashCommands from "./SlashCommands";
+import { ICategorySetting, Options } from "./types";
 
 export default class WOKCommands extends EventEmitter {
   private _client: Client;
@@ -384,3 +383,4 @@ export default class WOKCommands extends EventEmitter {
 }
 
 module.exports = WOKCommands;
+module.exports.default = WOKCommands;
