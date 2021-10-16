@@ -2,7 +2,6 @@
   "name": "wokcommands",
   "version": "1.5.3",
   "main": "dist/index.js",
-  "typings": "./typings.d.ts",
   "scripts": {
     "tsc": "tsc -w --outDir dist --rootDir src --skipLibCheck",
     "compile": "tsc && node index.js",
