@@ -1,9 +1,9 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from "mongoose";
 
 const reqString = {
   type: String,
   required: true,
-}
+};
 
 const schema = new Schema({
   guildId: reqString,
@@ -12,8 +12,8 @@ const schema = new Schema({
     type: [String],
     required: true,
   },
-})
+});
 
-const name = 'wokcommands-channel-commands'
+const name = "wokcommands-channel-commands";
 
-export = mongoose.models[name] || mongoose.model(name, schema, name)
+export = mongoose.models[name] || mongoose.model(name, schema, name);

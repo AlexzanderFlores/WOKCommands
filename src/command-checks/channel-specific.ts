@@ -1,6 +1,6 @@
-import { Guild, GuildChannel, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
+import { Guild, GuildChannel, GuildMember, Message, User } from "discord.js";
+import WOKCommands from "..";
+import Command from "../Command";
 
 export = (
   guild: Guild | null,
@@ -14,39 +14,39 @@ export = (
   channel: GuildChannel
 ) => {
   if (!guild || !command || !command.names) {
-    return true
+    return true;
   }
 
-  const key = `${guild.id}-${command.names[0]}`
+  const key = `${guild.id}-${command.names[0]}`;
 
-  const channels = command.requiredChannels.get(key)
+  const channels = command.requiredChannels.get(key);
 
   if (channels && channels.length && !channels.includes(channel.id)) {
-    let channelList = ''
+    let channelList = "";
     for (const channel of channels) {
-      channelList += `<#${channel}>, `
+      channelList += `<#${channel}>, `;
     }
-    channelList = channelList.substring(0, channelList.length - 2)
+    channelList = channelList.substring(0, channelList.length - 2);
     reply(
-      instance.messageHandler.get(guild, 'ALLOWED_CHANNELS', {
+      instance.messageHandler.get(guild, "ALLOWED_CHANNELS", {
         CHANNELS: channelList,
       })
     ).then((message: Message | null) => {
       if (!message) {
-        return
+        return;
       }
 
       if (instance.delErrMsgCooldown === -1 || !message.deletable) {
-        return
+        return;
       }
 
       setTimeout(() => {
-        message.delete()
-      }, 1000 * instance.delErrMsgCooldown)
-    })
+        message.delete();
+      }, 1000 * instance.delErrMsgCooldown);
+    });
 
-    return false
+    return false;
   }
 
-  return true
-}
+  return true;
+};

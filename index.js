@@ -1,3 +1,3 @@
-import WOKCommands from './src'
+import WOKCommands from "./src";
 
-export default WOKCommands
+export default WOKCommands;

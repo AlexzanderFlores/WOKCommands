@@ -1,7 +1,7 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
-import CommandErrors from '../enums/CommandErrors'
+import { Guild, GuildMember, Message, User } from "discord.js";
+import WOKCommands from "..";
+import Command from "../Command";
+import CommandErrors from "../enums/CommandErrors";
 
 export = (
   guild: Guild | null,
@@ -12,10 +12,10 @@ export = (
   reply: Function
 ) => {
   if (!guild || !member) {
-    return true
+    return true;
   }
 
-  const { requiredPermissions, error } = command
+  const { requiredPermissions, error } = command;
 
   for (const perm of requiredPermissions || []) {
     // @ts-ignore
@@ -24,30 +24,30 @@ export = (
         error({
           error: CommandErrors.MISSING_PERMISSIONS,
           command,
-        })
+        });
       } else {
         reply(
-          instance.messageHandler.get(guild, 'MISSING_PERMISSION', {
+          instance.messageHandler.get(guild, "MISSING_PERMISSION", {
             PERM: perm,
           })
         ).then((message: Message | null) => {
           if (!message) {
-            return
+            return;
           }
 
           if (instance.delErrMsgCooldown === -1 || !message.deletable) {
-            return
+            return;
           }
 
           setTimeout(() => {
-            message.delete()
-          }, 1000 * instance.delErrMsgCooldown)
-        })
+            message.delete();
+          }, 1000 * instance.delErrMsgCooldown);
+        });
       }
 
-      return false
+      return false;
     }
   }
 
-  return true
-}
+  return true;
+};

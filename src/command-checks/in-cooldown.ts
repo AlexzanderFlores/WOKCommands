@@ -1,7 +1,7 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
-import CommandErrors from '../enums/CommandErrors'
+import { Guild, GuildMember, Message, User } from "discord.js";
+import WOKCommands from "..";
+import Command from "../Command";
+import CommandErrors from "../enums/CommandErrors";
 
 export = (
   guild: Guild | null,
@@ -11,12 +11,12 @@ export = (
   user: User,
   reply: Function
 ) => {
-  const { cooldown, globalCooldown, error } = command
+  const { cooldown, globalCooldown, error } = command;
 
   if ((cooldown || globalCooldown) && user) {
-    const guildId = guild ? guild.id : 'dm'
+    const guildId = guild ? guild.id : "dm";
 
-    const timeLeft = command.getCooldownSeconds(guildId, user.id)
+    const timeLeft = command.getCooldownSeconds(guildId, user.id);
     if (timeLeft) {
       if (error) {
         error({
@@ -26,32 +26,32 @@ export = (
           info: {
             timeLeft,
           },
-        })
+        });
       } else {
         reply(
-          instance.messageHandler.get(guild, 'COOLDOWN', {
+          instance.messageHandler.get(guild, "COOLDOWN", {
             COOLDOWN: timeLeft,
           })
         ).then((message: Message | null) => {
           if (!message) {
-            return
+            return;
           }
 
           if (instance.delErrMsgCooldown === -1 || !message.deletable) {
-            return
+            return;
           }
 
           setTimeout(() => {
-            message.delete()
-          }, 1000 * instance.delErrMsgCooldown)
-        })
+            message.delete();
+          }, 1000 * instance.delErrMsgCooldown);
+        });
       }
 
-      return false
+      return false;
     }
 
-    command.setCooldown(guildId, user.id)
+    command.setCooldown(guildId, user.id);
   }
 
-  return true
-}
+  return true;
+};
