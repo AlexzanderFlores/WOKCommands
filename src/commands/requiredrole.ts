@@ -1,5 +1,5 @@
 import { ICallbackObject, ICommand } from '../..'
-import requiredRoleSchema from '../persistence/mongo/models/required-roles'
+
 
 export = {
   description: 'Specifies what role each command requires.',
@@ -10,7 +10,7 @@ export = {
 
   minArgs: 2,
   maxArgs: 2,
-  expectedArgs: '<command> <none-or-roleid>',
+  expectedArgs: '<command> <add-or-remove> <none-or-roleid>',
 
   cooldown: '2s',
 
@@ -20,6 +20,7 @@ export = {
     const { channel, args, instance } = options
 
     const name = (args.shift() || '').toLowerCase()
+    const operation = (args.shift() || '').toLowerCase()
     const roleId = (args.shift() || '').toLowerCase()
 
     const { guild } = channel
@@ -37,45 +38,23 @@ export = {
     const command = instance.commandHandler.getCommand(name)
 
     if (command) {
-      if (roleId === 'none') {
-        command.removeRequiredRole(guild.id, roleId)
-
-        await requiredRoleSchema.deleteOne({
-          guildId: guild.id,
-          command: command.names[0],
-        })
+      if (operation === 'remove') {
+        await command.removeRequiredRole(guild.id, roleId)
 
         return instance.messageHandler.get(
           guild,
           'REMOVED_ALL_REQUIRED_ROLES',
           {
-            COMMAND: command.names[0],
+            COMMAND: command.defaultName,
           }
         )
       }
 
-      command.addRequiredRole(guild.id, roleId)
-
-      await requiredRoleSchema.findOneAndUpdate(
-        {
-          guildId: guild.id,
-          command: command.names[0],
-        },
-        {
-          guildId: guild.id,
-          command: command.names[0],
-          $addToSet: {
-            requiredRoles: roleId,
-          },
-        },
-        {
-          upsert: true,
-        }
-      )
+      await command.addRequiredRole(guild.id, roleId)
 
       return instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
         ROLE: roleId,
-        COMMAND: command.names[0],
+        COMMAND: command.defaultName,
       })
     }
 

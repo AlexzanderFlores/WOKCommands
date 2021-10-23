@@ -14,9 +14,11 @@
   "dependencies": {
     "discord.js": "^13.1.0",
     "dotenv": "^8.2.0",
+    "luxon": "^2.0.2",
     "mongoose": "^6.0.10"
   },
   "devDependencies": {
+    "@types/luxon": "^2.0.5",
     "@types/mongoose": "^5.10.1",
     "@types/node": "^14.14.9",
     "ts-node-dev": "^1.1.8",

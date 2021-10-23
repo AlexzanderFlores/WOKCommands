@@ -22,7 +22,7 @@ export default class WOKCommands extends EventEmitter {
   private _commandsDir: string
   private _featuresDir: string
   private _displayName: string
-  private _guildSettings: Collection<string, IGuildSettingsEntity>()
+  private _guildSettings: Collection<string, GuildSettingsAggregate>()
   private _categories: Map<String, String | GuildEmoji>
   private _hiddenCategories: string[]
   private _color: string

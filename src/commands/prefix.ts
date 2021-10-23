@@ -24,7 +24,6 @@ export = {
     }
 
     if (guild) {
-      const { id } = guild
 
       if (!instance.isDBConnected()) {
         return instance.messageHandler.get(guild, 'NO_DATABASE_FOUND')

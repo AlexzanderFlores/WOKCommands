@@ -1,5 +1,5 @@
-import { ICooldownEntity } from "../domain/CooldownEntity";
+import { CooldownEntity } from "../domain/CooldownEntity";
 
 export interface ICooldownRepository {
-  save(cooldown: ICooldownEntity): Promise<ICooldownEntity>
+  save(cooldown: CooldownEntity): Promise<CooldownEntity>
 }

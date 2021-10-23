@@ -1,4 +1,3 @@
-import languageSchema from '../persistence/mongo/models/languages'
 import { ICallbackObject, ICommand } from '../..'
 import Events from '../enums/Events'
 
@@ -46,20 +45,7 @@ export = {
       })
     }
 
-    instance.messageHandler.setLanguage(guild, lang)
-
-    await languageSchema.findOneAndUpdate(
-      {
-        _id: guild.id,
-      },
-      {
-        _id: guild.id,
-        language: lang,
-      },
-      {
-        upsert: true,
-      }
-    )
+    await instance.messageHandler.setLanguage(guild, lang)
 
     return instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
       LANGUAGE: lang,

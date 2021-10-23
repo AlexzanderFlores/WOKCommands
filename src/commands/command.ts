@@ -1,4 +1,3 @@
-import disabledCommands from '../persistence/mongo/models/disabled-commands'
 import { ICallbackObject, ICommand } from '../..'
 
 export = {
@@ -59,7 +58,7 @@ export = {
     const command = instance.commandHandler.getCommand(name)
 
     if (command) {
-      const mainCommand = command.names[0]
+      const mainCommand = command.defaultName;
       if (mainCommand === 'command') {
         return instance.messageHandler.get(guild, 'CANNOT_DISABLE_THIS_COMMAND')
       }
@@ -71,12 +70,7 @@ export = {
           return instance.messageHandler.get(guild, 'COMMAND_ALREADY_ENABLED')
         }
 
-        await disabledCommands.deleteOne({
-          guildId: guild.id,
-          command: mainCommand,
-        })
-
-        command.enable(guild.id)
+        await command.enable(guild.id)
 
         return instance.messageHandler.get(guild, 'COMMAND_NOW_ENABLED', {
           COMMAND: mainCommand,
@@ -87,12 +81,7 @@ export = {
         return instance.messageHandler.get(guild, 'COMMAND_ALREADY_DISABLED')
       }
 
-      await new disabledCommands({
-        guildId: guild.id,
-        command: mainCommand,
-      }).save()
-
-      command.disable(guild.id)
+      await command.disable(guild.id)
 
       return instance.messageHandler.get(guild, 'COMMAND_NOW_DISABLED', {
         COMMAND: mainCommand,

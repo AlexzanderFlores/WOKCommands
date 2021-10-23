@@ -1,7 +1,7 @@
-import { IGuildSettingsEntity } from "../domain/GuildSettingsEntity";
+import { GuildSettingsAggregate } from "../domain/GuildSettingsAggregate";
 
 export interface IGuildSettingsRepository {
-  getByGuildId(guildId: string): Promise<IGuildSettingsEntity>
-  getAll(): Promise<IGuildSettingsEntity[]>
-  save(settings: IGuildSettingsEntity): Promise<IGuildSettingsEntity>
+  getByGuildId(guildId: string): Promise<GuildSettingsAggregate>
+  getAll(): Promise<GuildSettingsAggregate[]>
+  save(settings: GuildSettingsAggregate): Promise<GuildSettingsAggregate>
 }

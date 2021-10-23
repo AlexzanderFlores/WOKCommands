@@ -112,7 +112,7 @@ export default class CommandHandler {
 
         if (instance.isDBConnected()) {
           const results = await cooldown.find({
-            name: command.names[0],
+            name: command.defaultName,
             type: command.globalCooldown ? 'global' : 'per-user',
           })
 
@@ -511,14 +511,13 @@ export default class CommandHandler {
         continue
       }
 
-      cmd.setRequiredChannels(
-        guild,
-        command,
-        channels
+      cmd.setRequiredChannels({
+        guildId: guild?.id,
+        channels: channels
           .toString()
           .replace(/\"\[\]/g, '')
           .split(',')
-      )
+      })
     }
   }
 }

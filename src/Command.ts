@@ -4,6 +4,9 @@ import WOKCommands from '.'
 import permissions from './permissions'
 import cooldownSchema from './persistence/mongo/models/cooldown'
 import { ICommand } from '../typings'
+import { CommandEntity } from './domain/CommandEntity'
+import { Channel } from './domain/Channel'
+import { Role } from './domain/Role'
 
 class Command {
   private instance: WOKCommands
@@ -16,10 +19,8 @@ class Command {
   private _expectedArgs?: string
   private _description?: string
   private _requiredPermissions?: permissions | undefined
-  private _requiredRoles?: Map<String, string[]> = new Map() // <GuildID, RoleIDs[]>
   private _callback: Function = () => {}
   private _error: Function | null = null
-  private _disabled: string[] = []
   private _cooldownDuration = 0
   private _cooldownChar = ''
   private _cooldown: string
@@ -33,7 +34,6 @@ class Command {
   private _testOnly = false
   private _slash: boolean | string = false
   private _requireRoles = false
-  private _requiredChannels: Map<String, String[]> = new Map() // <GuildID-Command, Channel IDs>
 
   constructor(
     instance: WOKCommands,
@@ -435,51 +435,49 @@ class Command {
     return result.substring(0, result.length - 1)
   }
 
-  public addRequiredRole(guildId: string, roleId: string) {
-    const array = this._requiredRoles?.get(guildId) || []
-    if (!array.includes(roleId)) {
-      array.push(roleId)
-      this._requiredRoles?.set(guildId, array)
-    }
+  public async addRequiredRole(guildId: string, roleId: string) {
+    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
+
+    guildSettings.addRequiredRoleForCommand({
+      // TODO: should we take command name from input there or get it from this.names[0]?
+      commandId: this.defaultName,
+      role: new Role({ roleId })
+    })
+    
+    await this.instance.guildSettingsRepository.save(guildSettings)
   }
 
-  public removeRequiredRole(guildId: string, roleId: string) {
-    if (roleId === 'none') {
-      this._requiredRoles?.delete(guildId)
-      return
+  public async removeRequiredRole(guildId: string, roleId: string) {
+    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
+    if (roleId === 'all') {
+      guildSettings.clearRequiredRolesForCommand({ commandId: this.defaultName })
     }
 
-    const array = this._requiredRoles?.get(guildId) || []
-    const index = array ? array.indexOf(roleId) : -1
-    if (array && index >= 0) {
-      array.splice(index, 1)
-    }
+    guildSettings.removeRequiredRoleForCommand({ commandId: this.defaultName, roleId });
+
+    await this.instance.guildSettingsRepository.save(guildSettings)
   }
 
-  public getRequiredRoles(guildId: string): string[] {
-    const map = this._requiredRoles || new Map()
-    return map.get(guildId) || []
+  public getRequiredRoles(guildId: string): string[] | null {
+    const command = this.getCommandEntity(guildId)
+    return command?.requiredRoles ? Array.from(command.requiredRoles.keys()) : null
   }
 
   public get callback(): Function {
     return this._callback
   }
 
-  public disable(guildId: string) {
-    if (!this._disabled.includes(guildId)) {
-      this._disabled.push(guildId)
-    }
+  public async disable(guildId: string) {
+    await this.updateCommandIsEnabled({ guildId, isEnabled: false })
   }
 
-  public enable(guildId: string) {
-    const index = this._disabled.indexOf(guildId)
-    if (index >= 0) {
-      this._disabled.splice(index, 1)
-    }
+  public async enable(guildId: string) {
+    await this.updateCommandIsEnabled({ guildId, isEnabled: true })
   }
 
-  public isDisabled(guildId: string) {
-    return this._disabled.includes(guildId)
+  public isDisabled(guildId: string): boolean {
+    const command = this.getCommandEntity(guildId);
+    return command ? !command.isEnabled : false;
   }
 
   public get error(): Function | null {
@@ -494,20 +492,51 @@ class Command {
     return this._requireRoles
   }
 
-  public get requiredChannels(): Map<String, String[]> {
-    return this._requiredChannels
+  // TODO: we should be a bit more explicit with this as there are implications if a command default
+  // name is ever changed or deleted while aliases can change more freely
+  public get defaultName(): string {
+    return this.names[0]
   }
 
-  public setRequiredChannels(
-    guild: Guild | null,
-    command: string,
-    channels: String[]
-  ) {
-    if (!guild) {
+  public getRequiredChannels({ guildId } : { guildId: string }): string[] | null {
+    const command = this.getCommandEntity(guildId)
+    return command?.channels ? Array.from(command.channels.keys()) : null
+  }
+
+  public async setRequiredChannels({ guildId, channels }: {
+    guildId: string,
+    channels: string[]
+  }): Promise<void> {
+    if (!guildId) {
       return
     }
+    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
 
-    this.requiredChannels.set(`${guild.id}-${command}`, channels)
+    guildSettings.updateRequiredChannelsForCommand({
+      // TODO: should we take command name from input there or get it from this.names[0]?
+      commandId: this.defaultName,
+      channels: channels.map(c => (new Channel({ channelId: c })))
+    })
+    
+    await this.instance.guildSettingsRepository.save(guildSettings)
+  }
+
+  private getCommandEntity(guildId: string): CommandEntity | null {
+    const guildSettings = this.instance.guildSettings.get(guildId)
+    const command = guildSettings?.commands.get(this.names[0])
+
+    return command || null;
+  }
+
+  private async updateCommandIsEnabled({ guildId, isEnabled }: { guildId: string, isEnabled: boolean }) {
+    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
+
+    guildSettings.updateEnabledStateForCommand({
+      commandId: this.defaultName,
+      isEnabled
+    })
+    
+    await this.instance.guildSettingsRepository.save(guildSettings)
   }
 }
 

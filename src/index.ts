@@ -3,7 +3,6 @@ import { EventEmitter } from 'events'
 
 import FeatureHandler from './FeatureHandler'
 import mongo from './persistence/mongo/connection'
-import prefixes from './persistence/mongo/models/prefixes'
 import MessageHandler from './message-handler'
 import SlashCommands from './SlashCommands'
 import { DbConnectionStatus, ICategorySetting, Options } from '..'
@@ -11,9 +10,10 @@ import Events from './enums/Events'
 import CommandHandler from './CommandHandler'
 import { IGuildSettingsRepository } from './persistence/IGuildSettingsRepository'
 import { ICooldownRepository } from './persistence/ICooldownRepository'
-import { GuildSettingsEntity, IGuildSettingsEntity } from './domain/GuildSettingsEntity'
+import { GuildSettingsAggregate, GuildSettingsAggregate } from './domain/GuildSettingsAggregate'
 import { MongoCooldownRepository } from './persistence/mongo/MongoCooldownRepository'
 import { MongoGuildSettingsRepository } from './persistence/mongo/MongoGuildSettingsRepository'
+import { GuildPrefix } from './domain/GuildPrefix'
 
 export default class WOKCommands extends EventEmitter {
   private _client: Client
@@ -21,7 +21,7 @@ export default class WOKCommands extends EventEmitter {
   private _commandsDir = 'commands'
   private _featuresDir = ''
   private _displayName = ''
-  private _guildSettings = new Collection<string, IGuildSettingsEntity>()
+  private _guildSettings = new Collection<string, GuildSettingsAggregate>()
   private _categories: Map<String, String | GuildEmoji> = new Map() // <Category Name, Emoji Icon>
   private _hiddenCategories: string[] = []
   private _color: ColorResolvable | null = null
@@ -71,7 +71,7 @@ export default class WOKCommands extends EventEmitter {
       disabledDefaultCommands = [],
       typeScript = false,
       ephemeral = true,
-      debug = false,
+      debug = false
     } = options || {}
 
     let useDb = false;
@@ -127,13 +127,14 @@ export default class WOKCommands extends EventEmitter {
       this._guildSettings = guildSettings.reduce((agg, settings) => {
         agg.set(settings.guildId, settings);
         return agg;
-      }, new Collection<string, IGuildSettingsEntity>())
+      }, new Collection<string, GuildSettingsAggregate>())
     }
 
     this._commandsDir = commandsDir || commandDir || this._commandsDir
     this._featuresDir = featuresDir || featureDir || this._featuresDir
     this._ephemeral = ephemeral
     this._debug = debug
+    this._commandFactory = commandFactory;
 
     if (
       this._commandsDir &&
@@ -226,7 +227,7 @@ export default class WOKCommands extends EventEmitter {
     return this._cooldownRepository
   }
 
-  public get guildSettings(): Collection<string, IGuildSettingsEntity> {
+  public get guildSettings(): Collection<string, GuildSettingsAggregate> {
     return this._guildSettings
   }
 
@@ -261,28 +262,40 @@ export default class WOKCommands extends EventEmitter {
 
   public getPrefix(guild: Guild | null): string {
     if (guild) {
-      return this.guildSettings.get(guild.id)?.prefix || this._defaultPrefix
+      return this.guildSettings.get(guild.id)?.prefix.value || this._defaultPrefix
     }
     return this._defaultPrefix;
   }
 
-  public getGuildSettings(guildId: string): IGuildSettingsEntity {
-    const guildSettings = this.guildSettings.get(guildId);
+  /**
+   * gets guild settings if they exist
+   * otherwise it creates them and stores them in the local cache
+   * @param guildId 
+   * @returns 
+   */
+  public getOrCreateGuildSettings(guildId: string): GuildSettingsAggregate {
+    let guildSettings = this.guildSettings.get(guildId)
     if (!guildSettings) {
-      return new GuildSettingsEntity({ guildId });
+      // TODO: any reason we should first check the db for guild settings here?
+      guildSettings =  new GuildSettingsAggregate({ guildId })
+      this.guildSettings.set(guildId, guildSettings)
     }
-    return guildSettings;
+    return guildSettings
+  }
+
+  public setGuildSettings(guildId: string, guildSettingsEntity: GuildSettingsAggregate) {
+    this.guildSettings.set(guildId, guildSettingsEntity)
   }
 
   public async setPrefix(guild: Guild | null, prefix: string): Promise<void> {
     // TODO: are there any legitimate reasons for this to be null here? DM?
     if (guild) {
-      const guildSettings = this.getGuildSettings(guild.id)
-      guildSettings.createOrUpdatePrefix(prefix)
+      const guildSettings = this.getOrCreateGuildSettings(guild.id)
+      guildSettings.updatePrefix({ prefix: new GuildPrefix({ value: prefix }) })
       // TODO: can we safely assume a guild settings object should exist in memory?
       // probably not the same for cooldowns
       const updated = await this.guildSettingsRepository.save(guildSettings)
-      this.guildSettings.set(guild.id, updated);
+      this.guildSettings.set(guild.id, updated)
     }
   }
 
