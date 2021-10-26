@@ -1,12 +1,26 @@
 import { DateTime } from "luxon";
+
+export type CooldownType = 'global' | 'per-user';
+
+interface BaseCooldownCreateInput {
+  guildId: string,
+  commandId: string,
+  cooldownPeriodInSeconds: number
+}
+
+interface UserCooldownCreateInput extends BaseCooldownCreateInput {
+  userId: string,
+  type: 'per-user'
+}
+
+interface GlobalCooldownCreateInput extends BaseCooldownCreateInput {
+  type: 'global'
+}
 export class CooldownEntity {
   private readonly _guildId: string
   private readonly _commandId: string;
-
-  private readonly _userId: string | null;
-
-  private readonly _name: string
-  private readonly _type: string
+  private readonly _userId?: string;
+  private readonly _type: CooldownType
   private _secondsRemaining: number
   // TODO: adding for future-proofing - would it be more efficient to store the time the cooldown was created and the length of the cooldown
   // then calculate on-demand when a user tries to use the command?
@@ -14,18 +28,33 @@ export class CooldownEntity {
   private _cooldownPeriodInSeconds: number
 
 
-  constructor({ guildId, commandId, userId, name, type, cooldownPeriodInSeconds }: { guildId: string, commandId: string, userId?: string, name: string, type: string, cooldownPeriodInSeconds: number }) {
+  constructor({ guildId, commandId, type, cooldownPeriodInSeconds, userId }: {
+    guildId: string,
+    commandId: string,
+    cooldownPeriodInSeconds: number,
+    type: CooldownType,
+    userId?: string
+  }) {
+    if (type === 'per-user') {
+      if (!userId) {
+        throw new Error('WOK Commands > a userId must be supplied when creating a per-user cooldown')
+      }
+      this._userId = userId
+    } else if (type === 'global') {
+      this._userId = undefined
+    } else {
+      throw new Error('WOK Commands > unknown CooldownType')
+    }
+
     this._guildId = guildId
     this._commandId = commandId
-    this._userId = userId || null
-    this._name = name
     this._type = type
     this._createdDateTime = DateTime.utc()
     this._secondsRemaining = cooldownPeriodInSeconds;
     this._cooldownPeriodInSeconds = cooldownPeriodInSeconds;
   }
 
-  decrementTimeRemaining(numberOfSeconds: number): void {
+  public decrementTimeRemaining({ numberOfSeconds }: { numberOfSeconds: number }): void {
     this._secondsRemaining = this._secondsRemaining - numberOfSeconds;
   }
 
@@ -37,12 +66,8 @@ export class CooldownEntity {
     return this._commandId;
   }
 
-  public get userId(): string | null {
+  public get userId(): string | undefined {
     return this._userId;
-  }
-
-  public get name(): string {
-    return this._name;
   }
 
   public get type(): string {
@@ -61,17 +86,3 @@ export class CooldownEntity {
     return this._cooldownPeriodInSeconds;
   }
 }
-
-// TODO: remove
-// export = CooldownEntity
-
-// const schema = new Schema({
-//   // Command-GuildID or Command-GuildID-UserID
-//   _id: reqString,
-//   name: reqString,
-//   type: reqString,
-//   cooldown: {
-//     type: Number,
-//     required: true,
-//   },
-// })

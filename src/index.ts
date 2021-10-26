@@ -123,7 +123,7 @@ export default class WOKCommands extends EventEmitter {
         throw new Error('WOKCommands > Database not connected!')
       }
 
-      const guildSettings = await this.guildSettingsRepository.getAll()
+      const guildSettings = await this.guildSettingsRepository.findAll()
       this._guildSettings = guildSettings.reduce((agg, settings) => {
         agg.set(settings.guildId, settings);
         return agg;
@@ -134,7 +134,6 @@ export default class WOKCommands extends EventEmitter {
     this._featuresDir = featuresDir || featureDir || this._featuresDir
     this._ephemeral = ephemeral
     this._debug = debug
-    this._commandFactory = commandFactory;
 
     if (
       this._commandsDir &&

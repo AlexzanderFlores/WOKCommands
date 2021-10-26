@@ -1,12 +1,12 @@
-import { Client, Guild, Message, MessageEmbed } from 'discord.js'
+import { Client, Message } from 'discord.js'
 import WOKCommands from '.'
 
 import permissions from './permissions'
-import cooldownSchema from './persistence/mongo/models/cooldown'
 import { ICommand } from '../typings'
 import { CommandEntity } from './domain/CommandEntity'
 import { Channel } from './domain/Channel'
 import { Role } from './domain/Role'
+import { CooldownEntity, CooldownType } from './domain/CooldownEntity'
 
 class Command {
   private instance: WOKCommands
@@ -24,9 +24,9 @@ class Command {
   private _cooldownDuration = 0
   private _cooldownChar = ''
   private _cooldown: string
-  private _userCooldowns: Map<String, number> = new Map() // <GuildID-UserID, Seconds> OR <dm-UserID, Seconds>
+  private _userCooldowns: Map<String, CooldownEntity> = new Map() // <GuildID-UserID, Seconds> OR <dm-UserID, Seconds>
   private _globalCooldown: string
-  private _guildCooldowns: Map<String, number> = new Map() // <GuildID, Seconds>
+  private _guildCooldowns: Map<String, CooldownEntity> = new Map() // <GuildID, Seconds>
   private _databaseCooldown = false
   private _ownerOnly = false
   private _hidden = false
@@ -132,8 +132,12 @@ class Command {
       user: message.author,
       member: message.member,
       guild: message.guild,
-      cancelCoolDown: () => {
-        this.decrementCooldowns(message.guild?.id, message.author.id)
+      // TODO: where is this used?
+      cancelCoolDown: async () => {
+        if (!message.guild?.id) {
+          throw new Error('A guildId must be provided to cancel a cooldown!')
+        }
+        await this.cancelUserCooldown({ guildId: message.guild?.id, userId: message.author.id })
       },
     })
 
@@ -320,50 +324,36 @@ class Command {
    * Decrements per-user and global cooldowns
    * Deletes expired cooldowns
    */
-  public decrementCooldowns(guildId?: string, userId?: string) {
+  public decrementCooldowns() {
     for (const map of [this._userCooldowns, this._guildCooldowns]) {
       if (typeof map !== 'string') {
         map.forEach((value, key) => {
-          if (key === `${guildId}-${userId}`) {
-            value = 0
-          }
-
-          if (--value <= 0) {
+          value.decrementTimeRemaining({ numberOfSeconds: 1 })
+          if (value.secondsRemaining <= 0) {
             map.delete(key)
-          } else {
-            map.set(key, value)
           }
 
           if (this._databaseCooldown && this.instance.isDBConnected()) {
-            this.updateDatabaseCooldowns(`${this.names[0]}-${key}`, value)
+            this.updateDatabaseCooldowns(value)
           }
         })
       }
     }
   }
 
-  public async updateDatabaseCooldowns(_id: String, cooldown: number) {
-    // Only update every 20s
-    if (cooldown % 20 === 0 && this.instance.isDBConnected()) {
-      const type = this.globalCooldown ? 'global' : 'per-user'
+  public async cancelUserCooldown({ guildId, userId }: { guildId: string, userId: string }) {
+    await this.instance.cooldownRepository.delete({ guildId, userId, commandId: this.defaultName });
+  }
 
-      if (cooldown <= 0) {
-        await cooldownSchema.deleteOne({ _id, name: this.names[0], type })
+  public async updateDatabaseCooldowns(cooldownEntity: CooldownEntity) {
+    // Only update every 20s
+    if (cooldownEntity.secondsRemaining % 20 === 0 && this.instance.isDBConnected()) {
+      const type: CooldownType = this.globalCooldown ? 'global' : 'per-user'
+      if (cooldownEntity.secondsRemaining <= 0) {
+        const { guildId, userId, commandId } = cooldownEntity 
+        await this.instance.cooldownRepository.delete({ guildId, userId, commandId });
       } else {
-        await cooldownSchema.findOneAndUpdate(
-          {
-            _id,
-            name: this.names[0],
-            type,
-          },
-          {
-            _id,
-            name: this.names[0],
-            type,
-            cooldown,
-          },
-          { upsert: true }
-        )
+        await this.instance.cooldownRepository.save(cooldownEntity);
       }
     }
   }
@@ -393,26 +383,40 @@ class Command {
       ++seconds
 
       if (this.globalCooldown) {
-        this._guildCooldowns.set(guildId, seconds)
+        const cooldownEntity = new CooldownEntity({
+          guildId,
+          cooldownPeriodInSeconds: seconds,
+          commandId: this.defaultName,
+          type: 'global'
+        })
+        this._guildCooldowns.set(guildId, cooldownEntity)
       } else {
-        this._userCooldowns.set(`${guildId}-${userId}`, seconds)
+        const cooldownEntity = new CooldownEntity({
+          guildId,
+          cooldownPeriodInSeconds: seconds,
+          commandId: this.defaultName,
+          type: 'per-user',
+          userId
+        })
+        this._userCooldowns.set(`${guildId}-${userId}`, cooldownEntity)
       }
     }
   }
 
   public getCooldownSeconds(guildId: string, userId: string): string {
-    let seconds = this.globalCooldown
+    const cooldown = this.globalCooldown
       ? this._guildCooldowns.get(guildId)
       : this._userCooldowns.get(`${guildId}-${userId}`)
 
-    if (!seconds) {
+    const secondsRemaining = cooldown?.secondsRemaining;
+    if (!secondsRemaining) {
       return ''
     }
 
-    const days = Math.floor(seconds / (3600 * 24))
-    const hours = Math.floor((seconds % (3600 * 24)) / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    seconds = Math.floor(seconds % 60)
+    const days = Math.floor(secondsRemaining / (3600 * 24))
+    const hours = Math.floor((secondsRemaining % (3600 * 24)) / 3600)
+    const minutes = Math.floor((secondsRemaining % 3600) / 60)
+    const seconds = Math.floor(secondsRemaining % 60)
 
     let result = ''
 

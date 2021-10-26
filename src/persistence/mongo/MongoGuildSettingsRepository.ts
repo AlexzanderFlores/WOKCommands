@@ -8,10 +8,10 @@ import commandSchema from './models/channel-commands'
 import disabledCommandSchema from './models/disabled-commands'
 import languageSchema from './models/languages'
 export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
-  getByGuildId(guildId: string): Promise<GuildSettingsAggregate> {
+  async findOne({ guildId }: { guildId: string }): Promise<GuildSettingsAggregate> {
     throw new Error("Method not implemented.");
   }
-  getAll(): Promise<GuildSettingsAggregate[]> {
+  async findAll(): Promise<GuildSettingsAggregate[]> {
     throw new Error("Method not implemented.");
   }
   async save(settings: GuildSettingsAggregate): Promise<GuildSettingsAggregate> {
