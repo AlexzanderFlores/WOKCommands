@@ -1,18 +1,11 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
+import { Message } from 'discord.js'
+
+import { ICommandCheck } from '../../typings'
 import CommandErrors from '../enums/CommandErrors'
 
-export = (
-  guild: Guild | null,
-  command: Command,
-  instance: WOKCommands,
-  member: GuildMember,
-  user: User,
-  reply: Function,
-  args: string[],
-  name: string
-) => {
+export = async (commandCheck: ICommandCheck) => {
+  const { name, command, args, guild, message, instance, reply } = commandCheck
+
   const { minArgs, maxArgs, expectedArgs, error } = command
   const prefix = instance.getPrefix(guild).toLowerCase()
 
@@ -46,7 +39,7 @@ export = (
       error({
         error: CommandErrors.INVALID_ARGUMENTS,
         command,
-        message: null,
+        message,
         info: {
           minArgs,
           maxArgs,

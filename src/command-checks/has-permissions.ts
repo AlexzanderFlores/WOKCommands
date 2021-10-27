@@ -1,16 +1,11 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
+import { Message } from 'discord.js'
+
+import { ICommandCheck } from '../../typings'
 import CommandErrors from '../enums/CommandErrors'
 
-export = (
-  guild: Guild | null,
-  command: Command,
-  instance: WOKCommands,
-  member: GuildMember,
-  user: User,
-  reply: Function
-) => {
+export = (commandCheck: ICommandCheck) => {
+  const { guild, command, instance, member, message, reply } = commandCheck
+
   if (!guild || !member) {
     return true
   }
@@ -23,6 +18,7 @@ export = (
       if (error) {
         error({
           error: CommandErrors.MISSING_PERMISSIONS,
+          message,
           command,
         })
       } else {

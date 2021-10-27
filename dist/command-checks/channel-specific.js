@@ -1,5 +1,6 @@
 "use strict";
-module.exports = (guild, command, instance, member, user, reply, args, name, channel) => {
+module.exports = (commandCheck) => {
+    const { guild, command, instance, reply, channel } = commandCheck;
     if (!guild || !command || !command.names) {
         return true;
     }

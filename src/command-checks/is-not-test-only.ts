@@ -1,11 +1,9 @@
-import { Guild } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
+import { ICommandCheck } from '../../typings'
 
-export = (guild: Guild | null, command: Command, instance: WOKCommands) => {
-  const { testOnly } = command
+export = async (commandCheck: ICommandCheck) => {
+  const { guild, command, instance } = commandCheck
 
-  if (!testOnly) {
+  if (!command.testOnly) {
     return true
   }
 

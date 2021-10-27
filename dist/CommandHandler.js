@@ -116,9 +116,20 @@ class CommandHandler {
                 }
                 const { member, author: user, channel } = message;
                 for (const [checkName, checkFunction,] of this._commandChecks.entries()) {
-                    if (!(await checkFunction(guild, command, instance, member, user, (reply) => {
-                        return replyFromCheck(reply, message);
-                    }, args, name, channel))) {
+                    if (!(await checkFunction({
+                        guild,
+                        command,
+                        instance,
+                        member,
+                        user,
+                        reply: (reply) => {
+                            return replyFromCheck(reply, message);
+                        },
+                        args,
+                        name,
+                        channel,
+                        message,
+                    }))) {
                         return;
                     }
                 }

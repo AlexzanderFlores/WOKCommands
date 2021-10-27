@@ -1,16 +1,11 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
+import { Message } from 'discord.js'
+
+import { ICommandCheck } from '../../typings'
 import CommandErrors from '../enums/CommandErrors'
 
-export = (
-  guild: Guild | null,
-  command: Command,
-  instance: WOKCommands,
-  member: GuildMember,
-  user: User,
-  reply: Function
-) => {
+export = async (commandCheck: ICommandCheck) => {
+  const { guild, command, instance, message, user, reply } = commandCheck
+
   const { cooldown, globalCooldown, error } = command
 
   if ((cooldown || globalCooldown) && user) {
@@ -22,7 +17,7 @@ export = (
         error({
           error: CommandErrors.COOLDOWN,
           command,
-          message: null,
+          message,
           info: {
             timeLeft,
           },
