@@ -535,7 +535,7 @@ class Command {
   private async updateCommandIsEnabled({ guildId, isEnabled }: { guildId: string, isEnabled: boolean }) {
     const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
 
-    guildSettings.updateEnabledStateForCommand({
+    guildSettings.setEnabledStateForCommand({
       commandId: this.defaultName,
       isEnabled
     })

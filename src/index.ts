@@ -290,7 +290,7 @@ export default class WOKCommands extends EventEmitter {
     // TODO: are there any legitimate reasons for this to be null here? DM?
     if (guild) {
       const guildSettings = this.getOrCreateGuildSettings(guild.id)
-      guildSettings.updatePrefix({ prefix: new GuildPrefix({ value: prefix }) })
+      guildSettings.setPrefix({ prefix: new GuildPrefix({ value: prefix }) })
       // TODO: can we safely assume a guild settings object should exist in memory?
       // probably not the same for cooldowns
       const updated = await this.guildSettingsRepository.save(guildSettings)

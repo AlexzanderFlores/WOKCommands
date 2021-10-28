@@ -28,11 +28,11 @@ export class GuildSettingsAggregate {
     }
   }
 
-  public updatePrefix({ prefix }: { prefix: GuildPrefix }) {
+  public setPrefix({ prefix }: { prefix: GuildPrefix }) {
     this._prefix = prefix;
   }
 
-  public updateLanguage({ language }: { language: GuildLanguage }) {
+  public setLanguage({ language }: { language: GuildLanguage }) {
     this._language = language;
   }
 

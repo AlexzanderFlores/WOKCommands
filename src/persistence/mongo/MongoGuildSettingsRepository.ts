@@ -11,6 +11,8 @@ import { CommandEntity } from '../../domain/CommandEntity'
 import { Collection } from 'discord.js'
 import { Channel } from '../../domain/Channel'
 import { Role } from '../../domain/Role'
+import { GuildLanguage } from '../../domain/GuildLanguage'
+import { GuildPrefix } from '../../domain/GuildPrefix'
 export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
   async findOne({ guildId }: { guildId: string }): Promise<GuildSettingsAggregate> {
     throw new Error("Method not implemented.");
@@ -33,7 +35,7 @@ export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
     for(const disabledCommand of disabledCommands) {
       const { guildId, command } = disabledCommand
       const guildSettings = getOrCreateGuildSettings(guildId)
-      guildSettings.updateEnabledStateForCommand({ commandId: command, isEnabled: false })
+      guildSettings.setEnabledStateForCommand({ commandId: command, isEnabled: false })
     }
 
     for(const requiredRole of requiredRoles) {
@@ -60,6 +62,20 @@ export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
         // })
         channels: channels.map((c: string) => new Channel({ channelId: c }))
       })
+    }
+
+    const languages = await languageSchema.find()
+
+    for (const { _id: guildId, language } of languages) {
+      const guildSettings = getOrCreateGuildSettings(guildId)
+      guildSettings.setLanguage({ language: new GuildLanguage({ value: language })})
+    }
+
+    const prefixes= await prefixeSchema.find({})
+
+    for (const { _id: guildId, prefix } of prefixes) {
+      const guildSettings = getOrCreateGuildSettings(guildId)
+      guildSettings.setPrefix({ prefix: new GuildPrefix({ value: prefix })})
     }
 
     // TODO: figure out where we load language and prefix and move into here

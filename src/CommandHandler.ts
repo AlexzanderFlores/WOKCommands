@@ -102,9 +102,10 @@ export default class CommandHandler {
       }
 
       if (instance.isDBConnected()) {
-        await this.fetchDisabledCommands()
-        await this.fetchRequiredRoles()
-        await this.fetchChannelOnly()
+        const guildSettings = await instance.guildSettingsRepository.findAll()
+        for(const settings of guildSettings) {
+          instance.setGuildSettings(settings.guildId, settings)
+        }
       }
 
       this._commands.forEach(async (command) => {
