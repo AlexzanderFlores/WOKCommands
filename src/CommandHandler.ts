@@ -506,6 +506,8 @@ export default class CommandHandler {
         continue
       }
 
+      // TODO: before removing we should probably implement something similar when fetching settings
+      // unless there's a chance this could be null on startup (in which case we may need something more elegant)
       const guild = this._client?.guilds.cache.get(guildId)
       if (!guild) {
         continue

@@ -1,5 +1,4 @@
 import { Collection } from "discord.js";
-import isEnabled from "../command-checks/is-enabled";
 import CommandErrors from "../enums/CommandErrors";
 import { Channel } from "./Channel";
 import { CommandEntity } from "./CommandEntity";
@@ -37,7 +36,7 @@ export class GuildSettingsAggregate {
     this._language = language;
   }
 
-  public updateRequiredChannelsForCommand({ commandId, channels }: { commandId: string, channels: Channel[] }) {
+  public setRequiredChannelsForCommand({ commandId, channels }: { commandId: string, channels: Channel[] }) {
     let commandEntity = this.commands.get(commandId);
     if (!commandEntity) {
       commandEntity = new CommandEntity({
@@ -82,6 +81,20 @@ export class GuildSettingsAggregate {
       // set it
       commandEntity.setRequiredRoles({ requiredRoles: [...requiredRoles.values(), role] })
     }
+  }
+
+  public setRequiredRolesForCommand({ commandId, requiredRoles }: { commandId: string, requiredRoles: Role[] }) {
+    let commandEntity = this.commands.get(commandId);
+    if (!commandEntity) {
+      commandEntity = new CommandEntity({
+        commandId,
+        requiredRoles
+      });
+      this.commands.set(commandId, commandEntity);
+      return;
+    }
+
+    commandEntity.setRequiredRoles({ requiredRoles });
   }
 
   public clearRequiredRolesForCommand({ commandId }: { commandId: string }) {

@@ -14,6 +14,7 @@ export class MongoCooldownRepository implements ICooldownRepository {
     const { commandId, type } = cooldown
     const _id = MongoCooldownRepository.getIdFromEntity(cooldown);
 
+    // TODO: should we start persisting date and other info
     await cooldownSchema.findOneAndUpdate(
       {
         _id,

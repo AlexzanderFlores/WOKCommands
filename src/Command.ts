@@ -516,7 +516,7 @@ class Command {
     }
     const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
 
-    guildSettings.updateRequiredChannelsForCommand({
+    guildSettings.setRequiredChannelsForCommand({
       // TODO: should we take command name from input there or get it from this.names[0]?
       commandId: this.defaultName,
       channels: channels.map(c => (new Channel({ channelId: c })))
