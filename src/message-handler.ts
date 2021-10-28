@@ -42,7 +42,7 @@ export default class MessageHandler {
     }
 
     const guildSettings = this._instance.getOrCreateGuildSettings(guild.id)
-    guildSettings.updateLanguage({ language: new GuildLanguage({ value: language }) })
+    guildSettings.setLanguage({ language: new GuildLanguage({ value: language }) })
   }
 
   public getLanguage(guild: Guild | null): string {

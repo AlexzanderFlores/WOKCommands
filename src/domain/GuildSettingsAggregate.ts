@@ -50,7 +50,7 @@ export class GuildSettingsAggregate {
     commandEntity.setChannels({ channels });
   }
 
-  public updateEnabledStateForCommand({ commandId, isEnabled }: { commandId: string, isEnabled: boolean }) {
+  public setEnabledStateForCommand({ commandId, isEnabled }: { commandId: string, isEnabled: boolean }) {
     let commandEntity = this.commands.get(commandId);
     if (!commandEntity) {
       commandEntity = new CommandEntity({

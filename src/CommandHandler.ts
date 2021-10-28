@@ -112,6 +112,7 @@ export default class CommandHandler {
         command.verifyDatabaseCooldowns()
 
         if (instance.isDBConnected()) {
+          // TODO do we need to be checking this twice?
           const results = await cooldown.find({
             name: command.defaultName,
             type: command.globalCooldown ? 'global' : 'per-user',
