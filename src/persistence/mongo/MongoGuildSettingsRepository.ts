@@ -89,14 +89,15 @@ export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
     const conn = mongoose.connection;
     const session = await conn.startSession()
 
-    await session.withTransaction(async () => {
+    // TODO: transactions require replica sets - is this ok?
+    // await session.withTransaction(async () => {
       await prefixeSchema.findOneAndUpdate(
         {
           _id: guildId,
         },
         {
           _id: guildId,
-          prefix,
+          prefix: prefix.value,
         },
         {
           session,
@@ -110,7 +111,7 @@ export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
         },
         {
           _id: guildId,
-          language,
+          language: language.value,
         },
         {
           session,
@@ -145,7 +146,7 @@ export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
         bulkCommandUpdates.disabledCommandOperations,
         { session }
       )
-    }).catch(err => console.error('WOK Commands > there was an error saving the guild settings', err))
+    // }).catch(err => console.error('WOK Commands > there was an error saving the guild settings', err))
     
     session.endSession();
 

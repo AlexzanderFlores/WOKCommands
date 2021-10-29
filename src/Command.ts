@@ -447,6 +447,8 @@ class Command {
       commandId: this.defaultName,
       role: new Role({ roleId })
     })
+
+    console.error(JSON.stringify(guildSettings, null, 2))
     
     await this.instance.guildSettingsRepository.save(guildSettings)
   }

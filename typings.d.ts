@@ -14,6 +14,7 @@ import {
 import { ConnectionOptions } from 'mongoose'
 import { EventEmitter } from 'events'
 import WOKCommands from './src'
+import { DbConnectionStatus } from './src/enums/DbConnectionStatus'
 
 // todo: do we need to maintain types here?
 export default class WOKCommands extends EventEmitter {
@@ -22,7 +23,7 @@ export default class WOKCommands extends EventEmitter {
   private _commandsDir: string
   private _featuresDir: string
   private _displayName: string
-  private _guildSettings: Collection<string, GuildSettingsAggregate>()
+  private _guildSettings: Collection<string, GuildSettingsAggregate>
   private _categories: Map<String, String | GuildEmoji>
   private _hiddenCategories: string[]
   private _color: string
@@ -80,7 +81,7 @@ export default class WOKCommands extends EventEmitter {
   public get slashCommands(): SlashCommands
 }
 
-interface OptionsWithS {
+export interface OptionsWithS {
   commandDir?: never
   featureDir?: never
 
@@ -99,23 +100,14 @@ interface OptionsWithS {
   debug?: boolean
 }
 
-enum DbConnectionStatus {
-  DISCONNECTED = 'Disconnected',
-  CONNECTED = 'Connected',
-  CONNECTING = 'Connecting',
-  DISCONNECTING = 'Disconnecting',
-  UNKNOWN = 'Unknown',
-  NO_DATABASE = 'No Database'
-}
-
-type DbConnectionStrategy = 'MONGOOSE' | 'GENERIC'
-type MongooseDBOptions = {
+export type DbConnectionStrategy = 'MONGOOSE' | 'GENERIC'
+export type MongooseDBOptions = {
   dbConnectionStrategy: 'MONGOOSE'
   mongoUri?: string
   dbOptions?: ConnectionOptions
 }
 
-type GenericDBOptions = {
+export type GenericDBOptions = {
   dbConnectionStrategy: 'GENERIC'
   isDbConnected: () => boolean
   getDbConnectionStatus: () => DbConnectionStatus
@@ -123,9 +115,9 @@ type GenericDBOptions = {
   cooldownRepository: ICooldownRepository
 }
 
-type DbOptions =  MongooseDBOptions | GenericDBOptions
+export type DbOptions =  MongooseDBOptions | GenericDBOptions
 
-interface OptionsWithoutS {
+export interface OptionsWithoutS {
   commandsDir?: never
   featuresDir?: never
   commandDir: string

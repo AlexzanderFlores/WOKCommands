@@ -11,7 +11,7 @@ export class MongoCooldownRepository implements ICooldownRepository {
     await cooldownSchema.deleteOne({ _id, name: input.commandId })
   }
   async save(cooldown: CooldownEntity): Promise<CooldownEntity> {
-    const { commandId, type } = cooldown
+    const { commandId, type, secondsRemaining } = cooldown
     const _id = MongoCooldownRepository.getIdFromEntity(cooldown);
 
     // TODO: should we start persisting date and other info
@@ -25,7 +25,7 @@ export class MongoCooldownRepository implements ICooldownRepository {
         _id,
         name: commandId,
         type,
-        cooldown,
+        cooldown: secondsRemaining,
       },
       { upsert: true }
     )
@@ -41,9 +41,9 @@ export class MongoCooldownRepository implements ICooldownRepository {
   private static getIdFromEntity(cooldown: Partial<CooldownEntity>): string {
     const { guildId, userId, commandId, type } = cooldown
     let id;
-    if (type === 'GLOBAL') {
+    if (type === 'global') {
       id = `${commandId}-${guildId}`
-    } else if(type === 'USER') {
+    } else if(type === 'per-user') {
       id = `${commandId}-${guildId}-${userId}`
     } else {
       throw new Error('WOK Commands > unrecognized Cooldown type')

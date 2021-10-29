@@ -5,15 +5,17 @@ import FeatureHandler from './FeatureHandler'
 import mongo from './persistence/mongo/connection'
 import MessageHandler from './message-handler'
 import SlashCommands from './SlashCommands'
-import { DbConnectionStatus, ICategorySetting, Options } from '..'
+import { ICategorySetting, Options } from '..'
 import Events from './enums/Events'
 import CommandHandler from './CommandHandler'
 import { IGuildSettingsRepository } from './persistence/IGuildSettingsRepository'
 import { ICooldownRepository } from './persistence/ICooldownRepository'
-import { GuildSettingsAggregate, GuildSettingsAggregate } from './domain/GuildSettingsAggregate'
+import { GuildSettingsAggregate } from './domain/GuildSettingsAggregate'
 import { MongoCooldownRepository } from './persistence/mongo/MongoCooldownRepository'
 import { MongoGuildSettingsRepository } from './persistence/mongo/MongoGuildSettingsRepository'
 import { GuildPrefix } from './domain/GuildPrefix'
+import { enumFromName } from './enums/utils'
+import { DbConnectionStatus } from './enums/DbConnectionStatus'
 
 export default class WOKCommands extends EventEmitter {
   private _client: Client
@@ -40,8 +42,8 @@ export default class WOKCommands extends EventEmitter {
   private _slashCommand: SlashCommands | null = null
   private _isDbConnected?: () => boolean
   private _getDbConnectionStatus?: () => DbConnectionStatus
-  private _guildSettingsRepository: IGuildSettingsRepository
-  private _cooldownRepository: ICooldownRepository;
+  private _guildSettingsRepository?: IGuildSettingsRepository
+  private _cooldownRepository?: ICooldownRepository
 
   constructor(client: Client, options?: Options) {
     super()
@@ -87,13 +89,13 @@ export default class WOKCommands extends EventEmitter {
         const results: {
           [name: number]: string
         } = {
-          0: 'Disconnected',
-          1: 'Connected',
-          2: 'Connecting',
-          3: 'Disconnecting',
+          0: 'DISCONNECTED',
+          1: 'CONNECTED',
+          2: 'CONNECTING',
+          3: 'DISCONNECTING',
         }
 
-        return enumFromName(results[connection.readyState] || 'Unknown', DbConnectionStatus);
+        return enumFromName(results[connection.readyState] || 'UNKNOWN', DbConnectionStatus);
       }
 
       this._guildSettingsRepository = new MongoGuildSettingsRepository();
@@ -219,10 +221,26 @@ export default class WOKCommands extends EventEmitter {
   }
 
   public get guildSettingsRepository(): IGuildSettingsRepository {
+    if (!this.isDBConnected()) {
+      throw new Error('DB not connected!')
+    }
+
+    if (!this._guildSettingsRepository) {
+      throw new Error('_guildSettingsRepository not defined!')
+    }
+
     return this._guildSettingsRepository
   }
 
   public get cooldownRepository(): ICooldownRepository {
+    if (!this.isDBConnected()) {
+      throw new Error('DB not connected!')
+    }
+
+    if (!this._cooldownRepository) {
+      throw new Error('_cooldownRepository not defined!')
+    }
+
     return this._cooldownRepository
   }
 
