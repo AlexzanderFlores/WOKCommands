@@ -1,4 +1,4 @@
-import { ICallbackObject, ICommand } from '../..'
+import { ICallbackObject, ICommand } from '../types'
 
 export = {
   description: 'Displays or sets the prefix for the current guild',

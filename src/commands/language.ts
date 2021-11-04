@@ -1,4 +1,4 @@
-import { ICallbackObject, ICommand } from '../..'
+import { ICallbackObject, ICommand } from '../types'
 import Events from '../enums/Events'
 
 export = {

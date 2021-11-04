@@ -1,4 +1,4 @@
-import { ICallbackObject, ICommand } from '../..'
+import { ICallbackObject, ICommand } from '../types'
 
 export = {
   description: 'Makes a command only work in some channels.',

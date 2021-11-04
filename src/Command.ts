@@ -2,7 +2,7 @@ import { Client, Message } from 'discord.js'
 import WOKCommands from '.'
 
 import permissions from './permissions'
-import { ICommand } from '../typings'
+import { ICommand } from './types'
 import { CommandEntity } from './domain/CommandEntity'
 import { Channel } from './domain/Channel'
 import { Role } from './domain/Role'
@@ -447,8 +447,6 @@ class Command {
       commandId: this.defaultName,
       role: new Role({ roleId })
     })
-
-    console.error(JSON.stringify(guildSettings, null, 2))
     
     await this.instance.guildSettingsRepository.save(guildSettings)
   }

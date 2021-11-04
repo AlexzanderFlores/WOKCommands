@@ -3,6 +3,7 @@ import { ICooldownRepository, WhereOneInput } from '../ICooldownRepository';
 import cooldownSchema from './models/cooldown';
 
 export class MongoCooldownRepository implements ICooldownRepository {
+  // todo: should we load all existing cooldowns at startup?
   async findOne(input: { commandId: string; guildId: string; userId?: string; }): Promise<CooldownEntity> {
     throw new Error('Method not implemented.');
   }

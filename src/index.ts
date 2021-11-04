@@ -5,7 +5,7 @@ import FeatureHandler from './FeatureHandler'
 import mongo from './persistence/mongo/connection'
 import MessageHandler from './message-handler'
 import SlashCommands from './SlashCommands'
-import { ICategorySetting, Options } from '..'
+import { ICategorySetting, Options } from './types'
 import Events from './enums/Events'
 import CommandHandler from './CommandHandler'
 import { IGuildSettingsRepository } from './persistence/IGuildSettingsRepository'
@@ -295,13 +295,13 @@ export default class WOKCommands extends EventEmitter {
     if (!guildSettings) {
       // TODO: any reason we should first check the db for guild settings here?
       guildSettings =  new GuildSettingsAggregate({ guildId })
-      this.guildSettings.set(guildId, guildSettings)
+      this.setGuildSettings(guildId, guildSettings)
     }
     return guildSettings
   }
 
-  public setGuildSettings(guildId: string, guildSettingsEntity: GuildSettingsAggregate) {
-    this.guildSettings.set(guildId, guildSettingsEntity)
+  public setGuildSettings(guildId: string, guildSettings: GuildSettingsAggregate) {
+    this.guildSettings.set(guildId, guildSettings)
   }
 
   public async setPrefix(guild: Guild | null, prefix: string): Promise<void> {

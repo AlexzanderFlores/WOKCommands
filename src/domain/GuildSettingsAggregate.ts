@@ -12,7 +12,17 @@ export class GuildSettingsAggregate {
   private _language: GuildLanguage
   private _prefix: GuildPrefix
 
-  constructor({ guildId, guildPrefix, guildLanguage }: { guildId: string, guildPrefix?: GuildPrefix, guildLanguage?: GuildLanguage }) {
+  constructor({
+    guildId,
+    guildPrefix,
+    guildLanguage,
+    commands
+  }: {
+    guildId: string,
+    guildPrefix?: GuildPrefix,
+    guildLanguage?: GuildLanguage,
+    commands?: CommandEntity[]
+  }) {
     this._guildId = guildId
 
     if (guildPrefix) {
@@ -25,6 +35,13 @@ export class GuildSettingsAggregate {
       this._language = guildLanguage
     } else {
       this._language = new GuildLanguage({ value: 'english' })
+    }
+
+    if (commands) {
+      commands.reduce((acc, val) => {
+        acc.set(val.commandId, val);
+        return acc;
+      }, this._commands)
     }
   }
 

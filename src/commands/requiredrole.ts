@@ -1,4 +1,4 @@
-import { ICallbackObject, ICommand } from '../..'
+import { ICallbackObject, ICommand } from '../types'
 
 
 export = {
@@ -22,10 +22,6 @@ export = {
     const name = args.shift()?.toLowerCase()
     const operation = args.shift()?.toLowerCase()
     const roleId = args.shift()?.toLowerCase()
-
-    console.error(name)
-    console.error(operation)
-    console.error(roleId)
 
     const { guild } = channel
     if (!guild) {
