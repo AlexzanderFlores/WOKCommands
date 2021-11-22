@@ -6,7 +6,8 @@
     "russian": "Этот бот не поддерживает {LANGUAGE} в данный момент.",
     "german": "Der Bot unterstützt {LANGUAGE} zurzeit nicht.",
     "dutch": "Deze bot ondersteunt {LANGUAGE} nog niet.",
-    "french": "Ce robot ne supporte pas encore {LANGUAGE}."
+    "french": "Ce robot ne supporte pas encore {LANGUAGE}.",
+    "turkish": "Bu bot şu anda {LANGUAGE} dilini desteklemiyor."
   },
   "CURRENT_LANGUAGE": {
     "english": "The current language is set to {LANGUAGE}.",
@@ -15,7 +16,8 @@
     "russian": "Текущий язык установлен на {LANGUAGE}.",
     "german": "Die Sprache ist aktuell auf {LANGUAGE} gesetzt.",
     "dutch": "De huidige taal is ingesteld op {LANGUAGE}.",
-    "french": "La langue actuelle est réglée sur {LANGUAGE}."
+    "french": "La langue actuelle est réglée sur {LANGUAGE}.",
+    "turkish": "Geçerli dil {LANGUAGE} olarak ayarlandı."
   },
   "NEW_LANGUAGE": {
     "english": "Language set to {LANGUAGE}.",
@@ -24,7 +26,8 @@
     "russian": "Язык установлен на {LANGUAGE}.",
     "german": "Die Sprache {LANGUAGE} wurde ausgewählt.",
     "dutch": "Taal ingesteld op {LANGUAGE}.",
-    "french": "Langue réglée sur {LANGUAGE}."
+    "french": "Langue réglée sur {LANGUAGE}.",
+    "turkish": "Dil {LANGUAGE} olarak ayarlandı."
   },
   "BOT_OWNERS_ONLY": {
     "english": "Only the bot owner can run this command.",
@@ -33,7 +36,8 @@
     "russian": "Только владелец бота может использовать эту команду.",
     "german": "Nur der Besitzer des Bots kann diesen Befehl ausführen",
     "dutch": "Alleen de bot eigenaar kan dit commando uitvoeren.",
-    "french": "Seul le propriétaire du bot peut exécuter cette commande."
+    "french": "Seul le propriétaire du bot peut exécuter cette commande.",
+    "turkish": "Bu komutu yalnızca bot sahibi kullanabilir."
   },
   "DISABLED_COMMAND": {
     "english": "That command is currently disabled in this server.",
@@ -42,7 +46,8 @@
     "russian": "Эта команда в настоящее время отключена на этом сервере.",
     "german": "Dieser Befehl ist auf dem Server zurzeit deaktiviert.",
     "dutch": "Dat commando is momenteel uitgeschakeld in deze server.",
-    "french": "Cette commande est actuellement désactivée sur ce serveur."
+    "french": "Cette commande est actuellement désactivée sur ce serveur.",
+    "turkish": "Bu komut şu anda bu sunucuda devre dışı."
   },
   "MISSING_PERMISSION": {
     "english": "You must have the {PERM} permission in order to use this command.",
@@ -51,7 +56,8 @@
     "russian": "У вас должно быть право {PERM}, чтобы использовать эту команду. ",
     "german": "Du benötigst die Berechtigung {PERM}, um diesen Befehl nutzen zu können.",
     "dutch": "Je moet de permissie {PERM} hebben om dit commando te kunnen gebruiken.",
-    "french": "Vous devez avoir la permission {PERM} pour utiliser cette commande."
+    "french": "Vous devez avoir la permission {PERM} pour utiliser cette commande.",
+    "turkish": "Bu komutu kullanabilmek için {PERM} iznine sahip olmalısınız."
   },
   "MISSING_ROLES": {
     "english": "You do not have the required roles to use this command! You need one of the following: {ROLES}",
@@ -60,7 +66,8 @@
     "russian": "У вас нет необходимых ролей для использования этой команды! Вам понадобится одно из следующего: {ROLES}",
     "german": "Sie haben nicht die erforderlichen Rollen, um diesen Befehl zu verwenden! Sie benötigen eine der folgenden Möglichkeiten: {ROLES}",
     "dutch": "Je hebt de vereiste rollen om dit commando te gebruiken niet! Je hebt een van de volgende nodig: {ROLES}",
-    "french": "Vous n'avez pas les rôles requis pour utiliser cette commande! Vous avez besoin de l'un des éléments suivants: {ROLES}"
+    "french": "Vous n'avez pas les rôles requis pour utiliser cette commande! Vous avez besoin de l'un des éléments suivants: {ROLES}",
+    "turkish": "Bu komutu kullanmak için gerekli rollere sahip değilsiniz! Aşağıdakilerden birine ihtiyacınız var: {ROLES}"
   },
   "COOLDOWN": {
     "english": "You must wait {COOLDOWN} before using that command again.",
@@ -69,7 +76,8 @@
     "russian": "Вы должны подождать {COOLDOWN} перед использованием данной команды снова.",
     "german": "Du musst {COOLDOWN} warten, bevor du diesen Befehl erneut nutzen kannst.",
     "dutch": "U moet {COOLDOWN} wachten voordat u dat commando weer gebruikt.",
-    "french": "Vous devez attendre {COOLDOWN} avant d'utiliser cette commande à nouveau."
+    "french": "Vous devez attendre {COOLDOWN} avant d'utiliser cette commande à nouveau.",
+    "turkish": "Tekrar kullanmadan önce {COOLDOWN} kadar beklemelisin."
   },
   "ENABLE_DISABLE_STATE": {
     "english": "The state must be either \"enable\" or \"disable\".",
@@ -78,7 +86,8 @@
     "russian": "Состояние должно быть либо \"включено\", либо \"отключено\".",
     "german": "Der Zustand muss entweder \"aktiviere\" oder \"deaktiviere\" sein.",
     "dutch": "De status moet ofwel \"inschakelen\" of \"uitschakelen\" zijn.",
-    "french": "L'état doit être soit \"activé\" soit \"désactivé\"."
+    "french": "L'état doit être soit \"activé\" soit \"désactivé\".",
+    "turkish": "Durum \"etkinleştir\" veya \"devredışı bırak\" olmalıdır."
   },
   "CANNOT_ENABLE_DISABLE_IN_DMS": {
     "english": "You cannot enable or disable commands in private messages.",
@@ -87,7 +96,8 @@
     "russian": "Вы не можете включать или отключать команды в личных сообщениях.",
     "german": "Du kannst keine Befehle in Privatnachrichten aktivieren oder deaktivieren.",
     "dutch": "U kunt geen commando's in- of uitschakelen in privéberichten.",
-    "french": "Vous ne pouvez pas activer ou désactiver les commandes dans les messages privés."
+    "french": "Vous ne pouvez pas activer ou désactiver les commandes dans les messages privés.",
+    "turkish": "Özel mesajlarda komutları etkinleştiremez veya devre dışı bırakamazsınız."
   },
   "COMMAND_ALREADY_ENABLED": {
     "english": "That command is already enabled!",
@@ -96,7 +106,8 @@
     "russian": "Эта команда уже включена!",
     "german": "Dieser Befehl ist bereits aktiviert!",
     "dutch": "Dat commando is al ingeschakeld!",
-    "french": "Cette commande est déjà activée!"
+    "french": "Cette commande est déjà activée!",
+    "turkish": "Bu komut zaten etkin!"
   },
   "COMMAND_ALREADY_DISABLED": {
     "english": "That command is already disabled!",
@@ -105,7 +116,8 @@
     "russian": "Эта команда уже отключена!",
     "german": "Dieser Befehl ist bereits deaktiviert!",
     "dutch": "Dat commando is al uitgeschakeld!",
-    "french": "Cette commande est déjà désactivée!"
+    "french": "Cette commande est déjà désactivée!",
+    "turkish": "Bu komut zaten devre dışı!"
   },
   "COMMAND_NOW_ENABLED": {
     "english": "{COMMAND} is now enabled!",
@@ -114,7 +126,8 @@
     "russian": "{COMMAND} теперь включена!",
     "german": "{COMMAND} wurde aktiviert!",
     "dutch": "{COMMAND} is nu ingeschakeld!",
-    "french": "{COMMAND} est maintenant activé!"
+    "french": "{COMMAND} est maintenant activé!",
+    "turkish": "{COMMAND} aktif edildi!"
   },
   "COMMAND_NOW_DISABLED": {
     "english": "{COMMAND} is now disabled!",
@@ -123,7 +136,8 @@
     "russian": "{COMMAND} теперь отключена!",
     "german": "{COMMAND} wurde deaktiviert!",
     "dutch": "{COMMAND} is nu uitgeschakeld!",
-    "french": "{COMMAND} est maintenant désactivé!"
+    "french": "{COMMAND} est maintenant désactivé!",
+    "turkish": "{COMMAND} devre dışı bırakıldı!"
   },
   "UNKNOWN_COMMAND": {
     "english": "Could not find command {COMMAND}!",
@@ -132,7 +146,8 @@
     "russian": "Не удалось найти команду {COMMAND}!",
     "german": "Konnte den Befehl {COMMAND} nicht finden!",
     "dutch": "Kon commando {COMMAND} niet vinden!",
-    "french": "Impossible de trouver la commande {COMMAND}!"
+    "french": "Impossible de trouver la commande {COMMAND}!",
+    "turkish": "{COMMAND} komutu bulunamadı!"
   },
   "CURRENT_PREFIX": {
     "english": "The current prefix is {PREFIX}.",
@@ -141,7 +156,8 @@
     "russian": "Текущий префикс: {PREFIX}.",
     "german": "Der aktuelle Prefix ist {PREFIX}.",
     "dutch": "De huidige prefix is {PREFIX}.",
-    "french": "Le préfixe actuel est {PREFIX}."
+    "french": "Le préfixe actuel est {PREFIX}.",
+    "turkish": "Geçerli prefiks {PREFIX}."
   },
   "SET_PREFIX": {
     "english": "Set the command prefix to {PREFIX}.",
@@ -150,7 +166,8 @@
     "russian": "Установлен префикс команд на {PREFIX}.",
     "german": "Der Prefix {PREFIX} wurde festgelegt.",
     "dutch": "Stel de prefix in op {PREFIX}.",
-    "french": "Définir le préfixe de la commande à {PREFIX}."
+    "french": "Définir le préfixe de la commande à {PREFIX}.",
+    "turkish": "Komut prefiksi {PREFIX} olarak ayarlandı."
   },
   "CANNOT_SET_PREFIX_IN_DMS": {
     "english": "You cannot set a prefix in a private message.",
@@ -159,7 +176,8 @@
     "russian": "Вы не можете установить префикс в личном сообщении.",
     "german": "Du kannst den Prefix nicht in Privatnachrichten festlegen.",
     "dutch": "U kunt geen prefix instellen in een privébericht.",
-    "french": "Vous ne pouvez pas définir un préfixe dans un message privé."
+    "french": "Vous ne pouvez pas définir un préfixe dans un message privé.",
+    "turkish": "Özel mesajda prefiks belirleyemezsiniz."
   },
   "CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS": {
     "english": "You cannot change required roles in private messages.",
@@ -168,7 +186,8 @@
     "russian": "Вы не можете изменить требуемые роли в личных сообщениях.",
     "german": "Du kannst die benötigen Rolen nicht in Privatnachrichten festlegen.",
     "dutch": "U kunt vereiste rollen niet wijzigen in privéberichten.",
-    "french": "Vous ne pouvez pas modifier les rôles requis dans les messages privés."
+    "french": "Vous ne pouvez pas modifier les rôles requis dans les messages privés.",
+    "turkish": "Özel mesajda gerekli rolleri değiştiremezsiniz."
   },
   "REMOVED_ALL_REQUIRED_ROLES": {
     "english": "Removed all required roles from command {COMMAND}.",
@@ -177,7 +196,9 @@
     "russian": "Удалены все требуемые роли из команды {COMMAND}.",
     "german": "Alle benötigen Rollen wurde vom Befehl {COMMAND} entfernt.",
     "dutch": "Alle vereiste rollen verwijderd van commando {COMMAND}.",
-    "french": "A supprimé tous les rôles requis de la commande {COMMAND}."
+    "french": "A supprimé tous les rôles requis de la commande {COMMAND}.",
+    "turkish": "{COMMAND} komutundan gerekli tüm roller kaldırıldı."
+
   },
   "ADDED_REQUIRED_ROLE": {
     "english": "Added role {ROLE} to command {COMMAND}.",
@@ -186,7 +207,8 @@
     "russian": "Добавлена роль {ROLE} в команду {COMMAND}.",
     "german": "Die Rolle {ROLE} wurde dem Befehl {COMMAND} hinzugefügt.",
     "dutch": "Rol {ROLE} toegevoegd aan commando {COMMAND}.",
-    "french": "Role {ROLE} ajouté à la commande {COMMAND}."
+    "french": "Role {ROLE} ajouté à la commande {COMMAND}.",
+    "turkish": "{COMMAND} komutuna {ROLE} rolü eklendi."
   },
   "SYNTAX_ERROR": {
     "english": "Incorrect usage! Please use \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
@@ -195,7 +217,8 @@
     "russian": "Неправильное использование, пожалуйста используйте \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
     "german": "Falsche Verwendung! Bitte nutze \"{PREFIX}{COMMAND} {ARGUMENTS}\"",
     "dutch": "Onjuist gebruik! Gebruik a.u.b. \"{PREFIX}{COMMAND} {ARGUMENTS}\".",
-    "french": "Utilisation incorrecte! Veuillez utiliser \"{PREFIX}{COMMAND} {ARGUMENTS}\"."
+    "french": "Utilisation incorrecte! Veuillez utiliser \"{PREFIX}{COMMAND} {ARGUMENTS}\".",
+    "turkish": "Yanlış kullanım! Lütfen \"{PREFIX}{COMMAND} {ARGUMENTS}\" şeklinde kullanın"
   },
   "NO_DATABASE_FOUND": {
     "english": "No database connection found!",
@@ -204,7 +227,8 @@
     "russian": "Соединение с базой данных не найдено!",
     "german": "Es wurde keine Verbindung zu einer Datenbank gefunden!",
     "dutch": "Geen databaseverbinding gevonden!",
-    "french": "Aucune connexion à la base de données trouvée!"
+    "french": "Aucune connexion à la base de données trouvée!",
+    "turkish": "Veritabanı bağlantısı bulunamadı!"
   },
   "GUILD_ONLY_COMMAND": {
     "english": "This command can only be used within a server.",
@@ -213,7 +237,8 @@
     "russian": "Эта команда может быть использована только внутри сервера.",
     "german": "Dieser Befehl kann nur in einem Server benutzt werden.",
     "dutch": "Dit commando kan alleen binnen een server gebruikt worden.",
-    "french": "Cette commande ne peut être utilisée que dans un serveur."
+    "french": "Cette commande ne peut être utilisée que dans un serveur.",
+    "turkish": "Bu komut yalnızca bir sunucu içinde kullanılabilir."
   },
   "NO_REACT_PERMS": {
     "english": "This bot needs the \"Add Reactions\" permission to use the help menu.",
@@ -222,7 +247,8 @@
     "russian": "Этому боту требуется право \"Добавлять реакции\", что-бы использовать меню помощи.",
     "german": "Der Bot benötigt die Berechtigung \"Reaktionen hinzufügen\", damit das Hilfemenü genutzt werden kann.",
     "dutch": "Deze bot heeft de toestemming \"Reacties toevoegen\" nodig om het helpmenu te gebruiken.",
-    "french": "Ce robot a besoin de l'autorisation \"d'ajouter des commentaires\" pour utiliser le menu d'aide."
+    "french": "Ce robot a besoin de l'autorisation \"d'ajouter des commentaires\" pour utiliser le menu d'aide.",
+    "turkish": "Bu botun yardım menüsünü kullanabilmesi için \"Reaksiyon Ekle\" iznine ihtiyacı var."
   },
   "EXCEPTION": {
     "english": "An error occurred when running this command! This error has been reported to the developers.",
@@ -231,7 +257,8 @@
     "russian": "Произошла ошибка при выполнении этой команды! Об этой ошибке было сообщено разработчикам.",
     "german": "Beim Ausführen dieses Befehls ist ein Fehler aufgetreten! Dieser Fehler wurde den Entwicklern gemeldet.",
     "dutch": "Er is een fout opgetreden bij het uitvoeren van dit commando! Deze fout is gemeld aan de ontwikkelaars.",
-    "french": "Une erreur s'est produite lors de l'exécution de cette commande! Cette erreur a été signalée aux développeurs."
+    "french": "Une erreur s'est produite lors de l'exécution de cette commande! Cette erreur a été signalée aux développeurs.",
+    "turkish": "Bu komutu çalıştırırken bir hata oluştu! Bu hata geliştiricilere bildirildi."
   },
   "NO_TAGGED_CHANNELS": {
     "english": "Please tag at least one channel.",
@@ -240,7 +267,8 @@
     "russian": "Отметьте хотя бы один канал.",
     "german": "Bitte taggen Sie mindestens einen Kanal.",
     "dutch": "Gelieve ten minste één kanaal te taggen.",
-    "french": "Veuillez marquer au moins un canal."
+    "french": "Veuillez marquer au moins un canal.",
+    "turkish": "Lütfen en az bir kanalı etiketleyin." 
   },
   "NOT_CHANNEL_COMMAND": {
     "english": "That command is currently not limited to any channel.",
@@ -249,7 +277,8 @@
     "russian": "Эта команда в настоящее время не ограничена каким-либо каналом.",
     "german": "Dieser Befehl ist derzeit nicht auf einen Kanal beschränkt.",
     "dutch": "Dat commando is momenteel niet gelimiteerd tot een kanaal.",
-    "french": "Cette commande n'est pas actuellement limitée à un canal."
+    "french": "Cette commande n'est pas actuellement limitée à un canal.",
+    "turkish": "Bu komut şu anda herhangi bir kanalla sınırlı değildir."
   },
   "NO_LONGER_CHANNEL_COMMAND": {
     "english": "That command is no longer a channel specific command.",
@@ -258,7 +287,8 @@
     "russian": "Эта команда больше не является командой канала.",
     "german": "Dieser Befehl ist kein kanalspezifischer Befehl mehr.",
     "dutch": "Dat commando is niet langer een kanaalspecifiek commando.",
-    "french": "Cette commande n'est plus une commande spécifique à un canal."
+    "french": "Cette commande n'est plus une commande spécifique à un canal.",
+    "turkish": "Bu komut artık kanala özel bir komut değil."
   },
   "NOW_CHANNEL_COMMAND": {
     "english": "\"{COMMAND}\" can now only be ran in {CHANNELS}.",
@@ -267,7 +297,8 @@
     "russian": "\"{COMMAND}\" теперь может выполняться только на {CHANNELS}.",
     "german": "\"{COMMAND}\" kann jetzt nur noch in {CHANNELS} ausgeführt werden.",
     "dutch": "\"{COMMAND}\" kan nu alleen in {CHANNELS} worden uitgevoerd.",
-    "french": "\"{COMMAND}\" ne peut maintenant être exécutée que dans {CHANNELS}."
+    "french": "\"{COMMAND}\" ne peut maintenant être exécutée que dans {CHANNELS}.",
+    "turkish": "\"{COMMAND}\" artık yalnızca {CHANNELS} içinde çalıştırılabilir."
   },
   "ALLOWED_CHANNELS": {
     "english": "You can only use that command in the following: {CHANNELS}.",
@@ -276,7 +307,8 @@
     "russian": "Вы можете использовать эту команду только в следующих случаях: {CHANNELS}.",
     "german": "Sie können diesen Befehl nur im Folgenden verwenden: {CHANNELS}.",
     "dutch": "Je kunt dat commando alleen in het volgende gebruiken: {CHANNELS}.",
-    "french": "Vous ne pouvez utiliser cette commande que dans les cas suivants: {CHANNELS}."
+    "french": "Vous ne pouvez utiliser cette commande que dans les cas suivants: {CHANNELS}.",
+    "turkish": "Bu komutu yalnızca {CHANNELS} içinde kullanabilirsin."
   },
   "CANNOT_DISABLE_THIS_COMMAND": {
     "english": "This command cannot be disabled.",
@@ -285,7 +317,8 @@
     "russian": "Эту команду нельзя отключить.",
     "german": "Dieser Befehl kann nicht deaktiviert werden.",
     "dutch": "Deze opdracht kan niet worden uitgeschakeld.",
-    "french": "Cette commande ne peut pas être désactivée."
+    "french": "Cette commande ne peut pas être désactivée.",
+    "turkish": "Bu komut devre dışı bırakılamaz."
   },
   "INVALID_SLASH_COMMAND": {
     "english": "This slash command is not properly registered.",
@@ -294,7 +327,8 @@
     "russian": "Эта команда косой черты не зарегистрирована должным образом.",
     "german": "Dieser Schrägstrichbefehl ist nicht richtig registriert.",
     "dutch": "Deze slash-opdracht is niet correct geregistreerd.",
-    "french": "Cette commande slash n'est pas correctement enregistrée."
+    "french": "Cette commande slash n'est pas correctement enregistrée.",
+    "turkish": "Bu slaş komutu düzgün biçimde kaydedilmemiş."
   },
   "REQUIRE_ROLES": {
     "english": "You must specify what roles can use this command with `{PREFIX}requiredroles {COMMAND} <role ID>`.",
@@ -303,7 +337,8 @@
     "russian": "Вы должны указать, какие роли могут использовать эту команду с `{PREFIX} requiredroles {COMMAND} <role ID>`.",
     "german": "Sie müssen mit `{PREFIX}requiredroles {COMMAND} <Rollen-ID>` angeben, welche Rollen diesen Befehl verwenden können.",
     "dutch": "Je moet specificeren welke rollen dit commando kunnen gebruiken met `{PREFIX}requiredroles {COMMAND} <role ID>`.",
-    "french": "Vous devez spécifier quels rôles peuvent utiliser cette commande avec `{PREFIX}requiredroles {COMMAND} <role ID>`."
+    "french": "Vous devez spécifier quels rôles peuvent utiliser cette commande avec `{PREFIX}requiredroles {COMMAND} <role ID>`.",
+    "turkish": "Bu komutu hangi rollerin kullanabileceğini `{PREFIX}requiredroles {COMMAND} <role ID>` komutu ile belirtmelisiniz."
   },
   "HELP_MENU": {
     "TITLE": {
@@ -313,7 +348,8 @@
       "russian": "Меню помощи",
       "german": "Hilfemenü",
       "dutch": "Help Menu",
-      "french": "Menu d'aide"
+      "french": "Menu d'aide",
+      "turkish": "Yardım Menüsü"
     },
     "SELECT_A_CATEGORY": {
       "english": "Please select a command category by clicking it's reaction.",
@@ -322,7 +358,8 @@
       "russian": "Пожалуйста, выберите категорию команд нажатием на её реакцию.",
       "german": "Bitte wähle eine Befehlskategorie aus, indem du auf eine Reaktion klickst.",
       "dutch": "Selecteer een commando categorie door op de reactie te klikken.",
-      "french": "Sélectionnez une catégorie de commande en cliquant sur la réaction."
+      "french": "Sélectionnez une catégorie de commande en cliquant sur la réaction.",
+      "turkish": "Lütfen bir tepki üzerine tıklayarak bir komut kategorisi seçin."
     },
     "COMMANDS": {
       "english": "commands",
@@ -331,7 +368,8 @@
       "russian": "команды",
       "german": "Befehle",
       "dutch": "commandos",
-      "french": "commandes"
+      "french": "commandes",
+      "turkish": "komutlar"
     },
     "DESCRIPTION_FIRST_LINE": {
       "english": "Use 🚪 to return to the previous menu.",
@@ -340,7 +378,8 @@
       "russian": "Используйте 🚪, что-бы вернуться в предыдущее меню.",
       "german": "Benutze 🚪, um zum vorherigen Menü zurückzukehren.",
       "dutch": "Gebruik 🚪 om terug te keren naar het vorige menu.",
-      "french": "Utilisez 🚪 pour revenir au menu précédent."
+      "french": "Utilisez 🚪 pour revenir au menu précédent.",
+      "turkish": "Önceki menüye dönmek için 🚪 tuşunu kullanın."
     },
     "DESCRIPTION_SECOND_LINE": {
       "english": "Use ⬅ and ➡ to navigate between pages.",
@@ -349,7 +388,8 @@
       "russian": "Используйте ⬅ and ➡ для перехода между страницами.",
       "german": "Benutze ⬅ und ➡, um zwischen den Seiten hin und her zu wechseln.",
       "dutch": "Gebruik ⬅ en ➡ om tussen pagina's te navigeren.",
-      "french": "Utilisez ⬅ et ➡ pour naviguer entre les pages."
+      "french": "Utilisez ⬅ et ➡ pour naviguer entre les pages.",
+      "turkish": "Sayfalar arasında gezinmek için ⬅ ve ➡ tuşlarını kullanın."
     },
     "ALIASES": {
       "english": "Aliases",
@@ -358,7 +398,8 @@
       "russian": "Псевдонимы",
       "german": "Aliase",
       "dutch": "Aliassen",
-      "french": "Alias"
+      "french": "Alias",
+      "turkish": "Takma ad"
     },
     "SYNTAX": {
       "english": "Syntax",
@@ -367,7 +408,8 @@
       "russian": "Синтаксис",
       "german": "Syntax",
       "dutch": "Syntax",
-      "french": "Syntaxe"
+      "french": "Syntaxe",
+      "turkish": "Sözdizimi"
     }
   }
 }
