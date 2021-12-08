@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const CommandErrors_1 = __importDefault(require("../enums/CommandErrors"));
-module.exports = async (guild, command, instance, member, user, reply) => {
+module.exports = async (guild, command, instance, member, user, reply, args, name, channel, message) => {
     if (!guild || !member) {
         return true;
     }
@@ -24,7 +24,7 @@ module.exports = async (guild, command, instance, member, user, reply) => {
                 error({
                     error: CommandErrors_1.default.MISSING_ROLES,
                     command,
-                    message: null,
+                    message,
                     info: {
                         missingRoles,
                     },
