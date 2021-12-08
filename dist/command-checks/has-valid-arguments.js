@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const CommandErrors_1 = __importDefault(require("../enums/CommandErrors"));
-module.exports = (guild, command, instance, member, user, reply, args, name) => {
+module.exports = (guild, command, instance, member, user, reply, args, name, channel, message) => {
     const { minArgs, maxArgs, expectedArgs, error } = command;
     const prefix = instance.getPrefix(guild).toLowerCase();
     if ((minArgs !== undefined && args.length < minArgs) ||
@@ -25,7 +25,7 @@ module.exports = (guild, command, instance, member, user, reply, args, name) => 
             error({
                 error: CommandErrors_1.default.INVALID_ARGUMENTS,
                 command,
-                message: null,
+                message,
                 info: {
                     minArgs,
                     maxArgs,

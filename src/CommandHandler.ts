@@ -179,7 +179,8 @@ export default class CommandHandler {
               },
               args,
               name,
-              channel
+              channel,
+              message
             ))
           ) {
             return

@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
+import { Guild, GuildMember, Message, User, GuildChannel } from 'discord.js'
 import WOKCommands from '..'
 import Command from '../Command'
 import CommandErrors from '../enums/CommandErrors'
@@ -11,7 +11,9 @@ export = (
   user: User,
   reply: Function,
   args: string[],
-  name: string
+  name: string,
+  channel: GuildChannel,
+  message : Message
 ) => {
   const { minArgs, maxArgs, expectedArgs, error } = command
   const prefix = instance.getPrefix(guild).toLowerCase()
@@ -46,7 +48,7 @@ export = (
       error({
         error: CommandErrors.INVALID_ARGUMENTS,
         command,
-        message: null,
+        message,
         info: {
           minArgs,
           maxArgs,
