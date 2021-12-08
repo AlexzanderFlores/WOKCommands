@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
+import { Guild, GuildChannel, GuildMember, Message, User } from 'discord.js'
 
 import WOKCommands from '..'
 import Command from '../Command'
@@ -10,7 +10,11 @@ export = async (
   instance: WOKCommands,
   member: GuildMember,
   user: User,
-  reply: Function
+  reply: Function,
+  args: string[],
+  name: string,
+  channel: GuildChannel,
+  message : Message
 ) => {
   if (!guild || !member) {
     return true
@@ -38,7 +42,7 @@ export = async (
         error({
           error: CommandErrors.MISSING_ROLES,
           command,
-          message: null,
+          message,
           info: {
             missingRoles,
           },

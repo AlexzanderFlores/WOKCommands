@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
+import { Guild, GuildMember, Message, User , GuildChannel } from 'discord.js'
 import WOKCommands from '..'
 import Command from '../Command'
 import CommandErrors from '../enums/CommandErrors'
@@ -12,7 +12,11 @@ export = (
   instance: WOKCommands,
   member: GuildMember,
   user: User,
-  reply: Function
+  reply: Function,
+  args: string[],
+  name: string,
+  channel: GuildChannel,
+  message : Message
 ) => {
   if (!guild || !command.isDisabled(guild.id)) {
     return true
@@ -24,6 +28,7 @@ export = (
     error({
       error: CommandErrors.COMMAND_DISABLED,
       command,
+      message,
     })
   } else {
     reply(instance.messageHandler.get(guild, 'DISABLED_COMMAND')).then(

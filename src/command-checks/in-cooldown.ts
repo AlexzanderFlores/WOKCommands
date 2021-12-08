@@ -1,4 +1,4 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
+import { Guild, GuildMember, Message, User, GuildChannel } from 'discord.js'
 import WOKCommands from '..'
 import Command from '../Command'
 import CommandErrors from '../enums/CommandErrors'
@@ -9,7 +9,11 @@ export = (
   instance: WOKCommands,
   member: GuildMember,
   user: User,
-  reply: Function
+  reply: Function,
+  args: string[],
+  name: string,
+  channel: GuildChannel,
+  message : Message
 ) => {
   const { cooldown, globalCooldown, error } = command
 
@@ -22,7 +26,7 @@ export = (
         error({
           error: CommandErrors.COOLDOWN,
           command,
-          message: null,
+          message,
           info: {
             timeLeft,
           },
