@@ -1,14 +1,11 @@
 import {
   ApplicationCommand,
   ApplicationCommandOptionData,
-  Channel,
   Client,
   CommandInteraction,
   CommandInteractionOptionResolver,
-  Guild,
   GuildMember,
   MessageEmbed,
-  User,
 } from 'discord.js'
 import path from 'path'
 
