@@ -40,6 +40,7 @@ module.exports = {
     category: 'Help',
     aliases: 'commands',
     maxArgs: 1,
+    slash: 'both',
     expectedArgs: '[command]',
     init: (client, instance) => {
         client.on('messageReactionAdd', async (reaction, user) => {
