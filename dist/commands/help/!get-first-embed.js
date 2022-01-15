@@ -7,7 +7,7 @@ const getFirstEmbed = (message, instance) => {
     const embed = new discord_js_1.MessageEmbed()
         .setTitle(`${instance.displayName} ${messageHandler.getEmbed(guild, 'HELP_MENU', 'TITLE')}`)
         .setDescription(messageHandler.getEmbed(guild, 'HELP_MENU', 'SELECT_A_CATEGORY'))
-        .setFooter(`ID #${message.author?.id}`);
+        .setFooter({text: `ID #${message.author?.id}`});
     if (instance.color) {
         embed.setColor(instance.color);
     }
