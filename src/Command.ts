@@ -440,7 +440,7 @@ class Command {
   }
 
   public async addRequiredRole(guildId: string, roleId: string) {
-    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
+    const guildSettings = await this.instance.getOrCreateGuildSettings(guildId)
 
     guildSettings.addRequiredRoleForCommand({
       // TODO: should we take command name from input there or get it from this.names[0]?
@@ -452,7 +452,7 @@ class Command {
   }
 
   public async removeRequiredRole(guildId: string, roleId: string) {
-    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
+    const guildSettings = await this.instance.getOrCreateGuildSettings(guildId)
     if (roleId === 'all') {
       guildSettings.clearRequiredRolesForCommand({ commandId: this.defaultName })
     }
@@ -514,7 +514,7 @@ class Command {
     if (!guildId) {
       return
     }
-    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
+    const guildSettings = await this.instance.getOrCreateGuildSettings(guildId)
 
     guildSettings.setRequiredChannelsForCommand({
       // TODO: should we take command name from input there or get it from this.names[0]?
@@ -533,7 +533,7 @@ class Command {
   }
 
   private async updateCommandIsEnabled({ guildId, isEnabled }: { guildId: string, isEnabled: boolean }) {
-    const guildSettings = this.instance.getOrCreateGuildSettings(guildId)
+    const guildSettings = await this.instance.getOrCreateGuildSettings(guildId)
 
     guildSettings.setEnabledStateForCommand({
       commandId: this.defaultName,

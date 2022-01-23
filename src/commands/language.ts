@@ -16,7 +16,7 @@ export = {
   slash: 'both',
 
   callback: async (options: ICallbackObject) => {
-    const { channel, text, instance } = options
+    const { channel, text, instance, interaction } = options
 
     const { guild } = channel
     if (!guild) {

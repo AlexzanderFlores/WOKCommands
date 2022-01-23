@@ -290,11 +290,11 @@ export default class WOKCommands extends EventEmitter {
    * @param guildId 
    * @returns 
    */
-  public getOrCreateGuildSettings(guildId: string): GuildSettingsAggregate {
+  public async getOrCreateGuildSettings(guildId: string): Promise<GuildSettingsAggregate> {
     let guildSettings = this.guildSettings.get(guildId)
     if (!guildSettings) {
-      // TODO: any reason we should first check the db for guild settings here?
-      guildSettings =  new GuildSettingsAggregate({ guildId })
+      guildSettings = await this.guildSettingsRepository.findOne({ guildId })
+      guildSettings =  guildSettings || new GuildSettingsAggregate({ guildId })
       this.setGuildSettings(guildId, guildSettings)
     }
     return guildSettings
@@ -307,7 +307,7 @@ export default class WOKCommands extends EventEmitter {
   public async setPrefix(guild: Guild | null, prefix: string): Promise<void> {
     // TODO: are there any legitimate reasons for this to be null here? DM?
     if (guild) {
-      const guildSettings = this.getOrCreateGuildSettings(guild.id)
+      const guildSettings = await this.getOrCreateGuildSettings(guild.id)
       guildSettings.setPrefix({ prefix: new GuildPrefix({ value: prefix }) })
       // TODO: can we safely assume a guild settings object should exist in memory?
       // probably not the same for cooldowns

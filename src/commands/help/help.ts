@@ -35,6 +35,12 @@ module.exports = {
 
     const { guild } = channel
 
+
+    // TODO should we just use the following here since guild.me isn't guaranteed to be available?
+      // await member.guild.members.fetch({
+      //   user: this.client.user.id,
+      //   cache: true
+      // }).catch(() => {});
     if (guild && !guild.me?.permissions.has('SEND_MESSAGES')) {
       console.warn(
         `WOKCommands > Could not send message due to no permissions in channel for ${guild.name}`

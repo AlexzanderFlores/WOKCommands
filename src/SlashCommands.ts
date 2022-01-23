@@ -257,39 +257,44 @@ class SlashCommands {
       return
     }
 
-    const reply = await command.callback({
-      member: interaction.member,
-      guild: interaction.guild,
-      channel: interaction.channel,
-      args,
-      text: args.join(' '),
-      client: this._client,
-      instance: this._instance,
-      interaction,
-      options,
-      user: interaction.user,
-    })
+    try {
+      const reply = await command.callback({
+        member: interaction.member,
+        guild: interaction.guild,
+        channel: interaction.channel,
+        args,
+        text: args.join(' '),
+        client: this._client,
+        instance: this._instance,
+        interaction,
+        options,
+        user: interaction.user,
+      })
 
-    if (reply) {
-      if (typeof reply === 'string') {
-        interaction.reply({
-          content: reply,
-        })
-      } else if (typeof reply === 'object') {
-        if (reply.custom) {
-          interaction.reply(reply)
-        } else {
-          let embeds = []
-
-          if (Array.isArray(reply)) {
-            embeds = reply
+      if (reply) {
+        if (typeof reply === 'string') {
+          interaction.reply({
+            content: reply,
+          })
+        } else if (typeof reply === 'object') {
+          if (reply.custom) {
+            interaction.reply(reply)
           } else {
-            embeds.push(reply)
-          }
+            let embeds = []
 
-          interaction.reply({ embeds })
+            if (Array.isArray(reply)) {
+              embeds = reply
+            } else {
+              embeds.push(reply)
+            }
+
+            interaction.reply({ embeds })
+          }
         }
       }
+    } catch(e) {
+      console.error(e);
+      return this._instance.messageHandler.get(interaction.guild, 'EXCEPTION');
     }
   }
 }

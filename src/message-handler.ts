@@ -41,7 +41,7 @@ export default class MessageHandler {
       return
     }
 
-    const guildSettings = this._instance.getOrCreateGuildSettings(guild.id)
+    const guildSettings = await this._instance.getOrCreateGuildSettings(guild.id)
     guildSettings.setLanguage({ language: new GuildLanguage({ value: language }) })
   }
 

@@ -14,14 +14,19 @@ import { Role } from '../../domain/Role'
 import { GuildLanguage } from '../../domain/GuildLanguage'
 import { GuildPrefix } from '../../domain/GuildPrefix'
 export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
-  async findOne({ guildId }: { guildId: string }): Promise<GuildSettingsAggregate> {
-    throw new Error("Method not implemented.");
+  async findOne({ guildId }: { guildId: string }): Promise<GuildSettingsAggregate | undefined> {
+    const results = await this.findAllWhere({ guildId })
+    return results[0]
   }
   async findAll(): Promise<GuildSettingsAggregate[]> {
+    return this.findAllWhere({})
+  }
+
+  async findAllWhere({ guildId }: { guildId?: string }): Promise<GuildSettingsAggregate[]> {
     const guildSettingsCollection = new Collection<string, GuildSettingsAggregate>()
-    const disabledCommands = await disabledCommandSchema.find({})
-    const requiredRoles = await requiredRoleSchema.find({})
-    const channelCommands = await channelCommandSchema.find({})
+    const disabledCommands = await disabledCommandSchema.find({ guildId })
+    const requiredRoles = await requiredRoleSchema.find({ guildId })
+    const channelCommands = await channelCommandSchema.find({ guildId})
 
     function getOrCreateGuildSettings(guildId: string): GuildSettingsAggregate {
       let guildSettings = guildSettingsCollection.get(guildId)
@@ -83,6 +88,7 @@ export class MongoGuildSettingsRepository implements IGuildSettingsRepository {
 
     return Array.from(guildSettingsCollection.values())
   }
+
   async save(settings: GuildSettingsAggregate): Promise<GuildSettingsAggregate> {
     const { guildId, prefix, language, commands } = settings
 
