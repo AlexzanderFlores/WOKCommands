@@ -1,15 +1,5 @@
 import mongoose, { Connection } from 'mongoose'
-import WOKCommands from '.'
-import Events from './enums/Events'
-
-const results: {
-  [name: number]: string
-} = {
-  0: 'Disconnected',
-  1: 'Connected',
-  2: 'Connecting',
-  3: 'Disconnecting',
-}
+import WOKCommands from '../..'
 
 export default async (
   mongoPath: string,
@@ -23,8 +13,7 @@ export default async (
   await mongoose.connect(mongoPath, options)
 
   const { connection } = mongoose
-  const state = results[connection.readyState] || 'Unknown'
-  instance.emit(Events.DATABASE_CONNECTED, connection, state)
+  return connection;
 }
 
 export const getMongoConnection = (): Connection => {

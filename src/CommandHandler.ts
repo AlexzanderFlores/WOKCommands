@@ -5,12 +5,9 @@ import path from 'path'
 
 import Command from './Command'
 import getAllFiles from './get-all-files'
-import disabledCommands from './models/disabled-commands'
-import requiredRoles from './models/required-roles'
-import cooldown from './models/cooldown'
-import channelCommands from './models/channel-commands'
+import cooldown from './persistence/mongo/models/cooldown'
 import { permissionList } from './permissions'
-import { ICommand } from '../typings'
+import { ICommand } from './types'
 import CommandErrors from './enums/CommandErrors'
 import Events from './enums/Events'
 
@@ -102,17 +99,19 @@ export default class CommandHandler {
       }
 
       if (instance.isDBConnected()) {
-        await this.fetchDisabledCommands()
-        await this.fetchRequiredRoles()
-        await this.fetchChannelOnly()
+        const guildSettings = await instance.guildSettingsRepository.findAll()
+        for(const settings of guildSettings) {
+          instance.setGuildSettings(settings.guildId, settings)
+        }
       }
 
       this._commands.forEach(async (command) => {
         command.verifyDatabaseCooldowns()
 
         if (instance.isDBConnected()) {
+          // TODO do we need to be checking this twice?
           const results = await cooldown.find({
-            name: command.names[0],
+            name: command.defaultName,
             type: command.globalCooldown ? 'global' : 'per-user',
           })
 
@@ -470,55 +469,56 @@ export default class CommandHandler {
     return this.commands.find((command) => command.names?.includes(name))
   }
 
-  public async fetchDisabledCommands() {
-    const results: any[] = await disabledCommands.find({})
+  // public async fetchDisabledCommands() {
+  //   const results: any[] = await disabledCommands.find({})
 
-    for (const result of results) {
-      const { guildId, command } = result
+  //   for (const result of results) {
+  //     const { guildId, command } = result
 
-      this._commands.get(command)?.disable(guildId)
-    }
-  }
+  //     this._commands.get(command)?.disable(guildId)
+  //   }
+  // }
 
-  public async fetchRequiredRoles() {
-    const results: any[] = await requiredRoles.find({})
+  // public async fetchRequiredRoles() {
+  //   const results: any[] = await requiredRoles.find({})
 
-    for (const result of results) {
-      const { guildId, command, requiredRoles } = result
+  //   for (const result of results) {
+  //     const { guildId, command, requiredRoles } = result
 
-      const cmd = this._commands.get(command)
-      if (cmd) {
-        for (const roleId of requiredRoles) {
-          cmd.addRequiredRole(guildId, roleId)
-        }
-      }
-    }
-  }
+  //     const cmd = this._commands.get(command)
+  //     if (cmd) {
+  //       for (const roleId of requiredRoles) {
+  //         cmd.addRequiredRole(guildId, roleId)
+  //       }
+  //     }
+  //   }
+  // }
 
-  public async fetchChannelOnly() {
-    const results: any[] = await channelCommands.find({})
+  // public async fetchChannelOnly() {
+  //   const results: any[] = await channelCommands.find({})
 
-    for (const result of results) {
-      const { command, guildId, channels } = result
+  //   for (const result of results) {
+  //     const { command, guildId, channels } = result
 
-      const cmd = this._commands.get(command)
-      if (!cmd) {
-        continue
-      }
+  //     const cmd = this._commands.get(command)
+  //     if (!cmd) {
+  //       continue
+  //     }
 
-      const guild = this._client?.guilds.cache.get(guildId)
-      if (!guild) {
-        continue
-      }
+  //     // TODO: before removing we should probably implement something similar when fetching settings
+  //     // unless there's a chance this could be null on startup (in which case we may need something more elegant)
+  //     const guild = this._client?.guilds.cache.get(guildId)
+  //     if (!guild) {
+  //       continue
+  //     }
 
-      cmd.setRequiredChannels(
-        guild,
-        command,
-        channels
-          .toString()
-          .replace(/\"\[\]/g, '')
-          .split(',')
-      )
-    }
-  }
+  //     cmd.setRequiredChannels({
+  //       guildId: guild?.id,
+  //       channels: channels
+  //         .toString()
+  //         .replace(/\"\[\]/g, '')
+  //         .split(',')
+  //     })
+  //   }
+  // }
 }

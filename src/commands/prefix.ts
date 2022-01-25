@@ -1,5 +1,4 @@
-import { ICallbackObject, ICommand } from '../..'
-import prefixes from '../models/prefixes'
+import { ICallbackObject, ICommand } from '../types'
 
 export = {
   description: 'Displays or sets the prefix for the current guild',
@@ -25,26 +24,12 @@ export = {
     }
 
     if (guild) {
-      const { id } = guild
 
       if (!instance.isDBConnected()) {
         return instance.messageHandler.get(guild, 'NO_DATABASE_FOUND')
       }
 
-      await prefixes.findOneAndUpdate(
-        {
-          _id: id,
-        },
-        {
-          _id: id,
-          prefix: text,
-        },
-        {
-          upsert: true,
-        }
-      )
-
-      instance.setPrefix(guild, text)
+      await instance.setPrefix(guild, text)
 
       return instance.messageHandler.get(guild, 'SET_PREFIX', {
         PREFIX: text,

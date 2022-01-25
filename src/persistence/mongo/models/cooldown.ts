@@ -8,6 +8,7 @@ const reqString = {
 const schema = new Schema({
   // Command-GuildID or Command-GuildID-UserID
   _id: reqString,
+  guildId: reqString,
   name: reqString,
   type: reqString,
   cooldown: {

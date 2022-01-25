@@ -14,7 +14,7 @@ export = (
   const { cooldown, globalCooldown, error } = command
 
   if ((cooldown || globalCooldown) && user) {
-    const guildId = guild ? guild.id : 'dm'
+    const guildId = guild?.id || 'dm'
 
     const timeLeft = command.getCooldownSeconds(guildId, user.id)
     if (timeLeft) {

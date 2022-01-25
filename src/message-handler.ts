@@ -1,13 +1,11 @@
 import { Guild } from 'discord.js'
 
-import languageSchema from './models/languages'
 import WOKCommands from '.'
-import Events from './enums/Events'
+import { GuildLanguage } from './domain/GuildLanguage'
 const defualtMessages = require('../messages.json')
 
 export default class MessageHandler {
   private _instance: WOKCommands
-  private _guildLanguages: Map<string, string> = new Map() // <Guild ID, Language>
   private _languages: string[] = []
   private _messages: {
     [key: string]: {
@@ -31,15 +29,6 @@ export default class MessageHandler {
           `The current default language defined is not supported.`
         )
       }
-
-      if (instance.isDBConnected()) {
-        const results = await languageSchema.find()
-
-        // @ts-ignore
-        for (const { _id: guildId, language } of results) {
-          this._guildLanguages.set(guildId, language)
-        }
-      }
     })()
   }
 
@@ -48,18 +37,22 @@ export default class MessageHandler {
   }
 
   public async setLanguage(guild: Guild | null, language: string) {
-    if (guild) {
-      this._guildLanguages.set(guild.id, language)
+    if (!guild) {
+      return
     }
+
+    const guildSettings = await this._instance.getOrCreateGuildSettings(guild.id)
+    guildSettings.setLanguage({ language: new GuildLanguage({ value: language }) })
   }
 
   public getLanguage(guild: Guild | null): string {
     if (guild) {
-      const result = this._guildLanguages.get(guild.id)
-      if (result) {
-        return result
+      const guildSettings = this._instance.guildSettings.get(guild.id);
+      if (guildSettings) {
+        return guildSettings.language.value
       }
     }
+
     return this._instance.defaultLanguage
   }
 

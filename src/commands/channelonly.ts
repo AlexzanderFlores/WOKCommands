@@ -1,5 +1,4 @@
-import { ICallbackObject, ICommand } from '../..'
-import channelCommandSchema from '../models/channel-commands'
+import { ICallbackObject, ICommand } from '../types'
 
 export = {
   description: 'Makes a command only work in some channels.',
@@ -50,20 +49,9 @@ export = {
       })
     }
 
-    commandName = command.names[0]
-
     if (args.length === 0) {
-      const results = await channelCommandSchema.deleteMany({
-        guildId: guild?.id,
-        command: commandName,
-      })
 
-      // @ts-ignore
-      if (results.n === 0) {
-        return messageHandler.get(guild, 'NOT_CHANNEL_COMMAND')
-      }
-
-      command.setRequiredChannels(guild, commandName, [])
+      await command.setRequiredChannels({ guildId: guild?.id, channels: [] })
 
       return messageHandler.get(guild, 'NO_LONGER_CHANNEL_COMMAND')
     }
@@ -77,30 +65,11 @@ export = {
     if (message) {
       channels = Array.from(message.mentions.channels.keys())
     } else {
-      channels = [interaction.options.getChannel('channel')]
+      // TODO: is this intended to only set a single channel?
+      channels = [interaction.options.getChannel('channel', true).id]
     }
 
-    const results = await channelCommandSchema.findOneAndUpdate(
-      {
-        guildId: guild?.id,
-        command: commandName,
-      },
-      {
-        guildId: guild?.id,
-        command: commandName,
-        $addToSet: {
-          channels,
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-      }
-    )
-
-    if (results) {
-      command.setRequiredChannels(guild, commandName, results.channels)
-    }
+    await command.setRequiredChannels({ guildId: guild?.id, channels })
 
     return messageHandler.get(guild, 'NOW_CHANNEL_COMMAND', {
       COMMAND: commandName,

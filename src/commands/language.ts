@@ -1,5 +1,4 @@
-import languageSchema from '../models/languages'
-import { ICallbackObject, ICommand } from '../..'
+import { ICallbackObject, ICommand } from '../types'
 import Events from '../enums/Events'
 
 export = {
@@ -17,7 +16,7 @@ export = {
   slash: 'both',
 
   callback: async (options: ICallbackObject) => {
-    const { channel, text, instance } = options
+    const { channel, text, instance, interaction } = options
 
     const { guild } = channel
     if (!guild) {
@@ -46,20 +45,7 @@ export = {
       })
     }
 
-    instance.messageHandler.setLanguage(guild, lang)
-
-    await languageSchema.findOneAndUpdate(
-      {
-        _id: guild.id,
-      },
-      {
-        _id: guild.id,
-        language: lang,
-      },
-      {
-        upsert: true,
-      }
-    )
+    await instance.messageHandler.setLanguage(guild, lang)
 
     return instance.messageHandler.get(guild, 'NEW_LANGUAGE', {
       LANGUAGE: lang,

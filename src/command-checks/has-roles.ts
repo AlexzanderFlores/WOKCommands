@@ -69,7 +69,7 @@ export = async (
     reply(
       instance.messageHandler.get(guild, 'REQUIRE_ROLES', {
         PREFIX: instance.getPrefix(guild),
-        COMMAND: command.names[0],
+        COMMAND: command.defaultName,
       })
     ).then((message: Message | null) => {
       if (!message) {

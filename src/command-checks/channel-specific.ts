@@ -17,9 +17,7 @@ export = (
     return true
   }
 
-  const key = `${guild.id}-${command.names[0]}`
-
-  const channels = command.requiredChannels.get(key)
+  const channels = command.getRequiredChannels({ guildId: guild.id });
 
   if (channels && channels.length && !channels.includes(channel.id)) {
     let channelList = ''

@@ -1,24 +1,29 @@
-import { Client, ColorResolvable, Guild, GuildEmoji } from 'discord.js'
-import { Connection } from 'mongoose'
+import { Client, Collection, ColorResolvable, Guild, GuildEmoji } from 'discord.js'
 import { EventEmitter } from 'events'
 
 import FeatureHandler from './FeatureHandler'
-import mongo, { getMongoConnection } from './mongo'
-import prefixes from './models/prefixes'
+import mongo from './persistence/mongo/connection'
 import MessageHandler from './message-handler'
 import SlashCommands from './SlashCommands'
-import { ICategorySetting, Options } from '..'
+import { ICategorySetting, Options } from './types'
 import Events from './enums/Events'
 import CommandHandler from './CommandHandler'
+import { IGuildSettingsRepository } from './persistence/IGuildSettingsRepository'
+import { ICooldownRepository } from './persistence/ICooldownRepository'
+import { GuildSettingsAggregate } from './domain/GuildSettingsAggregate'
+import { MongoCooldownRepository } from './persistence/mongo/MongoCooldownRepository'
+import { MongoGuildSettingsRepository } from './persistence/mongo/MongoGuildSettingsRepository'
+import { GuildPrefix } from './domain/GuildPrefix'
+import { enumFromName } from './enums/utils'
+import { DbConnectionStatus } from './enums/DbConnectionStatus'
 
 export default class WOKCommands extends EventEmitter {
   private _client: Client
   private _defaultPrefix = '!'
   private _commandsDir = 'commands'
   private _featuresDir = ''
-  private _mongoConnection: Connection | null = null
   private _displayName = ''
-  private _prefixes: { [name: string]: string } = {}
+  private _guildSettings = new Collection<string, GuildSettingsAggregate>()
   private _categories: Map<String, String | GuildEmoji> = new Map() // <Category Name, Emoji Icon>
   private _hiddenCategories: string[] = []
   private _color: ColorResolvable | null = null
@@ -35,6 +40,10 @@ export default class WOKCommands extends EventEmitter {
   private _debug = false
   private _messageHandler: MessageHandler | null = null
   private _slashCommand: SlashCommands | null = null
+  private _isDbConnected?: () => boolean
+  private _getDbConnectionStatus?: () => DbConnectionStatus
+  private _guildSettingsRepository?: IGuildSettingsRepository
+  private _cooldownRepository?: ICooldownRepository
 
   constructor(client: Client, options?: Options) {
     super()
@@ -55,40 +64,72 @@ export default class WOKCommands extends EventEmitter {
       featuresDir = '',
       featureDir = '',
       messagesPath,
-      mongoUri,
       showWarns = true,
       delErrMsgCooldown = -1,
       defaultLanguage = 'english',
       ignoreBots = true,
-      dbOptions,
       testServers,
       botOwners,
       disabledDefaultCommands = [],
       typeScript = false,
       ephemeral = true,
-      debug = false,
+      debug = false
     } = options || {}
 
-    if (mongoUri) {
-      await mongo(mongoUri, this, dbOptions)
+    let useDb = false;
+    if (options?.dbConnectionStrategy === 'MONGOOSE' && options?.mongoUri) {
+      const { mongoUri, dbOptions } = options;
+      const connection = await mongo(mongoUri, this, dbOptions)
 
-      this._mongoConnection = getMongoConnection()
-
-      const results: any[] = await prefixes.find({})
-
-      for (const result of results) {
-        const { _id, prefix } = result
-
-        this._prefixes[_id] = prefix
+      this._isDbConnected = () => {
+        return !!(connection && connection.readyState === 1)
       }
+
+      this._getDbConnectionStatus = () => {
+        const results: {
+          [name: number]: string
+        } = {
+          0: 'DISCONNECTED',
+          1: 'CONNECTED',
+          2: 'CONNECTING',
+          3: 'DISCONNECTING',
+        }
+
+        return enumFromName(results[connection.readyState] || 'UNKNOWN', DbConnectionStatus);
+      }
+
+      this._guildSettingsRepository = new MongoGuildSettingsRepository();
+      this._cooldownRepository = new MongoCooldownRepository();
+      useDb = true;
+    } else if (options?.dbConnectionStrategy === 'GENERIC') {
+      this._isDbConnected = options.isDbConnected
+      this._getDbConnectionStatus = options.getDbConnectionStatus
+      this._guildSettingsRepository = options.guildSettingsRepository
+      this._cooldownRepository = options.cooldownRepository
+      useDb = true;
     } else {
       if (showWarns) {
         console.warn(
-          'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://docs.wornoffkeys.com/databases/mongodb'
+          'WOKCommands > No DB connection info provided. Some features might not work! See this for more details:\nhttps://docs.wornoffkeys.com/databases'
         )
       }
 
-      this.emit(Events.DATABASE_CONNECTED, null, '')
+      this.emit(Events.DATABASE_CONNECTED, DbConnectionStatus.NO_DATABASE)
+    }
+
+    if (useDb) {
+      const connectionStatus = this.dbConnectionStatus
+      this.emit(Events.DATABASE_CONNECTED, connectionStatus)
+
+      if (connectionStatus !== DbConnectionStatus.CONNECTED) {
+        throw new Error('WOKCommands > Database not connected!')
+      }
+
+      const guildSettings = await this.guildSettingsRepository.findAll()
+      this._guildSettings = guildSettings.reduce((agg, settings) => {
+        agg.set(settings.guildId, settings);
+        return agg;
+      }, new Collection<string, GuildSettingsAggregate>())
     }
 
     this._commandsDir = commandsDir || commandDir || this._commandsDir
@@ -168,6 +209,45 @@ export default class WOKCommands extends EventEmitter {
     console.log('WOKCommands > Your bot is now running.')
   }
 
+  public isDBConnected(): boolean {
+    return !!(this._isDbConnected && this._isDbConnected())
+  }
+
+  public get dbConnectionStatus(): DbConnectionStatus {
+    if (!this._getDbConnectionStatus) {
+      return DbConnectionStatus.UNKNOWN
+    }
+    return this._getDbConnectionStatus()
+  }
+
+  public get guildSettingsRepository(): IGuildSettingsRepository {
+    if (!this.isDBConnected()) {
+      throw new Error('DB not connected!')
+    }
+
+    if (!this._guildSettingsRepository) {
+      throw new Error('_guildSettingsRepository not defined!')
+    }
+
+    return this._guildSettingsRepository
+  }
+
+  public get cooldownRepository(): ICooldownRepository {
+    if (!this.isDBConnected()) {
+      throw new Error('DB not connected!')
+    }
+
+    if (!this._cooldownRepository) {
+      throw new Error('_cooldownRepository not defined!')
+    }
+
+    return this._cooldownRepository
+  }
+
+  public get guildSettings(): Collection<string, GuildSettingsAggregate> {
+    return this._guildSettings
+  }
+
   public setMongoPath(mongoPath: string | undefined): WOKCommands {
     console.warn(
       'WOKCommands > .setMongoPath() no longer works as expected. Please pass in your mongo URI as a "mongoUri" property using the options object. For more information: https://docs.wornoffkeys.com/databases/mongodb'
@@ -188,10 +268,6 @@ export default class WOKCommands extends EventEmitter {
     return this
   }
 
-  public get prefixes() {
-    return this._prefixes
-  }
-
   public get defaultPrefix(): string {
     return this._defaultPrefix
   }
@@ -202,14 +278,42 @@ export default class WOKCommands extends EventEmitter {
   }
 
   public getPrefix(guild: Guild | null): string {
-    return this._prefixes[guild ? guild.id : ''] || this._defaultPrefix
+    if (guild) {
+      return this.guildSettings.get(guild.id)?.prefix.value || this._defaultPrefix
+    }
+    return this._defaultPrefix;
   }
 
-  public setPrefix(guild: Guild | null, prefix: string): WOKCommands {
-    if (guild) {
-      this._prefixes[guild.id] = prefix
+  /**
+   * gets guild settings if they exist
+   * otherwise it creates them and stores them in the local cache
+   * @param guildId 
+   * @returns 
+   */
+  public async getOrCreateGuildSettings(guildId: string): Promise<GuildSettingsAggregate> {
+    let guildSettings = this.guildSettings.get(guildId)
+    if (!guildSettings) {
+      guildSettings = await this.guildSettingsRepository.findOne({ guildId })
+      guildSettings =  guildSettings || new GuildSettingsAggregate({ guildId })
+      this.setGuildSettings(guildId, guildSettings)
     }
-    return this
+    return guildSettings
+  }
+
+  public setGuildSettings(guildId: string, guildSettings: GuildSettingsAggregate) {
+    this.guildSettings.set(guildId, guildSettings)
+  }
+
+  public async setPrefix(guild: Guild | null, prefix: string): Promise<void> {
+    // TODO: are there any legitimate reasons for this to be null here? DM?
+    if (guild) {
+      const guildSettings = await this.getOrCreateGuildSettings(guild.id)
+      guildSettings.setPrefix({ prefix: new GuildPrefix({ value: prefix }) })
+      // TODO: can we safely assume a guild settings object should exist in memory?
+      // probably not the same for cooldowns
+      const updated = await this.guildSettingsRepository.save(guildSettings)
+      this.guildSettings.set(guild.id, updated)
+    }
   }
 
   public get categories(): Map<String, String | GuildEmoji> {
@@ -302,15 +406,6 @@ export default class WOKCommands extends EventEmitter {
 
   public get commandHandler(): CommandHandler {
     return this._commandHandler!
-  }
-
-  public get mongoConnection(): Connection | null {
-    return this._mongoConnection
-  }
-
-  public isDBConnected(): boolean {
-    const connection = this.mongoConnection
-    return !!(connection && connection.readyState === 1)
   }
 
   public setTagPeople(tagPeople: boolean): WOKCommands {

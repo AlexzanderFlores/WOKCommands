@@ -1,16 +1,16 @@
-import { ICallbackObject, ICommand } from '../..'
-import requiredRoleSchema from '../models/required-roles'
+import { ICallbackObject, ICommand } from '../types'
+
 
 export = {
-  description: 'Specifies what role each command requires.',
+  description: 'Specifies what role each command requires. Note `all` may only be used with the remove operation.',
   category: 'Configuration',
 
   permissions: ['ADMINISTRATOR'],
   aliases: ['requiredroles', 'requirerole', 'requireroles'],
 
   minArgs: 2,
-  maxArgs: 2,
-  expectedArgs: '<command> <none-or-roleid>',
+  maxArgs: 3,
+  expectedArgs: '<command> <add-or-remove> <all-or-roleid>',
 
   cooldown: '2s',
 
@@ -19,14 +19,22 @@ export = {
   callback: async (options: ICallbackObject) => {
     const { channel, args, instance } = options
 
-    const name = (args.shift() || '').toLowerCase()
-    const roleId = (args.shift() || '').toLowerCase()
+    const name = args.shift()?.toLowerCase()
+    const operation = args.shift()?.toLowerCase()
+    const roleId = args.shift()?.toLowerCase()
 
     const { guild } = channel
     if (!guild) {
       return instance.messageHandler.get(
         guild,
         'CANNOT_CHANGE_REQUIRED_ROLES_IN_DMS'
+      )
+    }
+
+    if (!operation || !name) {
+      return instance.messageHandler.get(
+        guild,
+        'SYNTAX_ERROR'
       )
     }
 
@@ -37,45 +45,30 @@ export = {
     const command = instance.commandHandler.getCommand(name)
 
     if (command) {
-      if (roleId === 'none') {
-        command.removeRequiredRole(guild.id, roleId)
-
-        await requiredRoleSchema.deleteOne({
-          guildId: guild.id,
-          command: command.names[0],
-        })
+      if (operation === 'remove') {
+        await command.removeRequiredRole(guild.id, roleId || 'all')
 
         return instance.messageHandler.get(
           guild,
           'REMOVED_ALL_REQUIRED_ROLES',
           {
-            COMMAND: command.names[0],
+            COMMAND: command.defaultName,
           }
         )
       }
 
-      command.addRequiredRole(guild.id, roleId)
+      if (!roleId || roleId === 'all') {
+        return instance.messageHandler.get(
+          guild,
+          'SYNTAX_ERROR'
+        )
+      }
 
-      await requiredRoleSchema.findOneAndUpdate(
-        {
-          guildId: guild.id,
-          command: command.names[0],
-        },
-        {
-          guildId: guild.id,
-          command: command.names[0],
-          $addToSet: {
-            requiredRoles: roleId,
-          },
-        },
-        {
-          upsert: true,
-        }
-      )
+      await command.addRequiredRole(guild.id, roleId)
 
       return instance.messageHandler.get(guild, 'ADDED_REQUIRED_ROLE', {
         ROLE: roleId,
-        COMMAND: command.names[0],
+        COMMAND: command.defaultName,
       })
     }
 
