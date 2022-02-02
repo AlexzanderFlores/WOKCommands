@@ -276,12 +276,14 @@ class CommandHandler {
     get commands() {
         const results = [];
         const added = [];
-        this._commands.forEach(({ names, category = '', description = '', expectedArgs = '', hidden = false, testOnly = false, }) => {
+        this._commands.forEach(({ names, category = '', description = '', detailedDescription = '', exampleUsages = [], expectedArgs = '', hidden = false, testOnly = false, }) => {
             if (!added.includes(names[0])) {
                 results.push({
                     names: [...names],
                     category,
                     description,
+                    detailedDescription,
+                    exampleUsages,
                     syntax: expectedArgs,
                     hidden,
                     testOnly,

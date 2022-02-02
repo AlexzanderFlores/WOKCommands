@@ -13,6 +13,8 @@ class Command {
     _syntaxError;
     _expectedArgs;
     _description;
+    _detailedDescription;
+    _exampleUsages;
     _requiredPermissions;
     _requiredRoles = new Map(); // <GuildID, RoleIDs[]>
     _callback = () => { };
@@ -32,7 +34,7 @@ class Command {
     _slash = false;
     _requireRoles = false;
     _requiredChannels = new Map(); // <GuildID-Command, Channel IDs>
-    constructor(instance, client, names, callback, error, { category, minArgs, maxArgs, syntaxError, expectedArgs, description, requiredPermissions, permissions, cooldown, globalCooldown, ownerOnly = false, hidden = false, guildOnly = false, testOnly = false, slash = false, requireRoles = false, }) {
+    constructor(instance, client, names, callback, error, { category, minArgs, maxArgs, syntaxError, expectedArgs, description, detailedDescription, exampleUsages, requiredPermissions, permissions, cooldown, globalCooldown, ownerOnly = false, hidden = false, guildOnly = false, testOnly = false, slash = false, requireRoles = false, }) {
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -42,6 +44,8 @@ class Command {
         this._syntaxError = syntaxError;
         this._expectedArgs = expectedArgs;
         this._description = description;
+        this._detailedDescription = detailedDescription;
+        this._exampleUsages = exampleUsages;
         this._requiredPermissions = requiredPermissions || permissions;
         this._cooldown = cooldown || '';
         this._globalCooldown = globalCooldown || '';
@@ -125,6 +129,12 @@ class Command {
     }
     get description() {
         return this._description;
+    }
+    get detailedDescription() {
+        return this._detailedDescription;
+    }
+    get exampleUsages() {
+        return this._exampleUsages;
     }
     get minArgs() {
         return this._minArgs;

@@ -15,6 +15,8 @@ class Command {
   private _syntaxError?: { [key: string]: string }
   private _expectedArgs?: string
   private _description?: string
+  private _detailedDescription?: string
+  private _exampleUsages?: string[] | string
   private _requiredPermissions?: permissions | undefined
   private _requiredRoles?: Map<String, string[]> = new Map() // <GuildID, RoleIDs[]>
   private _callback: Function = () => {}
@@ -48,6 +50,8 @@ class Command {
       syntaxError,
       expectedArgs,
       description,
+      detailedDescription,
+      exampleUsages,
       requiredPermissions,
       permissions,
       cooldown,
@@ -69,6 +73,8 @@ class Command {
     this._syntaxError = syntaxError
     this._expectedArgs = expectedArgs
     this._description = description
+    this._detailedDescription = detailedDescription
+    this._exampleUsages = exampleUsages
     this._requiredPermissions = requiredPermissions || permissions
     this._cooldown = cooldown || ''
     this._globalCooldown = globalCooldown || ''
@@ -174,6 +180,14 @@ class Command {
 
   public get description(): string | undefined {
     return this._description
+  }
+
+  public get detailedDescription(): string | undefined {
+    return this._detailedDescription
+  }
+
+  public get exampleUsages(): string[] | string | undefined {
+    return this._exampleUsages
   }
 
   public get minArgs(): number {

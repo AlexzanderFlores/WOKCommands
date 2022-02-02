@@ -65,9 +65,19 @@ class SlashCommands {
                     args.push(String(value));
                 });
                 for (const [checkName, checkFunction,] of this._commandChecks.entries()) {
-                    if (!(await checkFunction(guild, command, this._instance, member, user, (reply) => {
-                        return replyFromCheck(reply, interaction);
-                    }, args, commandName, channel))) {
+                    if (!(await checkFunction({
+                        guild,
+                        command,
+                        instance: this._instance,
+                        member,
+                        user,
+                        reply: (reply) => {
+                            return replyFromCheck(reply, interaction);
+                        },
+                        args,
+                        name: commandName,
+                        channel,
+                    }))) {
                         return;
                     }
                 }

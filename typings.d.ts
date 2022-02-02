@@ -161,6 +161,8 @@ export interface ICommand {
   aliases?: string[] | string
   category: string
   description: string
+  detailedDescription?: string
+  exampleUsages?: string[] | string
   callback?(obj: ICallbackObject): any
   error?(obj: IErrorObject): any
   minArgs?: number
