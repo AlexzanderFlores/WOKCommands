@@ -10,7 +10,7 @@ const getAllFiles = (dir: string, extension?: string) => {
     if (file.isDirectory()) {
       jsFiles = [...jsFiles, ...getAllFiles(`${dir}/${file.name}`, extension)]
     } else if (
-      file.name.endsWith(extension || '.js') &&
+      (file.name.endsWith(extension || '.js') || file.name.endsWith('.cjs')) &&
       !file.name.startsWith('!')
     ) {
       let fileName: string | string[] = file.name.replace(/\\/g, '/').split('/')
