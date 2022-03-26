@@ -13,6 +13,7 @@ export = {
   expectedArgs: '<command> <none-or-roleid>',
 
   cooldown: '2s',
+  guildOnly: true,
 
   slash: 'both',
 

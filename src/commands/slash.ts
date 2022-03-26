@@ -13,6 +13,8 @@ export = {
   ownerOnly: true,
   hidden: true,
 
+  guildOnly: true,
+
   slash: 'both',
 
   callback: async (options: ICallbackObject) => {

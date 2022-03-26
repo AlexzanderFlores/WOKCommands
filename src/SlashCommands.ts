@@ -117,7 +117,7 @@ class SlashCommands {
           }
         }
 
-        this.invokeCommand(interaction, commandName, options, args)
+        this.invokeCommand(interaction, args)
       })
     }
   }
@@ -148,8 +148,10 @@ class SlashCommands {
     return (
       command.options?.filter((opt, index) => {
         return (
+          // @ts-ignore
           opt?.required !== options[index]?.required &&
           opt?.name !== options[index]?.name &&
+          // @ts-ignore
           opt?.options?.length !== options.length
         )
       }).length !== 0
@@ -245,12 +247,8 @@ class SlashCommands {
     return Promise.resolve(undefined)
   }
 
-  public async invokeCommand(
-    interaction: CommandInteraction,
-    commandName: string,
-    options: CommandInteractionOptionResolver,
-    args: string[]
-  ) {
+  public async invokeCommand(interaction: CommandInteraction, args: string[]) {
+    const { commandName, options } = interaction
     const command = this._instance.commandHandler.getCommand(commandName)
 
     if (!command || !command.callback) {

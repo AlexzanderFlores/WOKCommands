@@ -13,6 +13,7 @@ export = {
   expectedArgs: '[language]',
 
   cooldown: '2s',
+  guildOnly: true,
 
   slash: 'both',
 
