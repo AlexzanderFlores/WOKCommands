@@ -18,21 +18,16 @@ export = (
   }
 
   if (!guild) {
-    reply(instance.messageHandler.get(guild, 'GUILD_ONLY_COMMAND')).then(
-      (message: Message | null) => {
-        if (!message) {
-          return
-        }
+    if (reply)
+      reply(instance.messageHandler.get(guild, 'GUILD_ONLY_COMMAND')).then(
+        (message: Message | null) => {
+          if (!message) return
 
-        if (instance.delErrMsgCooldown === -1 || !message.deletable) {
-          return
-        }
+          if (instance.delErrMsgCooldown === -1 || !message.deletable) return
 
-        setTimeout(() => {
-          message.delete()
-        }, 1000 * instance.delErrMsgCooldown)
-      }
-    )
+          setTimeout(() => message.delete(), 1000 * instance.delErrMsgCooldown)
+        }
+      )
     return false
   }
 
