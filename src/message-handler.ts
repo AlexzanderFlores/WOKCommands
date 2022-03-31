@@ -3,7 +3,7 @@ import { Guild } from 'discord.js'
 import languageSchema from './models/languages'
 import WOKCommands from '.'
 import Events from './enums/Events'
-const defualtMessages = require('../messages.json')
+const defaultMessages = require('../messages.json')
 
 export default class MessageHandler {
   private _instance: WOKCommands
@@ -18,7 +18,7 @@ export default class MessageHandler {
   constructor(instance: WOKCommands, messagePath: string) {
     this._instance = instance
     ;(async () => {
-      this._messages = messagePath ? await import(messagePath) : defualtMessages
+      this._messages = messagePath ? await import(messagePath) : defaultMessages
 
       for (const messageId of Object.keys(this._messages)) {
         for (const language of Object.keys(this._messages[messageId])) {

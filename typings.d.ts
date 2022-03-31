@@ -96,6 +96,7 @@ interface OptionsWithS {
   typeScript?: boolean
   ephemeral?: boolean
   debug?: boolean
+  logger?: { log: function; warn: function; error: function }
 }
 
 interface OptionsWithoutS {
@@ -117,6 +118,11 @@ interface OptionsWithoutS {
   typeScript?: boolean
   ephemeral?: boolean
   debug?: boolean
+  logger?: {
+    log: CallableFunction
+    warn: CallableFunction
+    error: CallableFunction
+  }
 }
 export type Options = OptionsWithS | OptionsWithoutS
 

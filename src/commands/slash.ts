@@ -35,7 +35,7 @@ export = {
         })
       } catch (ignored) {}
 
-      slashCommands.delete(text, useGuild ? guild.id : undefined)
+      slashCommands.delete(text, instance, useGuild ? guild.id : undefined)
 
       if (useGuild) {
         return `Slash command with the ID "${text}" has been deleted from guild "${guild.id}".`

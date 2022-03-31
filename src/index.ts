@@ -35,11 +35,18 @@ export default class WOKCommands extends EventEmitter {
   private _debug = false
   private _messageHandler: MessageHandler | null = null
   private _slashCommand: SlashCommands | null = null
+  log: CallableFunction
+  warn: CallableFunction
+  error: CallableFunction
 
   constructor(client: Client, options?: Options) {
     super()
 
     this._client = client
+
+    this.log = options?.logger?.log || console.log
+    this.warn = options?.logger?.warn || console.warn
+    this.error = options?.logger?.error || console.error
 
     this.setUp(client, options)
   }
@@ -83,7 +90,7 @@ export default class WOKCommands extends EventEmitter {
       }
     } else {
       if (showWarns) {
-        console.warn(
+        this.warn(
           'WOKCommands > No MongoDB connection URI provided. Some features might not work! See this for more details:\nhttps://docs.wornoffkeys.com/databases/mongodb'
         )
       }
@@ -165,11 +172,11 @@ export default class WOKCommands extends EventEmitter {
       typeScript
     )
 
-    console.log('WOKCommands > Your bot is now running.')
+    this.log('WOKCommands > Your bot is now running.')
   }
 
   public setMongoPath(mongoPath: string | undefined): WOKCommands {
-    console.warn(
+    this.warn(
       'WOKCommands > .setMongoPath() no longer works as expected. Please pass in your mongo URI as a "mongoUri" property using the options object. For more information: https://docs.wornoffkeys.com/databases/mongodb'
     )
     return this
@@ -269,7 +276,7 @@ export default class WOKCommands extends EventEmitter {
       }
 
       if (this.isEmojiUsed(targetEmoji)) {
-        console.warn(
+        this.warn(
           `WOKCommands > The emoji "${targetEmoji}" for category "${name}" is already used.`
         )
       }
@@ -339,7 +346,7 @@ export default class WOKCommands extends EventEmitter {
   }
 
   public setBotOwner(botOwner: string | string[]): WOKCommands {
-    console.log(
+    this.log(
       'WOKCommands > setBotOwner() is deprecated. Please specify your bot owners in the object constructor instead. See https://docs.wornoffkeys.com/setup-and-options-object'
     )
 

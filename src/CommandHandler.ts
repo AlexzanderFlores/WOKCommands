@@ -93,7 +93,7 @@ export default class CommandHandler {
       const files = getAllFiles(dir, typeScript ? '.ts' : '')
       const amount = files.length
 
-      console.log(
+      instance.log(
         `WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`
       )
 
@@ -200,7 +200,7 @@ export default class CommandHandler {
             })
           } else {
             message.reply(instance.messageHandler.get(guild, 'EXCEPTION'))
-            console.error(e)
+            instance.error(e)
           }
 
           instance.emit(Events.COMMAND_EXCEPTION, command, message, e)
@@ -305,13 +305,13 @@ export default class CommandHandler {
     }
 
     if (missing.length && instance.showWarns) {
-      console.warn(
+      instance.warn(
         `WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`
       )
     }
 
     if (testOnly && !instance.testServers.length) {
-      console.warn(
+      instance.warn(
         `WOKCommands > Command "${names[0]}" has "testOnly" set to true, but no test servers are defined.`
       )
     }
@@ -347,14 +347,14 @@ export default class CommandHandler {
           let lowerCase = name.toLowerCase()
 
           if (name !== lowerCase && instance.showWarns) {
-            console.log(
+            instance.log(
               `WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`
             )
           }
 
           if (lowerCase.match(/\s/g)) {
             lowerCase = lowerCase.replace(/\s/g, '_')
-            console.log(
+            instance.log(
               `WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`
             )
           }
@@ -384,10 +384,16 @@ export default class CommandHandler {
       const slashCommands = instance.slashCommands
       if (testOnly) {
         for (const id of instance.testServers) {
-          await slashCommands.create(names[0], description, options, id)
+          await slashCommands.create(
+            names[0],
+            description,
+            options,
+            instance,
+            id
+          )
         }
       } else {
-        await slashCommands.create(names[0], description, options)
+        await slashCommands.create(names[0], description, options, instance)
       }
     }
 

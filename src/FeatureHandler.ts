@@ -18,16 +18,20 @@ class FeatureHandler {
   ) {
     this._client = client
     this._instance = instance
-    this.setup(dir, typeScript)
+    this.setup(dir, typeScript, instance)
   }
 
-  private setup = async (dir: string, typeScript: boolean) => {
+  private setup = async (
+    dir: string,
+    typeScript: boolean,
+    instance: WOKCommands
+  ) => {
     // Register built in features
     for (const [file, fileName] of getAllFiles(
       path.join(__dirname, 'features'),
       typeScript ? '.ts' : ''
     )) {
-      this.registerFeature(require(file), fileName)
+      this.registerFeature(require(file), fileName, instance)
     }
 
     if (!dir) {
@@ -43,7 +47,7 @@ class FeatureHandler {
     const amount = files.length
 
     if (amount > 0) {
-      console.log(
+      instance.log(
         `WOKCommands > Loading ${amount} listener${amount === 1 ? '' : 's'}...`
       )
 
@@ -53,19 +57,23 @@ class FeatureHandler {
         if (this._instance.debug) {
           console.time(debug)
         }
-        this.registerFeature(require(file), fileName)
+        this.registerFeature(require(file), fileName, instance)
         if (this._instance.debug) {
           console.timeEnd(debug)
         }
       }
     } else {
-      console.log(
+      instance.log(
         `WOKCommands > Loaded ${amount} listener${amount === 1 ? '' : 's'}.`
       )
     }
   }
 
-  private registerFeature = (file: any, fileName: string) => {
+  private registerFeature = (
+    file: any,
+    fileName: string,
+    instance: WOKCommands
+  ) => {
     let func = file
     const { config } = file
 
@@ -85,12 +93,12 @@ class FeatureHandler {
       if (!dbName) missing.push('dbName')
 
       if (missing.length && this._instance.showWarns) {
-        console.warn(
+        instance.warn(
           `WOKCommands > Feature "${fileName}" has a config file that doesn't contain the following properties: ${missing}`
         )
       }
     } else if (this._instance.showWarns) {
-      console.warn(
+      instance.warn(
         `WOKCommands > Feature "${fileName}" does not export a config object.`
       )
     }
@@ -108,7 +116,7 @@ class FeatureHandler {
     }
 
     if (config && config.loadDBFirst === true) {
-      console.warn(
+      instance.warn(
         `WOKCommands > config.loadDBFirst in features is no longer required. MongoDB is now connected to before any features or commands are loaded.`
       )
     }

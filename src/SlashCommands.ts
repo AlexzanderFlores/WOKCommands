@@ -116,7 +116,7 @@ class SlashCommands {
             return
           }
         }
-
+        // @ts-ignore
         this.invokeCommand(interaction, commandName, options, args)
       })
     }
@@ -148,8 +148,10 @@ class SlashCommands {
     return (
       command.options?.filter((opt, index) => {
         return (
+          // @ts-ignore
           opt?.required !== options[index]?.required &&
           opt?.name !== options[index]?.name &&
+          // @ts-ignore
           opt?.options?.length !== options.length
         )
       }).length !== 0
@@ -160,6 +162,7 @@ class SlashCommands {
     name: string,
     description: string,
     options: ApplicationCommandOptionData[],
+    instance: WOKCommands,
     guildId?: string
   ): Promise<ApplicationCommand<{}> | undefined> {
     let commands
@@ -189,7 +192,7 @@ class SlashCommands {
         cmd.options.length !== options.length ||
         optionsChanged
       ) {
-        console.log(
+        instance.log(
           `WOKCommands > Updating${
             guildId ? ' guild' : ''
           } slash command "${name}"`
@@ -206,7 +209,7 @@ class SlashCommands {
     }
 
     if (commands) {
-      console.log(
+      instance.log(
         `WOKCommands > Creating${
           guildId ? ' guild' : ''
         } slash command "${name}"`
@@ -226,13 +229,14 @@ class SlashCommands {
 
   public async delete(
     commandId: string,
+    instance: WOKCommands,
     guildId?: string
   ): Promise<ApplicationCommand<{}> | undefined> {
     const commands = this.getCommands(guildId)
     if (commands) {
       const cmd = commands.cache.get(commandId)
       if (cmd) {
-        console.log(
+        instance.log(
           `WOKCommands > Deleting${guildId ? ' guild' : ''} slash command "${
             cmd.name
           }"`

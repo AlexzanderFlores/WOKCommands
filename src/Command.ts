@@ -309,7 +309,7 @@ class Command {
       this._databaseCooldown = true
 
       if (!this.instance.isDBConnected()) {
-        console.warn(
+        this.instance.warn(
           `WOKCommands > A database connection is STRONGLY RECOMMENDED for cooldowns of 5 minutes or more.`
         )
       }
