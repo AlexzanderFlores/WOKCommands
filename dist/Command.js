@@ -210,7 +210,7 @@ class Command {
             (this._cooldownChar === 'm' && this._cooldownDuration >= 5)) {
             this._databaseCooldown = true;
             if (!this.instance.isDBConnected()) {
-                console.warn(`WOKCommands > A database connection is STRONGLY RECOMMENDED for cooldowns of 5 minutes or more.`);
+                this.instance.warn(`WOKCommands > A database connection is STRONGLY RECOMMENDED for cooldowns of 5 minutes or more.`);
             }
         }
     }

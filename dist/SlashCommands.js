@@ -15,7 +15,7 @@ class SlashCommands {
     }
     async setUp(listen, typeScript = false) {
         // Do not pass in TS here because this should always compiled to JS
-        for (const [file, fileName] of get_all_files_1.default(path_1.default.join(__dirname, 'command-checks'))) {
+        for (const [file, fileName] of (0, get_all_files_1.default)(path_1.default.join(__dirname, 'command-checks'))) {
             this._commandChecks.set(fileName, require(file));
         }
         const replyFromCheck = async (reply, interaction) => {
@@ -71,6 +71,7 @@ class SlashCommands {
                         return;
                     }
                 }
+                // @ts-ignore
                 this.invokeCommand(interaction, commandName, options, args);
             });
         }
@@ -92,12 +93,15 @@ class SlashCommands {
     }
     didOptionsChange(command, options) {
         return (command.options?.filter((opt, index) => {
-            return (opt?.required !== options[index]?.required &&
+            return (
+            // @ts-ignore
+            opt?.required !== options[index]?.required &&
                 opt?.name !== options[index]?.name &&
+                // @ts-ignore
                 opt?.options?.length !== options.length);
         }).length !== 0);
     }
-    async create(name, description, options, guildId) {
+    async create(name, description, options, instance, guildId) {
         let commands;
         if (guildId) {
             commands = this._client.guilds.cache.get(guildId)?.commands;
@@ -116,7 +120,7 @@ class SlashCommands {
             if (cmd.description !== description ||
                 cmd.options.length !== options.length ||
                 optionsChanged) {
-                console.log(`WOKCommands > Updating${guildId ? ' guild' : ''} slash command "${name}"`);
+                instance.log(`WOKCommands > Updating${guildId ? ' guild' : ''} slash command "${name}"`);
                 return commands?.edit(cmd.id, {
                     name,
                     description,
@@ -126,7 +130,7 @@ class SlashCommands {
             return Promise.resolve(cmd);
         }
         if (commands) {
-            console.log(`WOKCommands > Creating${guildId ? ' guild' : ''} slash command "${name}"`);
+            instance.log(`WOKCommands > Creating${guildId ? ' guild' : ''} slash command "${name}"`);
             const newCommand = await commands.create({
                 name,
                 description,
@@ -136,12 +140,12 @@ class SlashCommands {
         }
         return Promise.resolve(undefined);
     }
-    async delete(commandId, guildId) {
+    async delete(commandId, instance, guildId) {
         const commands = this.getCommands(guildId);
         if (commands) {
             const cmd = commands.cache.get(commandId);
             if (cmd) {
-                console.log(`WOKCommands > Deleting${guildId ? ' guild' : ''} slash command "${cmd.name}"`);
+                instance.log(`WOKCommands > Deleting${guildId ? ' guild' : ''} slash command "${cmd.name}"`);
                 cmd.delete();
             }
         }

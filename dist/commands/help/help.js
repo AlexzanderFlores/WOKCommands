@@ -26,13 +26,13 @@ const discord_js_1 = require("discord.js");
 const _get_first_embed_1 = __importDefault(require("./!get-first-embed"));
 const _ReactionListener_1 = __importStar(require("./!ReactionListener"));
 const sendHelpMenu = (message, instance) => {
-    const { embed, reactions } = _get_first_embed_1.default(message, instance);
+    const { embed, reactions } = (0, _get_first_embed_1.default)(message, instance);
     message.channel
         .send({
         embeds: [embed],
     })
         .then((message) => {
-        _ReactionListener_1.addReactions(message, reactions);
+        (0, _ReactionListener_1.addReactions)(message, reactions);
     });
 };
 module.exports = {
@@ -50,7 +50,7 @@ module.exports = {
         const { message, channel, instance, args } = options;
         const { guild } = channel;
         if (guild && !guild.me?.permissions.has('SEND_MESSAGES')) {
-            console.warn(`WOKCommands > Could not send message due to no permissions in channel for ${guild.name}`);
+            instance.warn(`WOKCommands > Could not send message due to no permissions in channel for ${guild.name}`);
             return;
         }
         if (guild && !guild.me?.permissions.has('ADD_REACTIONS')) {

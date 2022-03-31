@@ -89,7 +89,7 @@ class ReactionHandler {
      * Invoked when the user returns to the main menu
      */
     returnToMainMenu = () => {
-        const { embed: newEmbed, reactions } = _get_first_embed_1.default(this.message, this.instance);
+        const { embed: newEmbed, reactions } = (0, _get_first_embed_1.default)(this.message, this.instance);
         this.embed.setDescription(newEmbed.description || '');
         this.message.edit({ embeds: [this.embed] });
         if (this.canBotRemoveReaction()) {
@@ -136,7 +136,7 @@ class ReactionHandler {
     static getHelp = (command, instance, guild) => {
         const { description, syntax, names } = command;
         if (names === undefined) {
-            console.error('WOKCommands > A command does not have a name assigned to it.');
+            instance.error('WOKCommands > A command does not have a name assigned to it.');
             return '';
         }
         const mainName = typeof names === 'string' ? names : names.shift();

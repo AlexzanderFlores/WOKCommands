@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const languages_1 = __importDefault(require("./models/languages"));
-const defualtMessages = require('../messages.json');
+const defaultMessages = require('../messages.json');
 class MessageHandler {
     _instance;
     _guildLanguages = new Map(); // <Guild ID, Language>
@@ -32,7 +32,7 @@ class MessageHandler {
     constructor(instance, messagePath) {
         this._instance = instance;
         (async () => {
-            this._messages = messagePath ? await Promise.resolve().then(() => __importStar(require(messagePath))) : defualtMessages;
+            this._messages = messagePath ? await Promise.resolve().then(() => __importStar(require(messagePath))) : defaultMessages;
             for (const messageId of Object.keys(this._messages)) {
                 for (const language of Object.keys(this._messages[messageId])) {
                     this._languages.push(language.toLowerCase());

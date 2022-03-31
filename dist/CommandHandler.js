@@ -48,23 +48,23 @@ class CommandHandler {
     }
     async setUp(instance, client, dir, disabledDefaultCommands, typeScript = false) {
         // Do not pass in TS here because this should always compiled to JS
-        for (const [file, fileName] of get_all_files_1.default(path_1.default.join(__dirname, 'commands'))) {
+        for (const [file, fileName] of (0, get_all_files_1.default)(path_1.default.join(__dirname, 'commands'))) {
             if (disabledDefaultCommands.includes(fileName)) {
                 continue;
             }
             await this.registerCommand(instance, client, file, fileName, true);
         }
         // Do not pass in TS here because this should always compiled to JS
-        for (const [file, fileName] of get_all_files_1.default(path_1.default.join(__dirname, 'command-checks'))) {
+        for (const [file, fileName] of (0, get_all_files_1.default)(path_1.default.join(__dirname, 'command-checks'))) {
             this._commandChecks.set(fileName, require(file));
         }
         if (dir) {
             if (!fs_1.default.existsSync(dir)) {
                 throw new Error(`Commands directory "${dir}" doesn't exist!`);
             }
-            const files = get_all_files_1.default(dir, typeScript ? '.ts' : '');
+            const files = (0, get_all_files_1.default)(dir, typeScript ? '.ts' : '');
             const amount = files.length;
-            console.log(`WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`);
+            instance.log(`WOKCommands > Loaded ${amount} command${amount === 1 ? '' : 's'}.`);
             for (const [file, fileName] of files) {
                 await this.registerCommand(instance, client, file, fileName);
             }
@@ -138,7 +138,7 @@ class CommandHandler {
                     }
                     else {
                         message.reply(instance.messageHandler.get(guild, 'EXCEPTION'));
-                        console.error(e);
+                        instance.error(e);
                     }
                     instance.emit(Events_1.default.COMMAND_EXCEPTION, command, message, e);
                 }
@@ -193,10 +193,10 @@ class CommandHandler {
             missing.push('Description');
         }
         if (missing.length && instance.showWarns) {
-            console.warn(`WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`);
+            instance.warn(`WOKCommands > Command "${names[0]}" does not have the following properties: ${missing}.`);
         }
         if (testOnly && !instance.testServers.length) {
-            console.warn(`WOKCommands > Command "${names[0]}" has "testOnly" set to true, but no test servers are defined.`);
+            instance.warn(`WOKCommands > Command "${names[0]}" has "testOnly" set to true, but no test servers are defined.`);
         }
         if (slash !== undefined && typeof slash !== 'boolean' && slash !== 'both') {
             throw new Error(`WOKCommands > Command "${names[0]}" has a "slash" property that is not boolean "true" or string "both".`);
@@ -216,11 +216,11 @@ class CommandHandler {
                     const name = options[key].name;
                     let lowerCase = name.toLowerCase();
                     if (name !== lowerCase && instance.showWarns) {
-                        console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`);
+                        instance.log(`WOKCommands > Command "${names[0]}" has an option of "${name}". All option names must be lower case for slash commands. WOKCommands will modify this for you.`);
                     }
                     if (lowerCase.match(/\s/g)) {
                         lowerCase = lowerCase.replace(/\s/g, '_');
-                        console.log(`WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`);
+                        instance.log(`WOKCommands > Command "${names[0]}" has an option of "${name}" with a white space in it. It is a best practice for option names to only be one word. WOKCommands will modify this for you.`);
                     }
                     options[key].name = lowerCase;
                 }
@@ -244,11 +244,11 @@ class CommandHandler {
             const slashCommands = instance.slashCommands;
             if (testOnly) {
                 for (const id of instance.testServers) {
-                    await slashCommands.create(names[0], description, options, id);
+                    await slashCommands.create(names[0], description, options, instance, id);
                 }
             }
             else {
-                await slashCommands.create(names[0], description, options);
+                await slashCommands.create(names[0], description, options, instance);
             }
         }
         if (callback) {
