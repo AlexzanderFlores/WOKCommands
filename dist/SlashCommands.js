@@ -71,7 +71,7 @@ class SlashCommands {
                         return;
                     }
                 }
-                this.invokeCommand(interaction, commandName, options, args);
+                this.invokeCommand(interaction, args);
             });
         }
     }
@@ -92,8 +92,11 @@ class SlashCommands {
     }
     didOptionsChange(command, options) {
         return (command.options?.filter((opt, index) => {
-            return (opt?.required !== options[index]?.required &&
+            return (
+            // @ts-ignore
+            opt?.required !== options[index]?.required &&
                 opt?.name !== options[index]?.name &&
+                // @ts-ignore
                 opt?.options?.length !== options.length);
         }).length !== 0);
     }
@@ -147,7 +150,8 @@ class SlashCommands {
         }
         return Promise.resolve(undefined);
     }
-    async invokeCommand(interaction, commandName, options, args) {
+    async invokeCommand(interaction, args) {
+        const { commandName, options } = interaction;
         const command = this._instance.commandHandler.getCommand(commandName);
         if (!command || !command.callback) {
             return;

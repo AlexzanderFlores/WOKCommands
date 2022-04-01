@@ -6,17 +6,14 @@ module.exports = (guild, command, instance, member, user, reply) => {
         return true;
     }
     if (!guild) {
-        reply(instance.messageHandler.get(guild, 'GUILD_ONLY_COMMAND')).then((message) => {
-            if (!message) {
-                return;
-            }
-            if (instance.delErrMsgCooldown === -1 || !message.deletable) {
-                return;
-            }
-            setTimeout(() => {
-                message.delete();
-            }, 1000 * instance.delErrMsgCooldown);
-        });
+        if (reply)
+            reply(instance.messageHandler.get(guild, 'GUILD_ONLY_COMMAND')).then((message) => {
+                if (!message)
+                    return;
+                if (instance.delErrMsgCooldown === -1 || !message.deletable)
+                    return;
+                setTimeout(() => message.delete(), 1000 * instance.delErrMsgCooldown);
+            });
         return false;
     }
     // The guild exists

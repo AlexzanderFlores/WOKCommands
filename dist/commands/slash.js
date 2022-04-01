@@ -8,6 +8,7 @@ module.exports = {
     expectedArgs: '[command-id]',
     ownerOnly: true,
     hidden: true,
+    guildOnly: true,
     slash: 'both',
     callback: async (options) => {
         const { channel, instance, text } = options;

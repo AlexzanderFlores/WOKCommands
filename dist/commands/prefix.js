@@ -10,6 +10,7 @@ module.exports = {
     maxArgs: 1,
     expectedArgs: '[prefix]',
     cooldown: '2s',
+    guildOnly: true,
     slash: 'both',
     callback: async (options) => {
         const { channel, args, text, instance } = options;
