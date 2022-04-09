@@ -25,6 +25,7 @@ class Command {
     _globalCooldown;
     _guildCooldowns = new Map(); // <GuildID, Seconds>
     _databaseCooldown = false;
+    _voiceOnly = false;
     _ownerOnly = false;
     _hidden = false;
     _guildOnly = false;
@@ -32,7 +33,7 @@ class Command {
     _slash = false;
     _requireRoles = false;
     _requiredChannels = new Map(); // <GuildID-Command, Channel IDs>
-    constructor(instance, client, names, callback, error, { category, minArgs, maxArgs, syntaxError, expectedArgs, description, requiredPermissions, permissions, cooldown, globalCooldown, ownerOnly = false, hidden = false, guildOnly = false, testOnly = false, slash = false, requireRoles = false, }) {
+    constructor(instance, client, names, callback, error, { category, minArgs, maxArgs, syntaxError, expectedArgs, description, requiredPermissions, permissions, cooldown, globalCooldown, voiceOnly = false, ownerOnly = false, hidden = false, guildOnly = false, testOnly = false, slash = false, requireRoles = false, }) {
         this.instance = instance;
         this.client = client;
         this._names = typeof names === 'string' ? [names] : names;
@@ -45,6 +46,7 @@ class Command {
         this._requiredPermissions = requiredPermissions || permissions;
         this._cooldown = cooldown || '';
         this._globalCooldown = globalCooldown || '';
+        this._voiceOnly = voiceOnly;
         this._ownerOnly = ownerOnly;
         this._hidden = hidden;
         this._guildOnly = guildOnly;
@@ -203,6 +205,9 @@ class Command {
     }
     get ownerOnly() {
         return this._ownerOnly;
+    }
+    get voiceOnly() {
+        return this._voiceOnly;
     }
     verifyDatabaseCooldowns() {
         if (this._cooldownChar === 'd' ||

@@ -26,6 +26,15 @@
     "dutch": "Taal ingesteld op {LANGUAGE}.",
     "french": "Langue réglée sur {LANGUAGE}."
   },
+  "VOICE_CHANNEL_ONLY": {
+    "english": "You should be in a voice channel in order to use this command",
+    "spanish": "Debe estar en un canal de voz para usar este comando",
+    "portuguese": "Você deve estar em um canal de voz para usar este comando",
+    "russian": "Вы должны быть в голосовом канале, чтобы использовать эту команду",
+    "german": "Sie müssen sich in einem Sprachkanal befinden, um diesen Befehl verwenden zu können",
+    "dutch": "Je moet in een spraakkanaal zijn om deze opdracht te gebruiken",
+    "french": "Vous devez être dans un canal vocal pour utiliser cette commande"
+  },
   "BOT_OWNERS_ONLY": {
     "english": "Only the bot owner can run this command.",
     "spanish": "Solo el propietario del bot puede ejecutar este comando.",
