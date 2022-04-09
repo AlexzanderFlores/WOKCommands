@@ -172,6 +172,7 @@ export interface ICommand {
   permissions?: PermissionString[]
   cooldown?: string
   globalCooldown?: string
+  voiceOnly?: boolean
   ownerOnly?: boolean
   hidden?: boolean
   guildOnly?: boolean

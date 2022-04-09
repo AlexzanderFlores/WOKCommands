@@ -27,6 +27,7 @@ class Command {
   private _globalCooldown: string
   private _guildCooldowns: Map<String, number> = new Map() // <GuildID, Seconds>
   private _databaseCooldown = false
+  private _voiceOnly = false
   private _ownerOnly = false
   private _hidden = false
   private _guildOnly = false
@@ -52,6 +53,7 @@ class Command {
       permissions,
       cooldown,
       globalCooldown,
+      voiceOnly = false,
       ownerOnly = false,
       hidden = false,
       guildOnly = false,
@@ -72,6 +74,7 @@ class Command {
     this._requiredPermissions = requiredPermissions || permissions
     this._cooldown = cooldown || ''
     this._globalCooldown = globalCooldown || ''
+    this._voiceOnly = voiceOnly
     this._ownerOnly = ownerOnly
     this._hidden = hidden
     this._guildOnly = guildOnly
@@ -298,6 +301,10 @@ class Command {
 
   public get ownerOnly(): boolean {
     return this._ownerOnly
+  }
+
+  public get voiceOnly(): boolean {
+    return this._voiceOnly
   }
 
   public verifyDatabaseCooldowns() {
