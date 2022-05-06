@@ -90,9 +90,15 @@ class SlashCommands {
 
         const args: string[] = []
 
-        options.data.forEach(({ value }) => {
-          args.push(String(value))
-        })
+        for (let option of interaction.options.data) {
+          if (option.type === 'SUB_COMMAND' || option.type === 'SUB_COMMAND_GROUP') {
+            option.options?.forEach(({ value }) => {
+              args.push(String(value))
+            })
+          } else {
+            args.push(String(option.value))
+          }
+        }
 
         for (const [
           checkName,
