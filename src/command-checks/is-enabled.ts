@@ -1,19 +1,11 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
+import { Message } from 'discord.js'
+
+import { ICommandCheck } from '../../typings'
 import CommandErrors from '../enums/CommandErrors'
 
-/**
- * Checks if the given command is enabled in the current guild
- */
-export = (
-  guild: Guild | null,
-  command: Command,
-  instance: WOKCommands,
-  member: GuildMember,
-  user: User,
-  reply: Function
-) => {
+export = async (commandCheck: ICommandCheck) => {
+  const { guild, command, instance, message, reply } = commandCheck
+
   if (!guild || !command.isDisabled(guild.id)) {
     return true
   }
@@ -23,6 +15,7 @@ export = (
   if (error) {
     error({
       error: CommandErrors.COMMAND_DISABLED,
+      message,
       command,
     })
   } else {

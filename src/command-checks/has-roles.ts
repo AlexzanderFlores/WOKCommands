@@ -1,17 +1,11 @@
-import { Guild, GuildMember, Message, User } from 'discord.js'
+import { Message } from 'discord.js'
 
-import WOKCommands from '..'
-import Command from '../Command'
+import { ICommandCheck } from '../../typings'
 import CommandErrors from '../enums/CommandErrors'
 
-export = async (
-  guild: Guild | null,
-  command: Command,
-  instance: WOKCommands,
-  member: GuildMember,
-  user: User,
-  reply: Function
-) => {
+export = async (commandCheck: ICommandCheck) => {
+  const { guild, command, instance, message, member, reply } = commandCheck
+
   if (!guild || !member) {
     return true
   }
@@ -38,7 +32,7 @@ export = async (
         error({
           error: CommandErrors.MISSING_ROLES,
           command,
-          message: null,
+          message,
           info: {
             missingRoles,
           },

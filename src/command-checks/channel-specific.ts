@@ -1,18 +1,10 @@
-import { Guild, GuildChannel, GuildMember, Message, User } from 'discord.js'
-import WOKCommands from '..'
-import Command from '../Command'
+import { Message } from 'discord.js'
 
-export = (
-  guild: Guild | null,
-  command: Command,
-  instance: WOKCommands,
-  member: GuildMember,
-  user: User,
-  reply: Function,
-  args: string[],
-  name: string,
-  channel: GuildChannel
-) => {
+import { ICommandCheck } from '../../typings'
+
+export = (commandCheck: ICommandCheck) => {
+  const { guild, command, instance, reply, channel } = commandCheck
+
   if (!guild || !command || !command.names) {
     return true
   }

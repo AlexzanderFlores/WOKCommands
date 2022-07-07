@@ -168,19 +168,20 @@ export default class CommandHandler {
           checkFunction,
         ] of this._commandChecks.entries()) {
           if (
-            !(await checkFunction(
+            !(await checkFunction({
               guild,
               command,
               instance,
               member,
               user,
-              (reply: string | MessageEmbed) => {
+              reply: (reply: string | MessageEmbed) => {
                 return replyFromCheck(reply, message)
               },
               args,
               name,
-              channel
-            ))
+              channel,
+              message,
+            }))
           ) {
             return
           }

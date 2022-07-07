@@ -1,14 +1,11 @@
 import {
   ApplicationCommand,
   ApplicationCommandOptionData,
-  Channel,
   Client,
   CommandInteraction,
   CommandInteractionOptionResolver,
-  Guild,
   GuildMember,
   MessageEmbed,
-  User,
 } from 'discord.js'
 import path from 'path'
 
@@ -99,19 +96,19 @@ class SlashCommands {
           checkFunction,
         ] of this._commandChecks.entries()) {
           if (
-            !(await checkFunction(
+            !(await checkFunction({
               guild,
               command,
-              this._instance,
+              instance: this._instance,
               member,
               user,
-              (reply: string | MessageEmbed) => {
+              reply: (reply: string | MessageEmbed) => {
                 return replyFromCheck(reply, interaction)
               },
               args,
-              commandName,
-              channel
-            ))
+              name: commandName,
+              channel,
+            }))
           ) {
             return
           }

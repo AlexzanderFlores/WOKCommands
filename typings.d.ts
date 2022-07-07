@@ -12,6 +12,7 @@ import {
 } from 'discord.js'
 import { EventEmitter } from 'events'
 import WOKCommands from './src'
+import Command from './src/Command'
 
 export default class WOKCommands extends EventEmitter {
   private _client: Client
@@ -195,6 +196,19 @@ export interface ICategorySetting {
   emoji: string
   hidden?: boolean
   customEmoji?: boolean
+}
+
+export interface ICommandCheck {
+  guild: Guild
+  command: Command
+  user: User
+  member: GuildMember
+  instance: WOKCommands
+  args: string[]
+  name: string
+  channel: TextChannel
+  message: Message
+  reply: (text: string) => Promise<Message>
 }
 
 export enum CommandErrors {
